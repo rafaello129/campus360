@@ -7,6 +7,7 @@ import type {
   Professor,
   TrajectoryMilestone
 } from "../types";
+import type { CampusMapLocation } from "../types/campusMap";
 
 export const estudianteMetrics: Metric[] = [
   {
@@ -453,106 +454,146 @@ export const chatChannels = [
 ];
 
 // Campus locations for student map
-export const studentMapLocations = [
+export const studentMapLocations: CampusMapLocation[] = [
   {
-    id: "loc-1",
+    id: "student-aulas-a",
     name: "Edificio A - Aulas",
-    type: "Académico",
-    description: "Aulas de clase y oficinas de profesores",
-    hours: "07:00 - 21:00",
-    directions: "Zona norte del campus",
-    estimatedTime: "3 minutos desde entrada",
-    position: { x: 25, y: 30 }
+    mapLabel: "Edificio A",
+    type: "Academico",
+    zone: "Zona academica",
+    description: "Aulas de clase, salas de profesores y puntos de consulta para materias activas.",
+    schedule: "07:00 - 21:00",
+    responsible: "Coordinacion Academica",
+    orientation: "Bloque norte, entra por el pasillo central y gira a la derecha.",
+    estimatedTime: "4 min desde entrada",
+    related: "Agenda: Aula 305 - Edificio A",
+    position: { x: 50, y: 24 },
+    accessPoint: { x: 50, y: 47 },
+    footprint: { x: 43, y: 15, w: 23, h: 19 }
   },
   {
-    id: "loc-2",
-    name: "Laboratorios de Cómputo",
-    type: "Académico",
-    description: "Labs para cursos tecnológicos y prácticas",
-    hours: "08:00 - 19:00",
-    directions: "Edificio B, pisos 2 y 3",
-    estimatedTime: "7 minutos desde entrada",
-    position: { x: 65, y: 35 }
+    id: "student-labs",
+    name: "Laboratorios de Computo",
+    mapLabel: "Labs Computo",
+    type: "Laboratorio",
+    zone: "Zona academica",
+    description: "Laboratorios para cursos tecnologicos, practicas guiadas y software especializado.",
+    schedule: "08:00 - 19:00",
+    responsible: "Centro de Computo",
+    orientation: "Costado este del Edificio B, acceso por el corredor azul.",
+    estimatedTime: "7 min desde entrada",
+    related: "Agenda: Laboratorio de Bases de Datos",
+    position: { x: 84, y: 43 },
+    accessPoint: { x: 70.5, y: 47 },
+    footprint: { x: 75, y: 36, w: 17, h: 15 }
   },
   {
-    id: "loc-3",
+    id: "student-biblioteca",
     name: "Biblioteca Central",
-    type: "Académico",
-    description: "Recursos, libros, computadores y salas de estudio",
-    hours: "07:00 - 20:00",
-    directions: "Centro del campus",
-    estimatedTime: "5 minutos desde entrada",
-    position: { x: 50, y: 50 }
-  },
-  {
-    id: "loc-4",
-    name: "Servicios Escolares",
-    type: "Administrativo",
-    description: "Trámites, documentos, registro",
-    hours: "09:00 - 16:00",
-    directions: "Edificio Principal, planta baja",
-    estimatedTime: "2 minutos desde entrada",
-    position: { x: 20, y: 20 }
-  },
-  {
-    id: "loc-5",
-    name: "Centro de Acompañamiento",
+    mapLabel: "Biblioteca",
     type: "Servicios",
-    description: "Tutorías, asesoría académica, bienestar",
-    hours: "08:00 - 17:00",
-    directions: "Edificio de Servicios, ala sur",
-    estimatedTime: "8 minutos desde entrada",
-    position: { x: 70, y: 60 }
+    zone: "Servicios y vida campus",
+    description: "Recursos bibliograficos, salas de estudio, prestamos y equipos de consulta.",
+    schedule: "07:00 - 20:00",
+    responsible: "Biblioteca",
+    orientation: "Centro del campus, frente al corredor principal.",
+    estimatedTime: "5 min desde entrada",
+    related: "Eventos: Mentorias para primer ingreso",
+    position: { x: 45, y: 58 },
+    accessPoint: { x: 50, y: 58 },
+    footprint: { x: 36, y: 52, w: 25, h: 15 }
   },
   {
-    id: "loc-6",
-    name: "Cafetería",
+    id: "student-servicios",
+    name: "Servicios Escolares",
+    mapLabel: "Servicios Escolares",
+    type: "Administrativo",
+    zone: "Zona administrativa",
+    description: "Tramites, constancias, documentos, registro y seguimiento de expediente.",
+    schedule: "09:00 - 16:00",
+    responsible: "Control Escolar",
+    orientation: "Primer bloque despues de entrada principal, ala poniente.",
+    estimatedTime: "2 min desde entrada",
+    position: { x: 18, y: 26 },
+    accessPoint: { x: 24.5, y: 47 },
+    footprint: { x: 8, y: 17, w: 22, h: 14 }
+  },
+  {
+    id: "student-acompanamiento",
+    name: "Centro de Acompanamiento",
+    mapLabel: "Acompanamiento",
+    type: "Atencion estudiantil",
+    zone: "Servicios y vida campus",
+    description: "Tutorias, apoyo academico, orientacion psicopedagogica y seguimiento estudiantil.",
+    schedule: "08:00 - 17:00",
+    responsible: "Bienestar Estudiantil",
+    orientation: "Sector sur central, junto a cafeteria.",
+    estimatedTime: "7 min desde entrada",
+    related: "Agenda: Tutoria de seguimiento",
+    position: { x: 55, y: 80 },
+    accessPoint: { x: 50, y: 82 },
+    footprint: { x: 45, y: 73, w: 22, h: 14 }
+  },
+  {
+    id: "student-cafeteria",
+    name: "Cafeteria",
+    mapLabel: "Cafeteria",
     type: "Recreativo",
-    description: "Alimentos, bebidas y espacios de descanso",
-    hours: "06:30 - 19:00",
-    directions: "Planta baja, sector central",
-    estimatedTime: "4 minutos desde entrada",
-    position: { x: 45, y: 55 }
+    zone: "Servicios y vida campus",
+    description: "Alimentos, bebidas, mesas de convivencia y descanso entre clases.",
+    schedule: "06:30 - 19:00",
+    responsible: "Servicios Generales",
+    orientation: "Entre Biblioteca Central y Centro de Acompanamiento.",
+    estimatedTime: "5 min desde entrada",
+    position: { x: 66, y: 62 },
+    accessPoint: { x: 70.5, y: 62 },
+    footprint: { x: 64, y: 55, w: 16, h: 14 }
   },
   {
-    id: "loc-7",
+    id: "student-auditorio",
     name: "Auditorio Principal",
+    mapLabel: "Auditorio",
+    type: "Servicios",
+    zone: "Servicios y vida campus",
+    description: "Conferencias, eventos institucionales, presentaciones y actividades masivas.",
+    schedule: "Segun agenda institucional",
+    responsible: "Difusion Institucional",
+    orientation: "Sur del campus, conectado al corredor de Biblioteca.",
+    estimatedTime: "9 min desde entrada",
+    related: "Eventos: Hackathon Campus360",
+    position: { x: 30, y: 78 },
+    accessPoint: { x: 30, y: 82 },
+    footprint: { x: 19, y: 72, w: 23, h: 14 }
+  },
+  {
+    id: "student-computo",
+    name: "Centro de Computo",
+    mapLabel: "Centro Computo",
+    type: "Laboratorio",
+    zone: "Zona academica",
+    description: "Area de acceso libre con computadores, red institucional y soporte de conectividad.",
+    schedule: "08:00 - 20:00",
+    responsible: "Soporte TI",
+    orientation: "Segundo nivel de Biblioteca Central, acceso por escaleras internas.",
+    estimatedTime: "6 min desde entrada",
+    position: { x: 58, y: 43 },
+    accessPoint: { x: 50, y: 47 },
+    footprint: { x: 52, y: 36, w: 14, h: 12 }
+  },
+  {
+    id: "student-canchas",
+    name: "Canchas",
+    mapLabel: "Canchas",
     type: "Recreativo",
-    description: "Conferencias, eventos, presentaciones",
-    hours: "Bajo demanda",
-    directions: "Edificio de Auditorios, sur",
-    estimatedTime: "10 minutos desde entrada",
-    position: { x: 40, y: 75 }
-  },
-  {
-    id: "loc-8",
-    name: "Centro de Innovación",
-    type: "Académico",
-    description: "Hackathons, workshops, laboratorios creativos",
-    hours: "08:00 - 20:00",
-    directions: "Edificio C, piso 1",
-    estimatedTime: "9 minutos desde entrada",
-    position: { x: 60, y: 70 }
-  },
-  {
-    id: "loc-9",
-    name: "Canchas deportivas",
-    type: "Recreativo",
-    description: "Canchas de fútbol, voleibol y baloncesto",
-    hours: "06:00 - 20:00",
-    directions: "Sector sur-oeste del campus",
-    estimatedTime: "12 minutos desde entrada",
-    position: { x: 15, y: 65 }
-  },
-  {
-    id: "loc-10",
-    name: "Centro de Cómputo",
-    type: "Académico",
-    description: "Área de acceso libre con computadores y wifi",
-    hours: "24/7",
-    directions: "Biblioteca Central, piso 2",
-    estimatedTime: "6 minutos desde entrada",
-    position: { x: 52, y: 48 }
+    zone: "Recreativa",
+    description: "Canchas multiusos para torneos, entrenamiento y actividades deportivas.",
+    schedule: "06:00 - 20:00",
+    responsible: "Coordinacion Deportiva",
+    orientation: "Extremo sureste del campus, despues del auditorio.",
+    estimatedTime: "12 min desde entrada",
+    position: { x: 80, y: 74 },
+    accessPoint: { x: 70.5, y: 82 },
+    footprint: { x: 70, y: 61, w: 22, h: 24 }
   }
 ];
 

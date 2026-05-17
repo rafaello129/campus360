@@ -1,4 +1,5 @@
 import type { AdmissionDocument, AdmissionStep, Career, Metric } from "../types";
+import type { CampusMapLocation } from "../types/campusMap";
 
 export const aspiranteMetrics: Metric[] = [
   {
@@ -158,6 +159,137 @@ export const aspiranteFAQ = [
     question: "¿Puedo cambiar de carrera antes de finalizar?",
     answer:
       "Sí, el cambio puede solicitarse antes de la entrevista diagnóstica en tu panel de aspirante."
+  }
+];
+
+export const aspiranteMapLocations: CampusMapLocation[] = [
+  {
+    id: "applicant-admisiones",
+    name: "Oficina de Admisiones",
+    mapLabel: "Admisiones",
+    type: "Administrativo",
+    zone: "Zona administrativa",
+    description: "Registro de aspirantes, entrevistas, orientacion inicial y seguimiento de solicitudes.",
+    schedule: "08:30 - 17:30",
+    responsible: "Vinculacion y Admision",
+    orientation: "Entra por acceso principal y avanza al primer bloque del lado izquierdo.",
+    estimatedTime: "2 min desde entrada",
+    position: { x: 19, y: 41 },
+    accessPoint: { x: 24.5, y: 47 },
+    footprint: { x: 8, y: 38, w: 25, h: 13 },
+    visibility: ["Aspirante", "Interno"]
+  },
+  {
+    id: "applicant-servicios",
+    name: "Servicios Escolares",
+    mapLabel: "Servicios Escolares",
+    type: "Administrativo",
+    zone: "Zona administrativa",
+    description: "Entrega de documentos, validacion de expediente y consultas de proceso escolar.",
+    schedule: "09:00 - 16:00",
+    responsible: "Control Escolar",
+    orientation: "Ala poniente del edificio administrativo, junto a admisiones.",
+    estimatedTime: "2 min desde entrada",
+    position: { x: 18, y: 26 },
+    accessPoint: { x: 24.5, y: 47 },
+    footprint: { x: 8, y: 17, w: 22, h: 14 },
+    visibility: ["Aspirante", "Estudiante", "Interno"]
+  },
+  {
+    id: "applicant-direccion",
+    name: "Direccion",
+    mapLabel: "Direccion",
+    type: "Administrativo",
+    zone: "Zona administrativa",
+    description: "Atencion institucional y orientacion para asuntos administrativos generales.",
+    schedule: "08:30 - 17:00",
+    responsible: "Direccion General",
+    orientation: "Segundo nivel del bloque administrativo, acceso por escaleras internas.",
+    estimatedTime: "4 min desde entrada",
+    position: { x: 38, y: 18 },
+    accessPoint: { x: 34, y: 47 },
+    footprint: { x: 32, y: 11, w: 14, h: 13 },
+    visibility: ["Aspirante", "Interno"]
+  },
+  {
+    id: "applicant-biblioteca",
+    name: "Biblioteca Central",
+    mapLabel: "Biblioteca",
+    type: "Servicios",
+    zone: "Servicios y vida campus",
+    description: "Recorrido de salas de estudio, consulta de recursos y servicios para nuevos ingresos.",
+    schedule: "07:00 - 20:00",
+    responsible: "Biblioteca",
+    orientation: "Centro del campus, siguiendo el corredor principal.",
+    estimatedTime: "5 min desde entrada",
+    position: { x: 45, y: 58 },
+    accessPoint: { x: 50, y: 58 },
+    footprint: { x: 36, y: 52, w: 25, h: 15 },
+    visibility: ["Aspirante", "Estudiante", "Interno"]
+  },
+  {
+    id: "applicant-labs",
+    name: "Laboratorios",
+    mapLabel: "Labs",
+    type: "Laboratorio",
+    zone: "Zona academica",
+    description: "Espacios de practica con equipo tecnologico para demostraciones y recorridos.",
+    schedule: "08:00 - 18:00",
+    responsible: "Centro de Computo",
+    orientation: "Costado este del Edificio B, acceso por el corredor azul.",
+    estimatedTime: "7 min desde entrada",
+    position: { x: 83, y: 41 },
+    accessPoint: { x: 70.5, y: 47 },
+    footprint: { x: 75, y: 34, w: 17, h: 13 },
+    visibility: ["Aspirante", "Estudiante", "Interno"]
+  },
+  {
+    id: "applicant-auditorio",
+    name: "Auditorio Principal",
+    mapLabel: "Auditorio",
+    type: "Servicios",
+    zone: "Servicios y vida campus",
+    description: "Charlas informativas, sesiones de induccion y eventos de bienvenida.",
+    schedule: "Segun agenda de admision",
+    responsible: "Difusion Institucional",
+    orientation: "Sur del campus, siguiendo el corredor desde Biblioteca Central.",
+    estimatedTime: "9 min desde entrada",
+    position: { x: 30, y: 78 },
+    accessPoint: { x: 30, y: 82 },
+    footprint: { x: 19, y: 72, w: 23, h: 14 },
+    visibility: ["Aspirante", "Estudiante", "Interno"]
+  },
+  {
+    id: "applicant-cafeteria",
+    name: "Cafeteria",
+    mapLabel: "Cafeteria",
+    type: "Recreativo",
+    zone: "Servicios y vida campus",
+    description: "Punto de descanso para visitantes, aspirantes y familias durante recorridos.",
+    schedule: "06:30 - 19:00",
+    responsible: "Servicios Generales",
+    orientation: "Entre Biblioteca Central y Centro de Acompanamiento.",
+    estimatedTime: "5 min desde entrada",
+    position: { x: 66, y: 62 },
+    accessPoint: { x: 70.5, y: 62 },
+    footprint: { x: 64, y: 55, w: 16, h: 14 },
+    visibility: ["Aspirante", "Estudiante", "Interno"]
+  },
+  {
+    id: "applicant-entrada",
+    name: "Entrada principal",
+    mapLabel: "Entrada",
+    type: "Servicios",
+    zone: "Acceso",
+    description: "Punto de llegada, orientacion inicial y referencia para rutas sugeridas.",
+    schedule: "06:00 - 22:00",
+    responsible: "Seguridad y recepcion",
+    orientation: "Acceso principal del campus, punto base para todos los recorridos.",
+    estimatedTime: "0 min desde entrada",
+    position: { x: 10, y: 92 },
+    accessPoint: { x: 10, y: 90 },
+    footprint: { x: 5, y: 88, w: 18, h: 8 },
+    visibility: ["Aspirante", "Estudiante", "Interno"]
   }
 ];
 

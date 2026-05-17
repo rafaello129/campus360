@@ -1,122 +1,180 @@
-import { Compass, MapPin, Navigation, Search } from "lucide-react";
-import { useState } from "react";
+import { CalendarDays, Clock, Navigation, Search, UserRound } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CampusMap2D } from "../../components/common/CampusMap2D";
 import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
 import { studentMapLocations } from "../../data/estudiante.mock";
 
+const filters = ["Todos", "Academico", "Administrativo", "Servicios", "Recreativo", "Laboratorio", "Atencion estudiantil"];
+
 export function MapPage() {
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<string>("Todos");
-  const [selected, setSelected] = useState<string | null>(studentMapLocations[0]?.id ?? null);
+  const [filter, setFilter] = useState("Todos");
+  const [selectedId, setSelectedId] = useState(studentMapLocations[0]?.id ?? null);
 
-  const filters = ["Todos", "Académico", "Administrativo", "Servicios", "Recreativo"];
+  const filteredLocations = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
 
-  const filtered = studentMapLocations.filter((loc) => {
-    if (filter !== "Todos" && loc.type !== filter) return false;
-    if (!query) return true;
-    return loc.name.toLowerCase().includes(query.toLowerCase()) || loc.description.toLowerCase().includes(query.toLowerCase());
-  });
+    return studentMapLocations.filter((location) => {
+      const matchesType = filter === "Todos" || location.type === filter;
+      const matchesQuery =
+        normalizedQuery.length === 0 ||
+        [location.name, location.type, location.description, location.responsible, location.zone, location.related]
+          .filter(Boolean)
+          .some((value) => value!.toLowerCase().includes(normalizedQuery));
 
-  const selectedLocation = studentMapLocations.find((loc) => loc.id === selected) ?? null;
+      return matchesType && matchesQuery;
+    });
+  }, [filter, query]);
+
+  const selectedLocation = studentMapLocations.find((location) => location.id === selectedId) ?? filteredLocations[0] ?? null;
+
+  function handleSelect(id: string) {
+    setSelectedId(id);
+  }
 
   return (
-    <PageShell eyebrow="Campus" title="Mapa del campus" description="Encuentra edificios, servicios y espacios con una interfaz más clara.">
-      <div className="grid gap-6 xl:grid-cols-[1.35fr_0.95fr]">
+    <PageShell
+      eyebrow="Campus"
+      title="Mapa del campus"
+      description="Encuentra edificios, servicios y espacios relacionados con tu vida academica."
+    >
+      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.8fr)_minmax(20rem,0.75fr)]">
         <SectionCard title="Mapa interactivo" className="overflow-hidden border border-tech-border p-0">
           <div className="border-b border-tech-border bg-tech-bg px-5 py-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">Navegación</p>
-                <p className="mt-1 text-sm text-tech-textSecond">Selecciona un lugar para ver ruta, horario y contexto.</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">Vida academica</p>
+                <p className="mt-1 text-sm text-tech-textSecond">
+                  Selecciona edificios, servicios o espacios de apoyo para ver contexto y horarios.
+                </p>
               </div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-semibold text-tech-primary">
-                <Compass className="h-4 w-4" /> Mapa 2D
+              <div className="rounded-lg border border-blue-100 bg-white px-3 py-2 text-xs font-semibold text-tech-primary">
+                {filteredLocations.length} espacios visibles
               </div>
             </div>
           </div>
-
-          <div className="space-y-4 p-5">
-            <div className="flex items-center gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-tech-textSecond" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar lugar..."
-                  className="w-full rounded-2xl border border-tech-border py-3 pl-10 pr-3 text-sm outline-none transition placeholder:text-tech-textSecond focus:border-tech-primary focus:ring-2 focus:ring-blue-100"
-                />
-              </div>
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                className="rounded-2xl border border-tech-border bg-white px-3 py-3 text-sm outline-none focus:border-tech-primary focus:ring-2 focus:ring-blue-100"
-              >
-                {filters.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="relative overflow-hidden rounded-3xl border border-tech-border bg-white p-4 shadow-sm">
-              <div className="relative h-[420px] rounded-3xl border border-tech-border bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),_transparent_40%),linear-gradient(180deg,#f8fbff_0%,#eff6ff_100%)]">
-                <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'linear-gradient(rgba(148,163,184,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.35) 1px, transparent 1px)', backgroundSize: '42px 42px' }} />
-                {studentMapLocations.map((loc) => (
-                  <button
-                    key={loc.id}
-                    onClick={() => setSelected(loc.id)}
-                    title={loc.name}
-                    style={{ left: `${loc.position.x}%`, top: `${loc.position.y}%` }}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-2xl p-2 text-sm transition ${selected === loc.id ? 'bg-tech-primary text-white shadow-lg' : 'bg-white text-tech-primary shadow-sm'}`}
-                  >
-                    <MapPin className="h-5 w-5" />
-                  </button>
-                ))}
-              </div>
-            </div>
+          <div className="p-4">
+            <CampusMap2D
+              locations={filteredLocations}
+              selectedLocationId={selectedLocation?.id ?? null}
+              onSelectLocation={handleSelect}
+              variant="estudiante"
+            />
           </div>
         </SectionCard>
 
         <aside className="space-y-6">
-          <SectionCard title="Lugares" className="border border-tech-border">
-            <div className="space-y-3">
-              {filtered.map((loc) => (
-                <button
-                  key={loc.id}
-                  onClick={() => setSelected(loc.id)}
-                  className={`w-full rounded-2xl border p-4 text-left transition hover:bg-blue-50 ${selected === loc.id ? 'border-tech-primary bg-blue-50' : 'border-tech-border bg-white'}`}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-semibold text-tech-textMain">{loc.name}</p>
-                      <p className="text-xs text-tech-textSecond">{loc.type} · {loc.hours}</p>
-                    </div>
-                    <div className="text-xs font-semibold text-tech-primary">{loc.estimatedTime}</div>
-                  </div>
-                </button>
-              ))}
+          <SectionCard title="Buscar y filtrar" className="border border-tech-border">
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-tech-textSecond" />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Buscar edificio, servicio o evento..."
+                  className="w-full rounded-lg border border-tech-border bg-white py-3 pl-10 pr-4 text-sm outline-none transition placeholder:text-tech-textSecond focus:border-tech-primary focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+              <div className="flex max-w-full gap-2 overflow-x-auto pb-1">
+                {filters.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => setFilter(item)}
+                    className={`whitespace-nowrap rounded-full border px-3 py-2 text-xs font-semibold transition ${
+                      filter === item
+                        ? "border-tech-primary bg-tech-primary text-white"
+                        : "border-tech-border bg-white text-tech-textSecond hover:border-tech-primary hover:text-tech-primary"
+                    }`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
             </div>
           </SectionCard>
 
-          {selectedLocation && (
-            <SectionCard title="Detalle" className="sticky top-4 border border-tech-border">
-              <div className="space-y-4">
-                <p className="font-semibold text-tech-textMain">{selectedLocation.name}</p>
-                <p className="text-sm leading-6 text-tech-textSecond">{selectedLocation.description}</p>
-                <div className="grid gap-2 text-xs text-tech-textSecond">
-                  <p>{selectedLocation.hours}</p>
-                  <p>{selectedLocation.directions}</p>
+          <SectionCard title="Lugares del campus" className="border border-tech-border">
+            <div className="space-y-3">
+              {filteredLocations.length === 0 ? (
+                <div className="rounded-lg bg-tech-bg p-4 text-center text-sm text-tech-textSecond">
+                  No hay lugares que coincidan con tu busqueda.
                 </div>
-                <div className="flex gap-2">
-                  <button className="inline-flex items-center gap-2 rounded-2xl bg-tech-primary px-4 py-3 text-sm font-semibold text-white">
-                    <Navigation className="h-4 w-4" /> Indicaciones
+              ) : (
+                filteredLocations.map((location) => (
+                  <button
+                    key={location.id}
+                    type="button"
+                    onClick={() => handleSelect(location.id)}
+                    className={`w-full rounded-lg border p-4 text-left transition ${
+                      selectedLocation?.id === location.id
+                        ? "border-tech-primary bg-blue-50"
+                        : "border-tech-border bg-white hover:border-tech-primary"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-tech-textMain">{location.name}</p>
+                        <p className="mt-1 text-xs text-tech-textSecond">
+                          {location.type} · {location.zone}
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-blue-100 px-2 py-1 text-[11px] font-semibold text-tech-primary">
+                        {location.estimatedTime}
+                      </span>
+                    </div>
+                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-tech-textSecond">{location.description}</p>
                   </button>
-                  <button className="rounded-2xl border border-tech-border px-4 py-3 text-sm font-semibold text-tech-textSecond transition hover:border-tech-primary hover:text-tech-primary">Ver eventos</button>
+                ))
+              )}
+            </div>
+          </SectionCard>
+
+          {selectedLocation ? (
+            <SectionCard title="Detalle del lugar" className="border border-tech-border">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-lg font-semibold text-tech-textMain">{selectedLocation.name}</p>
+                  <p className="mt-1 text-sm leading-6 text-tech-textSecond">{selectedLocation.description}</p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                  <div className="rounded-lg bg-tech-bg p-4">
+                    <div className="flex items-center gap-2 text-tech-primary">
+                      <Clock className="h-4 w-4" />
+                      <span className="text-sm font-semibold text-tech-textMain">Horario</span>
+                    </div>
+                    <p className="mt-2 text-sm text-tech-textSecond">{selectedLocation.schedule}</p>
+                  </div>
+                  <div className="rounded-lg bg-tech-bg p-4">
+                    <div className="flex items-center gap-2 text-tech-primary">
+                      <UserRound className="h-4 w-4" />
+                      <span className="text-sm font-semibold text-tech-textMain">Responsable</span>
+                    </div>
+                    <p className="mt-2 text-sm text-tech-textSecond">{selectedLocation.responsible ?? "Area institucional"}</p>
+                  </div>
+                </div>
+                {selectedLocation.related ? (
+                  <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                    <div className="flex items-center gap-2 text-tech-primary">
+                      <CalendarDays className="h-4 w-4" />
+                      <span className="text-sm font-semibold text-tech-textMain">Relacionado con tu actividad</span>
+                    </div>
+                    <p className="mt-2 text-sm text-tech-textSecond">{selectedLocation.related}</p>
+                  </div>
+                ) : null}
+                <div className="rounded-lg border border-tech-border bg-white p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">Orientacion</p>
+                  <p className="mt-2 text-sm leading-6 text-tech-textSecond">{selectedLocation.orientation}</p>
+                  <p className="mt-3 text-sm font-semibold text-tech-textMain">{selectedLocation.estimatedTime}</p>
+                  <button className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-tech-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-tech-primary/90">
+                    <Navigation className="h-4 w-4" />
+                    Indicaciones
+                  </button>
                 </div>
               </div>
             </SectionCard>
-          )}
+          ) : null}
         </aside>
       </div>
     </PageShell>
