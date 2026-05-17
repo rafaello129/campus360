@@ -16,16 +16,16 @@ export function FilterPill({
   return (
     <button
       type="button"
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+      className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full border px-3.5 py-2 text-xs font-semibold transition duration-200 ${
         active
-          ? "border-petrol-200 bg-petrol-50 text-petrol-800"
-          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-800"
+          ? "border-tech-primary bg-tech-primary text-white"
+          : "border-tech-border bg-white text-tech-textSecond hover:border-tech-primary/25 hover:text-tech-textMain"
       } ${className}`}
       {...props}
     >
       {label}
       {typeof count === "number" ? (
-        <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] text-slate-600">
+        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${active ? "bg-white/20 text-white" : "bg-tech-bg text-tech-textSecond"}`}>
           {count}
         </span>
       ) : null}

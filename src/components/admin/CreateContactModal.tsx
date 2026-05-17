@@ -34,27 +34,27 @@ export default function CreateContactModal({ onClose, onCreate }: Props) {
     >
       <div className="mt-3 grid gap-3">
         <div>
-          <label className="text-sm text-slate-600">Nombre</label>
-          <input value={name} onChange={(e)=>setName(e.currentTarget.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+          <label className="text-sm font-medium text-tech-textSecond">Nombre</label>
+          <input value={name} onChange={(e)=>setName(e.currentTarget.value)} className="mt-1 w-full rounded-xl border border-tech-border px-3 py-2.5 text-sm outline-none transition focus:border-tech-primary focus:ring-2 focus:ring-blue-100" />
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-sm text-slate-600">Cargo</label>
-            <input value={position} onChange={(e)=>setPosition(e.currentTarget.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+            <label className="text-sm font-medium text-tech-textSecond">Cargo</label>
+            <input value={position} onChange={(e)=>setPosition(e.currentTarget.value)} className="mt-1 w-full rounded-xl border border-tech-border px-3 py-2.5 text-sm outline-none transition focus:border-tech-primary focus:ring-2 focus:ring-blue-100" />
           </div>
           <div>
-            <label className="text-sm text-slate-600">Área</label>
-            <input value={area} onChange={(e)=>setArea(e.currentTarget.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+            <label className="text-sm font-medium text-tech-textSecond">Área</label>
+            <input value={area} onChange={(e)=>setArea(e.currentTarget.value)} className="mt-1 w-full rounded-xl border border-tech-border px-3 py-2.5 text-sm outline-none transition focus:border-tech-primary focus:ring-2 focus:ring-blue-100" />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-sm text-slate-600">Correo</label>
-            <input value={email} onChange={(e)=>setEmail(e.currentTarget.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+            <label className="text-sm font-medium text-tech-textSecond">Correo</label>
+            <input value={email} onChange={(e)=>setEmail(e.currentTarget.value)} className="mt-1 w-full rounded-xl border border-tech-border px-3 py-2.5 text-sm outline-none transition focus:border-tech-primary focus:ring-2 focus:ring-blue-100" />
           </div>
           <div>
-            <label className="text-sm text-slate-600">Teléfono</label>
-            <input value={phone} onChange={(e)=>setPhone(e.currentTarget.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+            <label className="text-sm font-medium text-tech-textSecond">Teléfono</label>
+            <input value={phone} onChange={(e)=>setPhone(e.currentTarget.value)} className="mt-1 w-full rounded-xl border border-tech-border px-3 py-2.5 text-sm outline-none transition focus:border-tech-primary focus:ring-2 focus:ring-blue-100" />
           </div>
         </div>
       </div>

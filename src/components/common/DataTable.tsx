@@ -22,16 +22,16 @@ export function DataTable<Row>({
 }: DataTableProps<Row>) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-10 text-center text-sm text-slate-500">
+      <div className="rounded-lg border border-tech-divider bg-tech-bg/50 px-4 py-10 text-center text-sm text-tech-textSecond">
         {emptyText}
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-      <table className="min-w-full divide-y divide-slate-200 text-sm">
-        <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <div className="overflow-x-auto rounded-lg border border-tech-border bg-white">
+      <table className="min-w-full divide-y divide-tech-divider text-sm">
+        <thead className="bg-tech-bg text-left text-xs font-semibold uppercase tracking-wider text-tech-textSecond">
           <tr>
             {columns.map((column) => (
               <th key={column.id} className={`px-4 py-3 ${column.className ?? ""}`}>
@@ -40,11 +40,11 @@ export function DataTable<Row>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100 bg-white">
+        <tbody className="divide-y divide-tech-divider bg-white">
           {rows.map((row) => (
-            <tr key={rowKey(row)}>
+            <tr key={rowKey(row)} className="hover:bg-tech-bg/30 transition">
               {columns.map((column) => (
-                <td key={column.id} className={`px-4 py-3 ${column.className ?? ""}`}>
+                <td key={column.id} className={`px-4 py-3 text-tech-textMain ${column.className ?? ""}`}>
                   {column.render(row)}
                 </td>
               ))}

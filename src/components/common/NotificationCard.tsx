@@ -8,21 +8,23 @@ interface NotificationCardProps {
 
 export function NotificationCard({ item }: NotificationCardProps) {
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <article className="rounded-lg border border-tech-border bg-white p-4 hover:shadow-md transition duration-200">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <span className="rounded-lg bg-petrol-50 p-2 text-petrol-700">
+          <span className="rounded-lg bg-blue-50 p-2.5 text-tech-primary flex-shrink-0">
             <Bell className="h-4 w-4" />
           </span>
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900">{item.title}</h3>
-            <p className="mt-1 text-sm text-slate-600">{item.message}</p>
-            <p className="mt-2 text-xs text-slate-500">
+          <div className="min-w-0 flex-1">
+            <h3 className="text-sm font-semibold text-tech-textMain">{item.title}</h3>
+            <p className="mt-0.5 text-xs text-tech-textSecond line-clamp-2">{item.message}</p>
+            <p className="mt-1 text-xs text-tech-textSecond/70">
               {item.channel} · {item.time}
             </p>
           </div>
         </div>
-        <StatusBadge status={item.status} />
+        <div className="flex-shrink-0">
+          <StatusBadge status={item.status} />
+        </div>
       </div>
     </article>
   );

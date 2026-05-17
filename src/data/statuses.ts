@@ -3,15 +3,15 @@ import type { Status } from "../types";
 export const statusStyles: Record<Status, { label: string; className: string }> = {
   pendiente: {
     label: "Pendiente",
-    className: "bg-amber-100 text-amber-800 border-amber-200"
+    className: "bg-blue-50 text-tech-mid border-blue-200"
   },
   activo: {
     label: "Activo",
-    className: "bg-sky-100 text-sky-800 border-sky-200"
+    className: "bg-blue-100 text-tech-primary border-blue-200"
   },
   completado: {
     label: "Completado",
-    className: "bg-emerald-100 text-emerald-800 border-emerald-200"
+    className: "bg-blue-50 text-tech-mid border-blue-200"
   },
   urgente: {
     label: "Urgente",
@@ -19,7 +19,7 @@ export const statusStyles: Record<Status, { label: string; className: string }> 
   },
   aprobado: {
     label: "Aprobado",
-    className: "bg-teal-100 text-teal-800 border-teal-200"
+    className: "bg-blue-50 text-tech-primary border-blue-200"
   },
   rechazado: {
     label: "Rechazado",
@@ -27,7 +27,7 @@ export const statusStyles: Record<Status, { label: string; className: string }> 
   },
   en_revision: {
     label: "En revisión",
-    className: "bg-violet-100 text-violet-800 border-violet-200"
+    className: "bg-blue-50 text-tech-mid border-blue-200"
   }
 };
 

@@ -1,4 +1,4 @@
-import { Send, Loader } from "lucide-react";
+import { Bot, Clock3, Loader, Mail, MapPin, Phone, Send } from "lucide-react";
 import { useState } from "react";
 import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
@@ -58,7 +58,7 @@ export function ChatbotPage() {
     {
       id: "msg-0",
       sender: "bot",
-      text: "¡Hola! Soy el asistente virtual de Campus360. Estoy aquí para ayudarte con preguntas sobre el proceso de admisión, carreras, documentos y más. ¿En qué puedo asistirte hoy?",
+      text: "Soy el asistente virtual de admisión de Campus360. Puedo orientarte sobre requisitos, carreras, documentos y seguimiento del proceso con respuestas simuladas.",
       timestamp: new Date()
     }
   ]);
@@ -121,30 +121,38 @@ export function ChatbotPage() {
   return (
     <PageShell
       eyebrow="Soporte"
-      title="Asistente virtual"
-      description="Obtén respuestas rápidas a tus preguntas sobre admisión, carreras y proceso de inscripción."
+      title="Asistente virtual de admisión"
+      description="Obtén respuestas rápidas sobre admisión, carreras, documentación y seguimiento del proceso."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Chat */}
-        <div className="lg:col-span-2">
-          <SectionCard title="Conversación" className="flex h-full flex-col">
-            {/* Mensajes */}
-            <div className="flex-1 space-y-4 overflow-y-auto max-h-96 mb-4 pr-2">
+      <div className="grid gap-6 xl:grid-cols-[1.45fr_0.9fr]">
+        <div className="space-y-6">
+          <SectionCard title="Conversación institucional" className="flex h-full flex-col border border-tech-border">
+            <div className="mb-4 flex items-center justify-between rounded-2xl bg-tech-bg px-4 py-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">Canal activo</p>
+                <p className="mt-1 text-sm text-tech-textSecond">Canal institucional simulado para dudas de admisión y documentación.</p>
+              </div>
+              <div className="flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-semibold text-tech-primary">
+                <Bot className="h-4 w-4" /> Campus360 Admisiones
+              </div>
+            </div>
+
+            <div className="flex-1 space-y-4 overflow-y-auto pr-2 max-h-[31rem]">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
                   className={`flex gap-3 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {msg.sender === "bot" && (
-                    <div className="flex-shrink-0 h-8 w-8 rounded-full bg-petrol-100 flex items-center justify-center text-lg font-bold text-petrol-700">
-                      C
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-tech-bg text-tech-primary">
+                      <Bot className="h-5 w-5" />
                     </div>
                   )}
                   <div
-                    className={`max-w-xs rounded-lg p-3 text-sm ${
+                    className={`max-w-xl rounded-2xl p-4 text-sm leading-6 shadow-sm ${
                       msg.sender === "user"
-                        ? "bg-petrol-700 text-white rounded-br-none"
-                        : "bg-slate-100 text-slate-900 rounded-bl-none"
+                        ? "rounded-br-md bg-tech-primary text-white"
+                        : "rounded-bl-md border border-tech-border bg-white text-tech-textMain"
                     }`}
                   >
                     {msg.text}
@@ -154,79 +162,86 @@ export function ChatbotPage() {
 
               {isLoading && (
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 h-8 w-8 rounded-full bg-petrol-100 flex items-center justify-center">
-                    <Loader className="h-4 w-4 text-petrol-700 animate-spin" />
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-tech-bg text-tech-primary">
+                    <Loader className="h-4 w-4 animate-spin" />
                   </div>
-                  <div className="bg-slate-100 rounded-lg p-3 rounded-bl-none">
-                    <p className="text-sm text-slate-600">Escribiendo...</p>
+                  <div className="rounded-2xl rounded-bl-md border border-tech-border bg-white p-4 shadow-sm">
+                    <p className="text-sm text-tech-textSecond">Escribiendo respuesta...</p>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Input */}
-            <form onSubmit={handleSendMessage} className="border-t border-slate-200 pt-4">
+            <form onSubmit={handleSendMessage} className="mt-4 border-t border-tech-border pt-4">
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Escribe tu pregunta..."
-                  className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-petrol-500 focus:ring-2 focus:ring-petrol-50"
+                  placeholder="Escribe tu pregunta sobre admisión..."
+                  className="flex-1 rounded-2xl border border-tech-border bg-white px-4 py-3 text-sm outline-none transition placeholder:text-tech-textSecond focus:border-tech-primary focus:ring-2 focus:ring-blue-100"
                 />
                 <button
                   type="submit"
-                  className="rounded-lg bg-petrol-700 p-2.5 text-white transition hover:bg-petrol-800"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-tech-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-tech-primary/90"
                 >
-                  <Send className="h-5 w-5" />
+                  <Send className="h-4 w-4" />
+                  Enviar
                 </button>
               </div>
             </form>
           </SectionCard>
+
+          <SectionCard title="Canales de contacto" className="border border-tech-border">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                { icon: Mail, title: "Correo", text: "admisiones@campus360.edu" },
+                { icon: Phone, title: "Teléfono", text: "+56 9 XXXX XXXX" },
+                { icon: Clock3, title: "Horario", text: "Lun-Vie, 09:00 - 18:00" },
+                { icon: MapPin, title: "Ubicación", text: "Campus Central, Edificio Admisiones" }
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.title} className="rounded-2xl border border-tech-border bg-tech-bg p-4">
+                    <div className="flex items-center gap-2 text-tech-primary">
+                      <Icon className="h-4 w-4" />
+                      <p className="text-sm font-semibold text-tech-textMain">{item.title}</p>
+                    </div>
+                    <p className="mt-2 text-sm text-tech-textSecond">{item.text}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </SectionCard>
         </div>
 
-        {/* Sidebar con preguntas frecuentes */}
-        <SectionCard title="Preguntas frecuentes">
-          <div className="space-y-2">
+        <div className="space-y-6">
+          <SectionCard title="Preguntas frecuentes" className="border border-tech-border">
+            <div className="space-y-2">
             {faqs.map((faq, index) => (
               <button
                 key={index}
                 onClick={() => handleQuestionClick(faq)}
-                className="w-full rounded-lg border border-slate-200 bg-white p-3 text-left text-sm font-medium text-slate-900 transition hover:border-petrol-500 hover:bg-petrol-50"
+                className="w-full rounded-2xl border border-tech-border bg-white p-4 text-left text-sm font-medium text-tech-textMain transition hover:border-tech-primary hover:bg-tech-bg"
               >
-                <span className="text-petrol-700">→</span> {faq.question}
+                <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-tech-bg text-xs font-semibold text-tech-primary">FAQ</span> {faq.question}
               </button>
             ))}
-          </div>
-        </SectionCard>
-      </div>
+            </div>
+          </SectionCard>
 
-      {/* Contacto directo */}
-      <SectionCard title="¿No encontraste la respuesta?" className="mt-6">
-        <div className="space-y-3 text-sm text-slate-700">
-          <p>
-            Si tu pregunta no está cubierta, estamos aquí para ayudarte de otras formas:
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-lg bg-slate-50 p-3">
-              <p className="font-medium text-slate-900">📧 Correo electrónico</p>
-              <p className="text-xs text-slate-600 mt-1">admisiones@campus360.edu</p>
+          <SectionCard title="Acciones rápidas" className="border border-tech-border">
+            <div className="space-y-3 text-sm text-tech-textSecond">
+              <p>Usa estas opciones para respuestas comunes o cambia a una consulta específica en el chat.</p>
+              <div className="flex flex-wrap gap-2">
+                <button onClick={() => handleQuestionClick(faqs[0])} className="rounded-full bg-tech-bg px-3 py-2 text-xs font-semibold text-tech-primary transition hover:bg-blue-100">Requisitos</button>
+                <button onClick={() => handleQuestionClick(faqs[2])} className="rounded-full bg-tech-bg px-3 py-2 text-xs font-semibold text-tech-primary transition hover:bg-blue-100">Carreras</button>
+                <button onClick={() => handleQuestionClick(faqs[3])} className="rounded-full bg-tech-bg px-3 py-2 text-xs font-semibold text-tech-primary transition hover:bg-blue-100">Becas</button>
+              </div>
             </div>
-            <div className="rounded-lg bg-slate-50 p-3">
-              <p className="font-medium text-slate-900">📞 Teléfono</p>
-              <p className="text-xs text-slate-600 mt-1">+56 9 XXXX XXXX</p>
-            </div>
-            <div className="rounded-lg bg-slate-50 p-3">
-              <p className="font-medium text-slate-900">🕐 Horario</p>
-              <p className="text-xs text-slate-600 mt-1">Lun-Vie, 09:00 - 18:00</p>
-            </div>
-            <div className="rounded-lg bg-slate-50 p-3">
-              <p className="font-medium text-slate-900">📍 Ubicación</p>
-              <p className="text-xs text-slate-600 mt-1">Campus Central, Edificio Admisiones</p>
-            </div>
-          </div>
+          </SectionCard>
         </div>
-      </SectionCard>
+      </div>
     </PageShell>
   );
 }

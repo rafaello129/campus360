@@ -31,7 +31,7 @@ export function CareerDetailPage() {
           <StatusBadge status={career.status} />
           <Link
             to={paths.aspirante.registro}
-            className="rounded-lg bg-petrol-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-petrol-800"
+            className="rounded-lg bg-tech-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-tech-primary/90"
           >
             Registrarme en esta carrera
           </Link>
@@ -67,7 +67,7 @@ export function CareerDetailPage() {
           <ul className="space-y-2">
             {career.highlights.map((item) => (
               <li key={item} className="flex items-start gap-2 rounded-lg bg-slate-50 p-3">
-                <span className="mt-0.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-petrol-100 text-xs font-bold text-petrol-700">
+                <span className="mt-0.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-tech-primary/10 text-xs font-bold text-tech-primary">
                   ✓
                 </span>
                 <span className="text-sm text-slate-700">{item}</span>
@@ -126,19 +126,19 @@ export function CareerDetailPage() {
           <div className="space-y-3 text-sm text-slate-700">
             <ul className="space-y-2">
               <li className="flex gap-2">
-                <span className="font-medium text-petrol-700">✓</span>
+                <span className="font-medium text-tech-primary">✓</span>
                 Certificado de estudios previos
               </li>
               <li className="flex gap-2">
-                <span className="font-medium text-petrol-700">✓</span>
+                <span className="font-medium text-tech-primary">✓</span>
                 Identificación oficial
               </li>
               <li className="flex gap-2">
-                <span className="font-medium text-petrol-700">✓</span>
+                <span className="font-medium text-tech-primary">✓</span>
                 Comprobante de domicilio
               </li>
               <li className="flex gap-2">
-                <span className="font-medium text-petrol-700">✓</span>
+                <span className="font-medium text-tech-primary">✓</span>
                 Fotografía tamaño cédula
               </li>
             </ul>
@@ -147,21 +147,21 @@ export function CareerDetailPage() {
       </section>
 
       {/* CTA y próximos pasos */}
-      <section className="rounded-lg border border-teal-200 bg-teal-50 p-6">
-        <h3 className="font-bold text-teal-900">¿Qué sigue?</h3>
-        <p className="mt-2 text-sm text-teal-800">
+      <section className="rounded-lg border border-blue-200 bg-blue-50 p-6">
+        <h3 className="font-bold text-blue-900">¿Qué sigue?</h3>
+        <p className="mt-2 text-sm text-blue-800">
           Completa tu registro y comienza el proceso de admisión. Te contactaremos en menos de 48 horas con más información.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
             to={paths.aspirante.registro}
-            className="rounded-lg bg-petrol-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-petrol-800"
+            className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-tech-primary/90"
           >
             Iniciar registro
           </Link>
           <button
             onClick={() => setShowRequestModal(true)}
-            className="rounded-lg border border-teal-700 px-4 py-2 text-sm font-semibold text-teal-700 transition hover:bg-teal-100"
+            className="rounded-lg border border-tech-primary px-4 py-2 text-sm font-semibold text-tech-primary transition hover:bg-tech-bg"
           >
             Solicitar información adicional
           </button>
@@ -170,8 +170,8 @@ export function CareerDetailPage() {
 
       {/* Modal simulado */}
       {showRequestModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4 z-50">
-          <div className="rounded-lg bg-white p-6 max-w-md w-full">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6">
             <h3 className="font-bold text-slate-900">Solicitud enviada</h3>
             <p className="mt-2 text-sm text-slate-600">
               Hemos recibido tu solicitud de información. Un asesor académico se contactará contigo en las próximas 24 horas.
@@ -186,7 +186,7 @@ export function CareerDetailPage() {
             </div>
             <button
               onClick={() => setShowRequestModal(false)}
-              className="mt-4 w-full rounded-lg bg-petrol-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-petrol-800"
+              className="mt-4 w-full rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-tech-primary/90"
             >
               Entendido
             </button>

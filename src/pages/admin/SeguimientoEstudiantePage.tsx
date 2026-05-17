@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { MetricCard } from "../../components/common/MetricCard";
 import { PageShell } from "../../components/common/PageShell";
 import { ProgressStepper } from "../../components/common/ProgressStepper";
 import { SearchInput } from "../../components/common/SearchInput";
@@ -102,7 +101,7 @@ export function SeguimientoEstudiantePage() {
                 key={student.id}
                 type="button"
                 onClick={() => setSelectedStudentId(student.id)}
-                className={`w-full rounded-xl border px-3 py-3 text-left transition ${selectedStudent.id === student.id ? "border-petrol-300 bg-petrol-50" : "border-slate-200 bg-white hover:bg-slate-50"}`}
+                className={`w-full rounded-xl border px-3 py-3 text-left transition ${selectedStudent.id === student.id ? "border-tech-accent/40 bg-tech-bg" : "border-slate-200 bg-white hover:bg-slate-50"}`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <UserAvatar name={student.name} subtitle={student.enrollment} compact />
@@ -119,7 +118,7 @@ export function SeguimientoEstudiantePage() {
           <SectionCard title={selectedStudent.name} description="Perfil de seguimiento y acompañamiento">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-petrol-700">{selectedStudent.enrollment}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tech-primary">{selectedStudent.enrollment}</p>
                 <p className="mt-1 text-sm text-slate-600">{selectedStudent.career} · {selectedStudent.semester}</p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -131,10 +130,16 @@ export function SeguimientoEstudiantePage() {
             </div>
           </SectionCard>
 
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <section className="rounded-lg border border-tech-border bg-white p-4 shadow-sm">
+            <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
             {metrics.map((metric) => (
-              <MetricCard key={metric.label} metric={metric} />
+              <div key={metric.label} className="border-l-2 border-tech-primary/30 pl-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tech-textSecond">{metric.label}</p>
+                <p className="mt-1 text-xl font-bold text-tech-textMain">{metric.value}</p>
+                <p className="text-xs text-tech-textSecond">{metric.trend}</p>
+              </div>
             ))}
+            </div>
           </section>
 
           <SectionCard title="Trayectoria de seguimiento" description="Secuencia de acciones y observaciones">
@@ -172,7 +177,7 @@ export function SeguimientoEstudiantePage() {
                   key={action.key}
                   type="button"
                   onClick={() => openAction(action)}
-                  className="rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-petrol-300 hover:bg-petrol-50"
+                  className="rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-tech-accent/30 hover:bg-tech-bg"
                 >
                   <p className="font-semibold text-slate-900">{action.label}</p>
                   <p className="mt-1 text-xs text-slate-600">{action.helper}</p>
@@ -200,14 +205,14 @@ export function SeguimientoEstudiantePage() {
                     value={actionFields[field.name] ?? ""}
                     onChange={(event) => setActionFields((previous) => ({ ...previous, [field.name]: event.target.value }))}
                     rows={4}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-petrol-500"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary"
                   />
                 ) : (
                   <input
                     type={field.type}
                     value={actionFields[field.name] ?? ""}
                     onChange={(event) => setActionFields((previous) => ({ ...previous, [field.name]: event.target.value }))}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-petrol-500"
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary"
                   />
                 )}
               </label>

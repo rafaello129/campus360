@@ -1,4 +1,4 @@
-import { Search, Calendar, MapPin, Users, Bookmark } from "lucide-react";
+import { Search, Calendar, MapPin, Users, Bookmark, Music } from "lucide-react";
 import { useState } from "react";
 import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
@@ -40,31 +40,29 @@ export function EventosPage() {
       title="Eventos y convocatorias"
       description="Descubre actividades, talleres, cursos y oportunidades en tu institución."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Listado */}
-        <div className="lg:col-span-2">
-          {/* Búsqueda y filtros */}
-          <div className="mb-6 space-y-4">
+      <div className="grid gap-6 lg:grid-cols-[1.45fr_0.55fr]">
+        <div>
+          <div className="mb-6 rounded-2xl border border-tech-border bg-white p-4 shadow-sm">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-tech-textSecond" />
               <input
                 type="text"
                 placeholder="Buscar evento..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-petrol-500 focus:ring-2 focus:ring-petrol-50"
+                className="w-full rounded-lg border border-tech-border bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition placeholder:text-tech-textSecond focus:border-tech-primary focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap gap-2">
               {types.map((type) => (
                 <button
                   key={type.id}
                   onClick={() => setSelectedType(type.id)}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                     selectedType === type.id
-                      ? "bg-petrol-700 text-white"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      ? "bg-tech-primary text-white"
+                      : "border border-tech-border bg-surface-card text-tech-textSecond hover:bg-blue-50"
                   }`}
                 >
                   {type.label}
@@ -73,12 +71,11 @@ export function EventosPage() {
             </div>
           </div>
 
-          {/* Eventos */}
           <div className="space-y-3">
             {filteredEvents.length === 0 ? (
-              <SectionCard title="Sin eventos">
-                <div className="text-center py-8">
-                  <p className="text-slate-600">No se encontraron eventos que coincidan con tu búsqueda.</p>
+              <SectionCard title="Sin eventos" description="Prueba con otro término o cambia el tipo de actividad.">
+                <div className="py-8 text-center">
+                  <p className="text-tech-textSecond">No se encontraron eventos que coincidan con tu búsqueda.</p>
                 </div>
               </SectionCard>
             ) : (
@@ -88,31 +85,32 @@ export function EventosPage() {
                 return (
                   <SectionCard
                     key={event.id}
-                    className={`cursor-pointer transition hover:shadow-md ${
-                      selectedEvent === event.id ? "ring-2 ring-petrol-500" : ""
+                    className={`cursor-pointer transition hover:-translate-y-0.5 hover:shadow-md ${
+                      selectedEvent === event.id ? "ring-2 ring-tech-primary" : ""
                     }`}
                     onClick={() => setSelectedEvent(event.id)}
-                  title={event.title}
+                    title={event.title}
+                    description={event.summary}
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                       <div className="flex-1">
-                        <div className="mb-2 flex items-center gap-3">
-                          <h3 className="font-bold text-slate-900">{event.title}</h3>
+                        <div className="mb-2 flex flex-wrap items-center gap-3">
+                          <h3 className="text-lg font-semibold text-tech-textMain">{event.title}</h3>
                           <StatusBadge status={isRegistered ? "aprobado" : event.status} />
                         </div>
 
-                        <p className="text-sm text-slate-600">{event.summary}</p>
+                        <p className="text-sm leading-6 text-tech-textSecond">{event.summary}</p>
 
-                        <div className="mt-4 grid gap-2 sm:grid-cols-2 text-sm text-slate-600">
-                          <p>
+                        <div className="mt-4 grid gap-2 rounded-2xl bg-surface-card p-4 text-sm text-tech-textSecond sm:grid-cols-2">
+                          <p className="flex items-center gap-1.5">
                             <Calendar className="inline h-4 w-4 mr-1" />
                             {event.date} · {event.time}
                           </p>
-                          <p>
+                          <p className="flex items-center gap-1.5">
                             <MapPin className="inline h-4 w-4 mr-1" />
                             {event.location}
                           </p>
-                          <p>
+                          <p className="flex items-center gap-1.5">
                             <Users className="inline h-4 w-4 mr-1" />
                             {event.registered ?? 0}/{event.capacity ?? 0} inscritos
                           </p>
@@ -127,13 +125,13 @@ export function EventosPage() {
                           e.stopPropagation();
                           toggleRegister(event.id);
                         }}
-                        className={`flex-shrink-0 rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                        className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
                           isRegistered
-                            ? "bg-green-100 text-green-700 hover:bg-green-200"
-                            : "bg-petrol-700 text-white hover:bg-petrol-800"
+                            ? "border border-tech-border bg-blue-50 text-tech-primary hover:bg-blue-100"
+                            : "bg-tech-primary text-white hover:bg-tech-mid"
                         }`}
                       >
-                        {isRegistered ? "✓ Inscrito" : "Inscribirse"}
+                        {isRegistered ? "Inscrito" : "Inscribirse"}
                       </button>
                     </div>
                   </SectionCard>
@@ -143,65 +141,64 @@ export function EventosPage() {
           </div>
         </div>
 
-        {/* Detalle del evento seleccionado */}
-        <aside className="lg:col-span-1">
+        <aside>
           {selectedEventData ? (
-            <SectionCard title="Detalles" className="sticky top-4">
+            <SectionCard title="Detalles" description="Resumen rápido del evento seleccionado." className="sticky top-4">
               <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-semibold text-slate-600">EVENTO</p>
-                  <p className="mt-1 font-bold text-slate-900">{selectedEventData.title}</p>
+                <div className="rounded-2xl border border-tech-border bg-surface-card p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Evento</p>
+                  <p className="mt-1 font-semibold text-tech-textMain">{selectedEventData.title}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-semibold text-slate-600">CATEGORÍA</p>
-                  <p className="mt-1 text-sm text-slate-900">{selectedEventData.category}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Categoría</p>
+                  <p className="mt-1 text-sm text-tech-textMain">{selectedEventData.category}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-semibold text-slate-600">FECHA Y HORA</p>
-                  <p className="mt-1 text-sm text-slate-900">{selectedEventData.date}</p>
-                  <p className="text-sm text-slate-900">{selectedEventData.time}</p>
+                  <p className="text-xs font-semibold text-tech-textSecond">FECHA Y HORA</p>
+                  <p className="mt-1 text-sm text-tech-textMain">{selectedEventData.date}</p>
+                  <p className="text-sm text-tech-textMain">{selectedEventData.time}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-semibold text-slate-600">UBICACIÓN</p>
-                  <p className="mt-1 text-sm text-slate-900">{selectedEventData.location}</p>
+                  <p className="text-xs font-semibold text-tech-textSecond">UBICACIÓN</p>
+                  <p className="mt-1 text-sm text-tech-textMain">{selectedEventData.location}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-semibold text-slate-600">DISPONIBILIDAD</p>
-                  <p className="mt-1 text-sm text-slate-900">
+                  <p className="text-xs font-semibold text-tech-textSecond">DISPONIBILIDAD</p>
+                  <p className="mt-1 text-sm text-tech-textMain">
                     {selectedEventData.registered ?? 0}/{selectedEventData.capacity ?? 0}
                   </p>
                 </div>
 
-                <div className="border-t border-slate-200 pt-4">
+                <div className="border-t border-tech-border pt-4">
                   <button
                     onClick={() => toggleRegister(selectedEventData.id)}
-                    className={`w-full rounded-lg px-4 py-3 text-sm font-bold transition ${
+                    className={`w-full rounded-full px-4 py-3 text-sm font-semibold transition ${
                       registered.includes(selectedEventData.id)
-                        ? "bg-green-600 text-white hover:bg-green-700"
-                        : "bg-petrol-700 text-white hover:bg-petrol-800"
+                        ? "border border-tech-border bg-blue-50 text-tech-primary hover:bg-blue-100"
+                        : "bg-tech-primary text-white hover:bg-tech-mid"
                     }`}
                   >
                     {registered.includes(selectedEventData.id)
-                      ? "✓ Ya estás inscrito"
+                      ? "Ya estás inscrito"
                       : "Inscribirse en este evento"}
                   </button>
                 </div>
 
-                <button className="w-full rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                <button className="w-full rounded-full border border-tech-border px-4 py-2 text-sm font-semibold text-tech-textSecond hover:bg-blue-50 transition">
                   <Bookmark className="inline h-4 w-4 mr-2" />
                   Guardar
                 </button>
               </div>
             </SectionCard>
           ) : (
-            <SectionCard>
-              <div className="text-center py-8">
-                <span className="text-4xl">🎪</span>
-                <p className="mt-2 text-sm text-slate-600">Selecciona un evento para ver detalles</p>
+            <SectionCard title="Detalle" description="Selecciona un evento del listado para ver más información.">
+              <div className="py-8 text-center">
+                <Music className="mx-auto mb-2 h-12 w-12 text-tech-divider" />
+                <p className="mt-2 text-sm text-tech-textSecond">Selecciona un evento para ver detalles</p>
               </div>
             </SectionCard>
           )}

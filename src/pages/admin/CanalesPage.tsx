@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Radio, Sparkles } from 'lucide-react';
 import { SectionHeader } from '../../components/common/SectionHeader';
 import { MetricCard } from '../../components/common/MetricCard';
 import ChannelAdminCard from '../../components/admin/ChannelAdminCard';
@@ -43,8 +44,8 @@ export default function CanalesPage() {
         <MetricCard metric={{ label: 'Alcance estimado', value: String(metrics.reach), trend: '+2%', trendDirection: 'up' }} />
       </div>
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-4 rounded-3xl border border-tech-border bg-white p-5 shadow-sm xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
           <SearchInput value={query} onChange={(e) => setQuery(e.currentTarget.value)} placeholder="Buscar canales..." />
           <div className="flex flex-wrap gap-2">
             {['Todos','Académicos','Administrativos','Becas','Cultura','Deportes','Tutorías','Servicios escolares','Activos','Inactivos'].map((f) => (
@@ -52,8 +53,9 @@ export default function CanalesPage() {
             ))}
           </div>
         </div>
-        <div>
-          <button onClick={() => setCreateOpen(true)} className="rounded-lg bg-petrol-700 px-4 py-2 text-white">Crear canal</button>
+        <div className="flex items-center gap-2 text-sm text-tech-textSecond">
+          <span className="inline-flex items-center gap-2 rounded-full bg-tech-bg px-3 py-2"><Sparkles className="h-4 w-4 text-tech-primary" /> {metrics.featured} destacados</span>
+          <button onClick={() => setCreateOpen(true)} className="inline-flex items-center gap-2 rounded-2xl bg-tech-primary px-4 py-2.5 text-white transition hover:bg-tech-primary/90"><Radio className="h-4 w-4" /> Crear canal</button>
         </div>
       </div>
 

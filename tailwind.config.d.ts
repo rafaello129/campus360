@@ -3,6 +3,18 @@ declare const _default: {
     theme: {
         extend: {
             colors: {
+                tech: {
+                    deepBlue: string;
+                    primary: string;
+                    mid: string;
+                    accent: string;
+                    light: string;
+                    bg: string;
+                    border: string;
+                    divider: string;
+                    textMain: string;
+                    textSecond: string;
+                };
                 petrol: {
                     50: string;
                     100: string;
@@ -15,11 +27,40 @@ declare const _default: {
                     800: string;
                     900: string;
                 };
-                campus: {
-                    teal: string;
-                    mint: string;
-                    slate: string;
-                };
+            };
+            backgroundImage: {
+                'grid-subtle': string;
+                'nodes-pattern': string;
+                'tech-pattern': string;
+            };
+            spacing: {
+                'safe-h': string;
+            };
+            fontSize: {
+                xs: [string, {
+                    lineHeight: string;
+                }];
+                sm: [string, {
+                    lineHeight: string;
+                }];
+                base: [string, {
+                    lineHeight: string;
+                }];
+                lg: [string, {
+                    lineHeight: string;
+                }];
+                xl: [string, {
+                    lineHeight: string;
+                }];
+                '2xl': [string, {
+                    lineHeight: string;
+                }];
+                '3xl': [string, {
+                    lineHeight: string;
+                }];
+                '4xl': [string, {
+                    lineHeight: string;
+                }];
             };
         };
     };

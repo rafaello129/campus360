@@ -34,17 +34,17 @@ export default function CreateChannelModal({ onClose, onCreate }: Props) {
     >
       <div className="mt-3 grid gap-3">
         <div>
-          <label className="text-sm text-slate-600">Nombre</label>
-          <input value={name} onChange={(e) => setName(e.currentTarget.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+          <label className="text-sm font-medium text-tech-textSecond">Nombre</label>
+          <input value={name} onChange={(e) => setName(e.currentTarget.value)} className="mt-1 w-full rounded-xl border border-tech-border px-3 py-2.5 text-sm outline-none transition focus:border-tech-primary focus:ring-2 focus:ring-blue-100" />
         </div>
         <div>
-          <label className="text-sm text-slate-600">Descripción</label>
-          <textarea value={description} onChange={(e) => setDescription(e.currentTarget.value)} className="mt-1 w-full rounded-lg border px-3 py-2" rows={3} />
+          <label className="text-sm font-medium text-tech-textSecond">Descripción</label>
+          <textarea value={description} onChange={(e) => setDescription(e.currentTarget.value)} className="mt-1 w-full rounded-xl border border-tech-border px-3 py-2.5 text-sm outline-none transition focus:border-tech-primary focus:ring-2 focus:ring-blue-100" rows={3} />
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-sm text-slate-600">Categoría</label>
-            <select value={category} onChange={(e) => setCategory(e.currentTarget.value)} className="mt-1 w-full rounded-lg border px-3 py-2">
+            <label className="text-sm font-medium text-tech-textSecond">Categoría</label>
+            <select value={category} onChange={(e) => setCategory(e.currentTarget.value)} className="mt-1 w-full rounded-xl border border-tech-border px-3 py-2.5 text-sm outline-none transition focus:border-tech-primary focus:ring-2 focus:ring-blue-100">
               <option>Académicos</option>
               <option>Becas</option>
               <option>Cultura</option>
@@ -53,8 +53,8 @@ export default function CreateChannelModal({ onClose, onCreate }: Props) {
             </select>
           </div>
           <div>
-            <label className="text-sm text-slate-600">Responsable</label>
-            <input value={owner} onChange={(e)=>setOwner(e.currentTarget.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+            <label className="text-sm font-medium text-tech-textSecond">Responsable</label>
+            <input value={owner} onChange={(e)=>setOwner(e.currentTarget.value)} className="mt-1 w-full rounded-xl border border-tech-border px-3 py-2.5 text-sm outline-none transition focus:border-tech-primary focus:ring-2 focus:ring-blue-100" />
           </div>
         </div>
       </div>

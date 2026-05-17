@@ -24,38 +24,40 @@ interface Props {
 
 export default function ChannelAdminCard({ channel, onView, onEdit, onToggle }: Props) {
   return (
-    <article className="surface-card p-4 rounded-lg">
-      <div className="flex items-start justify-between">
-        <div>
-          <h4 className="text-lg font-semibold text-slate-900">{channel.name}</h4>
-          <p className="mt-1 text-sm text-slate-600">{channel.description}</p>
-          <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
-            <span className="inline-flex items-center gap-1"><User className="h-3.5 w-3.5" />{channel.owner}</span>
-            <span>• {channel.category}</span>
-            <span>• {channel.audience}</span>
+    <article className="rounded-2xl border border-tech-border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <div className="space-y-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h4 className="text-lg font-semibold text-tech-textMain">{channel.name}</h4>
+              <StatusBadge status={channel.status} />
+            </div>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-tech-textSecond">{channel.description}</p>
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs text-tech-textSecond">
+            <span className="inline-flex items-center gap-1 rounded-full bg-tech-bg px-3 py-1"><User className="h-3.5 w-3.5 text-tech-primary" /> {channel.owner}</span>
+            <span className="rounded-full bg-tech-bg px-3 py-1">{channel.category}</span>
+            <span className="rounded-full bg-tech-bg px-3 py-1">{channel.audience}</span>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <div className="text-right">
-            <p className="text-sm text-slate-500">Publicaciones</p>
-            <p className="text-xl font-semibold">{channel.publications}</p>
-            <p className="text-xs text-slate-400">Última: {channel.lastUpdated}</p>
+        <div className="grid min-w-[220px] gap-3 text-sm text-tech-textSecond">
+          <div className="rounded-2xl bg-tech-bg p-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-tech-primary">Publicaciones</p>
+            <p className="mt-2 text-2xl font-semibold text-tech-textMain">{channel.publications}</p>
+            <p className="mt-1 text-xs">Última actualización: {channel.lastUpdated}</p>
           </div>
-          <div className="mt-2 flex gap-2">
-            <button onClick={() => onView(channel.id)} className="btn-ghost btn-sm inline-flex items-center gap-2 rounded-lg px-3 py-1 text-sm">
-              <Eye className="h-4 w-4" /> Ver publicaciones
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => onView(channel.id)} className="inline-flex items-center gap-2 rounded-xl border border-tech-border bg-white px-3 py-2 text-xs font-semibold text-tech-textSecond transition hover:border-tech-primary hover:text-tech-primary">
+              <Eye className="h-4 w-4" /> Ver
             </button>
-            <button onClick={() => onEdit(channel.id)} className="btn-ghost btn-sm inline-flex items-center gap-2 rounded-lg px-3 py-1 text-sm">
+            <button onClick={() => onEdit(channel.id)} className="inline-flex items-center gap-2 rounded-xl border border-tech-border bg-white px-3 py-2 text-xs font-semibold text-tech-textSecond transition hover:border-tech-primary hover:text-tech-primary">
               <Edit className="h-4 w-4" /> Editar
             </button>
-            <button onClick={() => onToggle(channel.id)} className="btn-ghost btn-sm inline-flex items-center gap-2 rounded-lg px-3 py-1 text-sm">
-              <Zap className="h-4 w-4" /> Activar/Desactivar
+            <button onClick={() => onToggle(channel.id)} className="inline-flex items-center gap-2 rounded-xl bg-tech-primary px-3 py-2 text-xs font-semibold text-white transition hover:bg-tech-primary/90">
+              <Zap className="h-4 w-4" /> Activar
             </button>
           </div>
         </div>
-      </div>
-      <div className="mt-3">
-        <StatusBadge status={channel.status} />
       </div>
     </article>
   );

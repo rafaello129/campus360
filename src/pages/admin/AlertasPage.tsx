@@ -1,14 +1,12 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { AlertActionModal } from "../../components/admin/AlertActionModal";
-import { DataTable, type DataTableColumn } from "../../components/common/DataTable";
-import { MetricCard } from "../../components/common/MetricCard";
-import { PageShell } from "../../components/common/PageShell";
 import { FilterPill } from "../../components/common/FilterPill";
+import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
 import { StatusBadge } from "../../components/common/StatusBadge";
-import { paths } from "../../router/paths";
 import { adminAlerts, alertAttentionStats, alertFilters, alertMetrics, type AdminAlertRecord, type AlertRisk } from "../../data/adminAlerts";
+import { paths } from "../../router/paths";
 
 const riskClasses: Record<AlertRisk, string> = {
   alto: "bg-rose-100 text-rose-800 border-rose-200",
@@ -53,41 +51,6 @@ export function AlertasPage() {
     });
   }, [alerts, filter]);
 
-  const columns: DataTableColumn<AdminAlertRecord>[] = [
-    {
-      id: "student",
-      header: "Estudiante",
-      render: (alert) => (
-        <div>
-          <p className="font-semibold text-slate-900">{alert.studentName}</p>
-          <p className="text-xs text-slate-500">{alert.enrollment}</p>
-        </div>
-      )
-    },
-    { id: "type", header: "Tipo", render: (alert) => <span className="text-slate-700">{alert.type}</span> },
-    {
-      id: "risk",
-      header: "Riesgo",
-      render: (alert) => <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${riskClasses[alert.risk]}`}>{alert.risk}</span>
-    },
-    { id: "description", header: "Descripción", render: (alert) => <span className="text-slate-600">{alert.description}</span> },
-    { id: "detected", header: "Detectada", render: (alert) => <span className="text-slate-600">{alert.detectedAt}</span> },
-    { id: "owner", header: "Responsable", render: (alert) => <span className="text-slate-600">{alert.owner}</span> },
-    { id: "state", header: "Estado", render: (alert) => <StatusBadge status={alert.status} /> },
-    { id: "next", header: "Próxima acción", render: (alert) => <span className="text-slate-600">{alert.nextAction}</span> },
-    {
-      id: "actions",
-      header: "Acciones",
-      className: "whitespace-nowrap",
-      render: (alert) => (
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => { setSelectedAlert(alert); setForm({ ...emptyForm, responsable: alert.owner }); }} className="rounded-lg border border-petrol-200 px-3 py-1.5 text-xs font-semibold text-petrol-700 hover:bg-petrol-50">Atender</button>
-          <Link to={paths.admin.estudiantePerfil(alert.studentId)} className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">Ver estudiante</Link>
-        </div>
-      )
-    }
-  ];
-
   const attendAlert = () => {
     if (!selectedAlert) return;
     setAlerts((previous) =>
@@ -105,17 +68,23 @@ export function AlertasPage() {
   return (
     <PageShell
       title="Alertas institucionales"
-      description="Detecta y prioriza casos que requieren atención académica o administrativa."
+      description="Priorización de casos académicos, administrativos y documentales que requieren seguimiento."
       eyebrow="Monitoreo"
     >
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        {alertMetrics.map((metric) => (
-          <MetricCard key={metric.label} metric={metric} />
-        ))}
+      <section className="rounded-lg border border-tech-border bg-white p-4 shadow-sm">
+        <div className="grid gap-3 md:grid-cols-4">
+          {alertMetrics.slice(0, 4).map((metric) => (
+            <div key={metric.label} className="border-l-2 border-tech-primary/30 pl-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-tech-textSecond">{metric.label}</p>
+              <p className="mt-1 text-2xl font-bold text-tech-textMain">{metric.value}</p>
+              <p className="text-xs text-tech-textSecond">{metric.trend}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {confirmation ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 px-4 py-3 text-sm font-medium text-emerald-800">
           {confirmation}
         </div>
       ) : null}
@@ -126,20 +95,69 @@ export function AlertasPage() {
         ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_0.6fr]">
-        <SectionCard title="Alertas registradas" description="Lista priorizada para atención operativa">
-          <DataTable columns={columns} rows={filteredAlerts} rowKey={(alert) => alert.id} />
+      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <SectionCard title="Casos priorizados" description="Lista operativa sin desbordes horizontales">
+          <div className="space-y-3">
+            {filteredAlerts.map((alert) => (
+              <article key={alert.id} className="rounded-lg border border-tech-border bg-white p-4 shadow-sm">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-semibold text-tech-textMain">{alert.studentName}</h3>
+                      <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${riskClasses[alert.risk]}`}>
+                        Riesgo {alert.risk}
+                      </span>
+                      <StatusBadge status={alert.status} />
+                    </div>
+                    <p className="mt-1 text-xs text-tech-textSecond">{alert.enrollment} · {alert.type} · Detectada {alert.detectedAt}</p>
+                    <p className="mt-3 text-sm leading-6 text-tech-textSecond">{alert.description}</p>
+                  </div>
+
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedAlert(alert);
+                        setForm({ ...emptyForm, responsable: alert.owner });
+                      }}
+                      className="rounded-lg border border-tech-primary/30 px-3 py-2 text-xs font-semibold text-tech-primary transition hover:bg-blue-50"
+                    >
+                      Atender
+                    </button>
+                    <Link to={paths.admin.estudiantePerfil(alert.studentId)} className="rounded-lg border border-tech-border px-3 py-2 text-xs font-semibold text-tech-textSecond transition hover:bg-tech-bg">
+                      Ver estudiante
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 border-t border-tech-divider pt-4 md:grid-cols-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tech-textSecond">Responsable</p>
+                    <p className="mt-1 text-sm font-semibold text-tech-textMain">{alert.owner}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tech-textSecond">Estado</p>
+                    <p className="mt-1 text-sm font-semibold text-tech-textMain">{alert.state}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tech-textSecond">Próxima acción</p>
+                    <p className="mt-1 text-sm leading-5 text-tech-textMain">{alert.nextAction}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         </SectionCard>
 
         <aside className="space-y-4">
           <SectionCard title="Alertas críticas">
             <div className="space-y-3">
               {alerts.filter((alert) => alert.critical).map((alert) => (
-                <article key={alert.id} className="rounded-xl border border-rose-200 bg-rose-50 p-4">
+                <article key={alert.id} className="rounded-lg border border-rose-200 bg-rose-50 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-semibold text-rose-900">{alert.studentName}</p>
-                      <p className="mt-1 text-xs text-rose-700">{alert.nextAction}</p>
+                      <p className="mt-1 text-xs leading-5 text-rose-700">{alert.nextAction}</p>
                     </div>
                     <StatusBadge status={alert.status} />
                   </div>
@@ -148,17 +166,17 @@ export function AlertasPage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="Tiempo promedio de atención">
-            <p className="text-3xl font-bold text-slate-900">{alertAttentionStats.avgAttentionTime}</p>
-            <p className="mt-2 text-sm text-slate-600">{alertAttentionStats.weekClosed} alertas cerradas esta semana</p>
-          </SectionCard>
-
-          <SectionCard title="Recomendaciones institucionales">
-            <ul className="space-y-2 text-sm text-slate-600">
-              {alertFilters.slice(1, 5).map((item) => (
-                <li key={item} className="rounded-lg bg-slate-50 px-3 py-2">{item}</li>
-              ))}
-            </ul>
+          <SectionCard title="Atención institucional">
+            <div className="space-y-4 text-sm text-tech-textSecond">
+              <div>
+                <p className="text-3xl font-bold text-tech-textMain">{alertAttentionStats.avgAttentionTime}</p>
+                <p className="mt-1">{alertAttentionStats.weekClosed} alertas cerradas esta semana</p>
+              </div>
+              <div className="rounded-lg bg-tech-bg p-3">
+                <p className="font-semibold text-tech-textMain">Criterio operativo</p>
+                <p className="mt-1 leading-6">Atender primero riesgo alto, después alertas documentales y seguimiento académico.</p>
+              </div>
+            </div>
           </SectionCard>
         </aside>
       </div>
@@ -173,21 +191,21 @@ export function AlertasPage() {
         >
           <div className="space-y-3">
             <label className="block space-y-1 text-sm">
-              <span className="font-medium text-slate-700">Acción realizada</span>
-              <textarea value={form.accion} onChange={(event) => setForm((previous) => ({ ...previous, accion: event.target.value }))} rows={3} className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-petrol-500" />
+              <span className="font-medium text-tech-textMain">Acción realizada</span>
+              <textarea value={form.accion} onChange={(event) => setForm((previous) => ({ ...previous, accion: event.target.value }))} rows={3} className="w-full rounded-lg border border-tech-border px-3 py-2 outline-none focus:border-tech-primary" />
             </label>
             <label className="block space-y-1 text-sm">
-              <span className="font-medium text-slate-700">Observación</span>
-              <textarea value={form.observacion} onChange={(event) => setForm((previous) => ({ ...previous, observacion: event.target.value }))} rows={3} className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-petrol-500" />
+              <span className="font-medium text-tech-textMain">Observación</span>
+              <textarea value={form.observacion} onChange={(event) => setForm((previous) => ({ ...previous, observacion: event.target.value }))} rows={3} className="w-full rounded-lg border border-tech-border px-3 py-2 outline-none focus:border-tech-primary" />
             </label>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block space-y-1 text-sm">
-                <span className="font-medium text-slate-700">Responsable</span>
-                <input value={form.responsable} onChange={(event) => setForm((previous) => ({ ...previous, responsable: event.target.value }))} className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-petrol-500" />
+                <span className="font-medium text-tech-textMain">Responsable</span>
+                <input value={form.responsable} onChange={(event) => setForm((previous) => ({ ...previous, responsable: event.target.value }))} className="w-full rounded-lg border border-tech-border px-3 py-2 outline-none focus:border-tech-primary" />
               </label>
               <label className="block space-y-1 text-sm">
-                <span className="font-medium text-slate-700">Fecha de seguimiento</span>
-                <input type="date" value={form.fecha} onChange={(event) => setForm((previous) => ({ ...previous, fecha: event.target.value }))} className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-petrol-500" />
+                <span className="font-medium text-tech-textMain">Fecha de seguimiento</span>
+                <input type="date" value={form.fecha} onChange={(event) => setForm((previous) => ({ ...previous, fecha: event.target.value }))} className="w-full rounded-lg border border-tech-border px-3 py-2 outline-none focus:border-tech-primary" />
               </label>
             </div>
           </div>
@@ -196,4 +214,3 @@ export function AlertasPage() {
     </PageShell>
   );
 }
-

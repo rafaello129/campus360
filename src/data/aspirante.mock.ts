@@ -23,22 +23,22 @@ export const aspiranteMetrics: Metric[] = [
 
 export const landingBenefits = [
   {
-    icon: "✓",
+    icon: "check-circle",
     title: "Seguimiento claro de admisión",
     description: "Conoce en tiempo real el estado de tu expediente."
   },
   {
-    icon: "📚",
+    icon: "book-open",
     title: "Información de carreras",
     description: "Explora programas, modalidades y oportunidades de formación."
   },
   {
-    icon: "📋",
+    icon: "file-check",
     title: "Documentos organizados",
     description: "Carga, descarga y verifica el estatus de todos tus documentos."
   },
   {
-    icon: "💬",
+    icon: "message-square",
     title: "Orientación con asistente virtual",
     description: "Chatbot disponible 24/7 para resolver tus dudas."
   }

@@ -5,23 +5,23 @@ import { students } from "../data/students";
 import { paths } from "../router/paths";
 
 const activeDesktopClass =
-  "flex items-center gap-2 rounded-lg bg-petrol-50 px-3 py-2 text-sm font-semibold text-petrol-800";
+  "flex items-center gap-2 rounded-lg bg-blue-100 px-3 py-2 text-sm font-semibold text-tech-primary";
 const inactiveDesktopClass =
-  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100 hover:text-slate-900";
+  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-tech-textSecond transition hover:bg-tech-bg hover:text-tech-textMain";
 
 export function EstudianteLayout() {
   const currentStudent = students[0];
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20 md:pb-0">
-      <div className="md:grid md:grid-cols-[260px_1fr]">
-        <aside className="hidden min-h-screen border-r border-slate-200 bg-white md:flex md:flex-col">
-          <div className="border-b border-slate-200 px-5 py-4">
-            <h1 className="text-lg font-bold text-petrol-800">Campus360</h1>
-            <p className="text-xs text-slate-500">Portal del estudiante</p>
+    <div className="min-h-screen bg-tech-bg pb-20 md:h-screen md:overflow-hidden md:pb-0">
+      <div className="md:grid md:h-screen md:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="hidden border-r border-tech-border bg-white md:sticky md:top-0 md:flex md:h-screen md:flex-col">
+          <div className="border-b border-tech-border px-5 py-4">
+            <h1 className="text-lg font-bold text-tech-primary">Campus360</h1>
+            <p className="text-xs text-tech-textSecond">Portal del estudiante</p>
           </div>
 
-          <nav className="flex-1 space-y-1 p-3">
+          <nav className="flex-1 space-y-1 overflow-y-auto p-3">
             {estudianteNavItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -38,37 +38,37 @@ export function EstudianteLayout() {
             })}
           </nav>
 
-          <div className="border-t border-slate-200 p-3">
+          <div className="border-t border-tech-border p-3">
             <Link
               to={paths.roleSelector}
-              className="block rounded-lg border border-slate-200 px-3 py-2 text-center text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+              className="block rounded-lg border border-tech-border px-3 py-2 text-center text-sm font-medium text-tech-textSecond hover:bg-tech-bg transition"
             >
               Volver al selector
             </Link>
           </div>
         </aside>
 
-        <div className="min-w-0">
-          <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
+        <div className="min-w-0 md:flex md:h-screen md:flex-col md:overflow-hidden">
+          <header className="sticky top-0 z-20 border-b border-tech-border bg-white/95 px-4 py-3 backdrop-blur sm:px-5 lg:px-6 2xl:px-8">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wider text-tech-textSecond">
                   Campus360 Estudiante
                 </p>
-                <p className="text-base font-semibold text-slate-900">{currentStudent.name}</p>
-                <p className="text-xs text-slate-500">{currentStudent.career}</p>
+                <p className="text-base font-semibold text-tech-textMain">{currentStudent.name}</p>
+                <p className="text-xs text-tech-textSecond">{currentStudent.career}</p>
               </div>
               <UserAvatar name={currentStudent.name} subtitle={currentStudent.semester} />
             </div>
           </header>
 
-          <main className="p-4 sm:p-6 md:p-8">
+          <main className="p-4 sm:p-5 md:flex-1 md:overflow-y-auto lg:p-6 2xl:p-8">
             <Outlet />
           </main>
         </div>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-tech-border bg-white/95 backdrop-blur md:hidden">
         <div className="flex gap-1 overflow-x-auto px-2 py-2">
           {estudianteNavItems.map((item) => {
             const Icon = item.icon;
@@ -80,7 +80,7 @@ export function EstudianteLayout() {
                 end={item.path === paths.estudiante.root}
                 className={({ isActive }) =>
                   `inline-flex min-w-[92px] flex-col items-center rounded-md px-2 py-1 text-[11px] font-medium ${
-                    isActive ? "bg-petrol-50 text-petrol-800" : "text-slate-500"
+                    isActive ? "bg-blue-100 text-tech-primary" : "text-tech-textSecond"
                   }`
                 }
               >

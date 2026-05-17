@@ -18,13 +18,13 @@ export function UserAvatar({ name, subtitle, compact = false }: UserAvatarProps)
 
   return (
     <div className="flex items-center gap-2">
-      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-petrol-700 text-sm font-bold text-white">
+      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-tech-primary text-xs font-bold text-white">
         {initials}
       </span>
       {!compact ? (
         <span className="hidden text-left sm:block">
-          <strong className="block text-sm text-slate-900">{name}</strong>
-          {subtitle ? <small className="text-xs text-slate-500">{subtitle}</small> : null}
+          <strong className="block text-sm text-tech-textMain">{name}</strong>
+          {subtitle ? <small className="text-xs text-tech-textSecond">{subtitle}</small> : null}
         </span>
       ) : null}
     </div>

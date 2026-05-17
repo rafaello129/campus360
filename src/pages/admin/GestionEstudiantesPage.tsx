@@ -154,7 +154,7 @@ export function GestionEstudiantesPage() {
         <button
           type="button"
           onClick={() => setSelectedStudent(student)}
-          className="font-semibold text-petrol-700 hover:text-petrol-800"
+          className="font-semibold text-tech-primary hover:text-tech-accent"
         >
           Ver seguimiento
         </button>
@@ -168,7 +168,7 @@ export function GestionEstudiantesPage() {
       description="Consulta el estado académico, participación y seguimiento de los alumnos activos."
       eyebrow="Control escolar"
       actions={
-        <Link to={paths.admin.analitica} className="rounded-lg bg-petrol-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-petrol-800">
+        <Link to={paths.admin.analitica} className="rounded-lg bg-tech-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-tech-primary/90">
           Ver analítica
         </Link>
       }
@@ -190,7 +190,7 @@ export function GestionEstudiantesPage() {
           <div className="grid gap-3 lg:grid-cols-5">
             <label className="space-y-1 text-sm">
               <span className="font-medium text-slate-700">Carrera</span>
-              <select value={careerFilter} onChange={(event) => setCareerFilter(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-petrol-500">
+              <select value={careerFilter} onChange={(event) => setCareerFilter(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-tech-primary">
                 {adminStudentFilters.careers.map((career) => (
                   <option key={career} value={career}>{career}</option>
                 ))}
@@ -198,7 +198,7 @@ export function GestionEstudiantesPage() {
             </label>
             <label className="space-y-1 text-sm">
               <span className="font-medium text-slate-700">Semestre</span>
-              <select value={semesterFilter} onChange={(event) => setSemesterFilter(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-petrol-500">
+              <select value={semesterFilter} onChange={(event) => setSemesterFilter(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-tech-primary">
                 {adminStudentFilters.semesters.map((semester) => (
                   <option key={semester} value={semester}>{semester}</option>
                 ))}
@@ -206,7 +206,7 @@ export function GestionEstudiantesPage() {
             </label>
             <label className="space-y-1 text-sm">
               <span className="font-medium text-slate-700">Estado</span>
-              <select value={stateFilter} onChange={(event) => setStateFilter(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-petrol-500">
+              <select value={stateFilter} onChange={(event) => setStateFilter(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-tech-primary">
                 {adminStudentFilters.states.map((state) => (
                   <option key={state} value={state}>{state}</option>
                 ))}
@@ -214,7 +214,7 @@ export function GestionEstudiantesPage() {
             </label>
             <label className="space-y-1 text-sm">
               <span className="font-medium text-slate-700">Riesgo</span>
-              <select value={riskFilter} onChange={(event) => setRiskFilter(event.target.value as StudentRisk | "Todos")} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-petrol-500">
+              <select value={riskFilter} onChange={(event) => setRiskFilter(event.target.value as StudentRisk | "Todos")} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-tech-primary">
                 {adminStudentFilters.risks.map((risk) => (
                   <option key={risk} value={risk}>{risk}</option>
                 ))}
@@ -222,7 +222,7 @@ export function GestionEstudiantesPage() {
             </label>
             <label className="space-y-1 text-sm">
               <span className="font-medium text-slate-700">Participación</span>
-              <select value={participationFilter} onChange={(event) => setParticipationFilter(event.target.value as ParticipationBand | "Todas")} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-petrol-500">
+              <select value={participationFilter} onChange={(event) => setParticipationFilter(event.target.value as ParticipationBand | "Todas")} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-tech-primary">
                 {adminStudentFilters.participation.map((band) => (
                   <option key={band} value={band}>{band}</option>
                 ))}
@@ -271,9 +271,9 @@ export function GestionEstudiantesPage() {
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-700">Alertas activas</p>
                     <p className="mt-2 text-sm font-medium text-rose-900">{selectedStudent.activeAlerts.join(" · ")}</p>
                   </div>
-                  <div className="rounded-xl border border-teal-200 bg-teal-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-teal-700">Resumen de estado</p>
-                    <p className="mt-2 text-sm font-medium text-teal-900">{selectedStudent.state} · Riesgo {selectedStudent.risk}</p>
+                  <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tech-primary">Resumen de estado</p>
+                    <p className="mt-2 text-sm font-medium text-tech-textMain">{selectedStudent.state} · Riesgo {selectedStudent.risk}</p>
                   </div>
                 </div>
               </div>
@@ -290,21 +290,21 @@ export function GestionEstudiantesPage() {
                   <button
                     type="button"
                     onClick={() => setSummaryMessage(`Seguimiento registrado para ${selectedStudent.name}.`)}
-                    className="rounded-lg border border-petrol-200 bg-white px-3 py-2 text-sm font-semibold text-petrol-700 transition hover:bg-petrol-50"
+                    className="rounded-lg border border-tech-accent/30 bg-white px-3 py-2 text-sm font-semibold text-tech-primary transition hover:bg-tech-bg"
                   >
                     Registrar seguimiento
                   </button>
                   <button
                     type="button"
                     onClick={() => setSummaryMessage(`Recordatorio enviado para ${selectedStudent.name}.`)}
-                    className="rounded-lg border border-petrol-200 bg-white px-3 py-2 text-sm font-semibold text-petrol-700 transition hover:bg-petrol-50"
+                    className="rounded-lg border border-tech-accent/30 bg-white px-3 py-2 text-sm font-semibold text-tech-primary transition hover:bg-tech-bg"
                   >
                     Enviar recordatorio
                   </button>
                   <button
                     type="button"
                     onClick={() => navigate(paths.admin.estudiantePerfil(selectedStudent.id))}
-                    className="rounded-lg border border-petrol-200 bg-white px-3 py-2 text-sm font-semibold text-petrol-700 transition hover:bg-petrol-50"
+                    className="rounded-lg border border-tech-accent/30 bg-white px-3 py-2 text-sm font-semibold text-tech-primary transition hover:bg-tech-bg"
                   >
                     Ver trayectoria
                   </button>

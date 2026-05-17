@@ -1,4 +1,4 @@
-import { MapPin, Clock, Navigation, Search } from "lucide-react";
+import { Compass, MapPin, Clock, Navigation, Search } from "lucide-react";
 import { useState } from "react";
 import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
@@ -15,86 +15,14 @@ interface CampusLocation {
 }
 
 const locations: CampusLocation[] = [
-  {
-    id: "loc-1",
-    name: "Oficina de Admisiones",
-    description: "Trámites de inscripción, solicitudes y aclaraciones de admisión.",
-    hours: "Lunes a viernes, 08:30 - 17:30",
-    directions: "Planta baja, ala norte del Edificio Principal",
-    estimatedTime: "2 minutos desde la entrada principal",
-    position: { x: 20, y: 30 },
-    category: "admisiones"
-  },
-  {
-    id: "loc-2",
-    name: "Biblioteca Central",
-    description: "Recursos académicos, libros, computadores y salas de estudio.",
-    hours: "Lunes a viernes, 07:00 - 20:00 | Sábado, 09:00 - 14:00",
-    directions: "Edificio de Biblioteca, bloque central del campus",
-    estimatedTime: "5 minutos desde la entrada principal",
-    position: { x: 50, y: 25 },
-    category: "educacion"
-  },
-  {
-    id: "loc-3",
-    name: "Servicios Escolares",
-    description: "Documentación, certificados, historiales académicos.",
-    hours: "Lunes a viernes, 09:00 - 16:00",
-    directions: "Planta baja, Edificio Principal, ala central",
-    estimatedTime: "3 minutos desde la entrada principal",
-    position: { x: 25, y: 50 },
-    category: "servicios"
-  },
-  {
-    id: "loc-4",
-    name: "Laboratorios de Cómputo",
-    description: "Equipos y software especializado para cursos tecnológicos.",
-    hours: "Lunes a viernes, 08:00 - 18:00",
-    directions: "Piso 2 y 3, ala tecnológica",
-    estimatedTime: "8 minutos desde la entrada principal",
-    position: { x: 75, y: 35 },
-    category: "educacion"
-  },
-  {
-    id: "loc-5",
-    name: "Auditorio Principal",
-    description: "Conferencias, eventos y actos institucionales.",
-    hours: "Bajo demanda",
-    directions: "Edificio de Auditorios, sur del campus",
-    estimatedTime: "10 minutos desde la entrada principal",
-    position: { x: 45, y: 70 },
-    category: "recreacion"
-  },
-  {
-    id: "loc-6",
-    name: "Cafetería",
-    description: "Alimentos, bebidas y espacios de descanso.",
-    hours: "Lunes a viernes, 06:30 - 19:00 | Sábado, 08:00 - 14:00",
-    directions: "Planta baja, sector central del campus",
-    estimatedTime: "4 minutos desde la entrada principal",
-    position: { x: 50, y: 50 },
-    category: "recreacion"
-  },
-  {
-    id: "loc-7",
-    name: "Dirección General",
-    description: "Gestión administrativa y atención a consultas generales.",
-    hours: "Lunes a viernes, 08:30 - 17:00",
-    directions: "Piso 3, Edificio Principal",
-    estimatedTime: "5 minutos desde la entrada principal",
-    position: { x: 30, y: 20 },
-    category: "soporte"
-  },
-  {
-    id: "loc-8",
-    name: "Departamento de Bienestar",
-    description: "Apoyo psicológico, médico y orientación estudiantil.",
-    hours: "Lunes a viernes, 09:00 - 17:00",
-    directions: "Planta baja, ala sur, Edificio de Servicios",
-    estimatedTime: "7 minutos desde la entrada principal",
-    position: { x: 65, y: 60 },
-    category: "soporte"
-  }
+  { id: "loc-1", name: "Oficina de Admisiones", description: "Trámites de inscripción, solicitudes y aclaraciones de admisión.", hours: "Lunes a viernes, 08:30 - 17:30", directions: "Planta baja, ala norte del Edificio Principal", estimatedTime: "2 minutos desde la entrada principal", position: { x: 20, y: 30 }, category: "admisiones" },
+  { id: "loc-2", name: "Biblioteca Central", description: "Recursos académicos, libros, computadores y salas de estudio.", hours: "Lunes a viernes, 07:00 - 20:00 | Sábado, 09:00 - 14:00", directions: "Edificio de Biblioteca, bloque central del campus", estimatedTime: "5 minutos desde la entrada principal", position: { x: 50, y: 25 }, category: "educacion" },
+  { id: "loc-3", name: "Servicios Escolares", description: "Documentación, certificados, historiales académicos.", hours: "Lunes a viernes, 09:00 - 16:00", directions: "Planta baja, Edificio Principal, ala central", estimatedTime: "3 minutos desde la entrada principal", position: { x: 25, y: 50 }, category: "servicios" },
+  { id: "loc-4", name: "Laboratorios de Cómputo", description: "Equipos y software especializado para cursos tecnológicos.", hours: "Lunes a viernes, 08:00 - 18:00", directions: "Piso 2 y 3, ala tecnológica", estimatedTime: "8 minutos desde la entrada principal", position: { x: 75, y: 35 }, category: "educacion" },
+  { id: "loc-5", name: "Auditorio Principal", description: "Conferencias, eventos y actos institucionales.", hours: "Bajo demanda", directions: "Edificio de Auditorios, sur del campus", estimatedTime: "10 minutos desde la entrada principal", position: { x: 45, y: 70 }, category: "recreacion" },
+  { id: "loc-6", name: "Cafetería", description: "Alimentos, bebidas y espacios de descanso.", hours: "Lunes a viernes, 06:30 - 19:00 | Sábado, 08:00 - 14:00", directions: "Planta baja, sector central del campus", estimatedTime: "4 minutos desde la entrada principal", position: { x: 50, y: 50 }, category: "recreacion" },
+  { id: "loc-7", name: "Dirección General", description: "Gestión administrativa y atención a consultas generales.", hours: "Lunes a viernes, 08:30 - 17:00", directions: "Piso 3, Edificio Principal", estimatedTime: "5 minutos desde la entrada principal", position: { x: 30, y: 20 }, category: "soporte" },
+  { id: "loc-8", name: "Departamento de Bienestar", description: "Apoyo psicológico, médico y orientación estudiantil.", hours: "Lunes a viernes, 09:00 - 17:00", directions: "Planta baja, ala sur, Edificio de Servicios", estimatedTime: "7 minutos desde la entrada principal", position: { x: 65, y: 60 }, category: "soporte" }
 ];
 
 export function MapPage() {
@@ -104,204 +32,145 @@ export function MapPage() {
 
   const categories = [
     { id: "admisiones", label: "Admisiones", color: "bg-blue-100 text-blue-700" },
-    { id: "servicios", label: "Servicios", color: "bg-purple-100 text-purple-700" },
-    { id: "educacion", label: "Educación", color: "bg-green-100 text-green-700" },
-    { id: "recreacion", label: "Recreación", color: "bg-orange-100 text-orange-700" },
-    { id: "soporte", label: "Soporte", color: "bg-red-100 text-red-700" }
+    { id: "servicios", label: "Servicios", color: "bg-sky-100 text-sky-700" },
+    { id: "educacion", label: "Educación", color: "bg-cyan-100 text-cyan-700" },
+    { id: "recreacion", label: "Recreación", color: "bg-amber-100 text-amber-700" },
+    { id: "soporte", label: "Soporte", color: "bg-slate-100 text-slate-700" }
   ];
 
   const filteredLocations = locations.filter((loc) => {
-    const matchesSearch = loc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      loc.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = loc.name.toLowerCase().includes(searchTerm.toLowerCase()) || loc.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || loc.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   return (
-    <PageShell
-      eyebrow="Campus"
-      title="Mapa del campus"
-      description="Ubica todas las áreas importantes y servicios del campus."
-    >
-      <div className="grid gap-6 lg:grid-cols-4">
-        {/* Mapa Visual */}
-        <div className="lg:col-span-2">
-          <SectionCard title="Campus Interactivo" className="p-0 overflow-hidden">
-            <div className="relative aspect-square bg-gradient-to-br from-slate-100 to-slate-50">
-              {/* Grid de fondo */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute inset-0" style={{
-                  backgroundImage: "linear-gradient(0deg, #000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
-                  backgroundSize: "40px 40px"
-                }}></div>
+    <PageShell eyebrow="Campus" title="Mapa interactivo del campus" description="Ubica áreas clave, servicios y puntos de atención con una vista institucional clara.">
+      <div className="grid gap-6 xl:grid-cols-[1.35fr_0.95fr]">
+        <SectionCard title="Campus interactivo" className="overflow-hidden border border-tech-border p-0">
+          <div className="border-b border-tech-border bg-tech-bg px-5 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">Vista general</p>
+                <p className="mt-1 text-sm text-tech-textSecond">Toca una ubicación para ver horario, ruta y descripción.</p>
               </div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-semibold text-tech-primary">
+                <Compass className="h-4 w-4" /> Navegación guiada
+              </div>
+            </div>
+          </div>
 
-              {/* Entrada principal */}
-              <div className="absolute bottom-0 left-0 right-0 h-2 bg-slate-400"></div>
-              <p className="absolute bottom-1 left-2 text-xs font-bold text-slate-600">ENTRADA</p>
+          <div className="relative aspect-[4/3] bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.16),_transparent_42%),linear-gradient(180deg,#f8fbff_0%,#eff6ff_100%)] p-5">
+            <div className="absolute inset-5 rounded-[2rem] border border-white/70 bg-white/60 shadow-inner" />
+            <div className="absolute inset-5 opacity-30" style={{ backgroundImage: "linear-gradient(rgba(148,163,184,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.35) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+            <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between rounded-2xl border border-tech-border bg-white/90 px-4 py-3 text-xs font-medium text-tech-textSecond">
+              <span>Entrada principal</span>
+              <span>Orientación norte</span>
+            </div>
 
-              {/* Ubicaciones en el mapa */}
-              {filteredLocations.map((loc) => (
+            {filteredLocations.map((loc) => (
+              <button
+                key={loc.id}
+                onClick={() => setSelectedLocation(loc)}
+                className={`absolute flex h-11 w-11 items-center justify-center rounded-2xl border transition hover:-translate-y-0.5 ${selectedLocation?.id === loc.id ? "border-tech-primary bg-tech-primary text-white shadow-lg shadow-blue-200" : "border-tech-border bg-white text-tech-primary shadow-sm hover:border-tech-primary"}`}
+                style={{ left: `${loc.position.x}%`, top: `${loc.position.y}%`, transform: "translate(-50%, -50%)" }}
+                title={loc.name}
+              >
+                <MapPin className="h-5 w-5" />
+              </button>
+            ))}
+          </div>
+
+          <div className="border-t border-tech-border p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">Categorías</p>
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+              {categories.map((cat) => (
                 <button
-                  key={loc.id}
-                  onClick={() => setSelectedLocation(loc)}
-                  className={`absolute flex h-8 w-8 items-center justify-center rounded-full transition transform hover:scale-125 ${
-                    selectedLocation?.id === loc.id
-                      ? "ring-2 ring-petrol-500 ring-offset-2"
-                      : ""
-                  }`}
-                  style={{
-                    left: `${loc.position.x}%`,
-                    top: `${loc.position.y}%`,
-                    transform: "translate(-50%, -50%)"
-                  }}
-                  title={loc.name}
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
+                  className={`rounded-2xl px-3 py-2 text-xs font-semibold transition ${selectedCategory === cat.id ? cat.color : "bg-tech-bg text-tech-textSecond hover:bg-blue-100"}`}
                 >
-                  <div className={`h-full w-full rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                    loc.category === "admisiones" ? "bg-blue-500" :
-                    loc.category === "servicios" ? "bg-purple-500" :
-                    loc.category === "educacion" ? "bg-green-500" :
-                    loc.category === "recreacion" ? "bg-orange-500" :
-                    "bg-red-500"
-                  }`}>
-                    <MapPin className="h-4 w-4" />
-                  </div>
+                  {cat.label}
                 </button>
               ))}
             </div>
+          </div>
+        </SectionCard>
 
-            {/* Leyenda */}
-            <div className="p-4 border-t border-slate-200">
-              <p className="text-xs font-semibold text-slate-600 mb-2">Categorías</p>
-              <div className="grid grid-cols-2 gap-2">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
-                    className={`text-xs font-medium px-2 py-1 rounded ${
-                      selectedCategory === cat.id
-                        ? cat.color
-                        : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
+        <div className="space-y-6">
+          <SectionCard title="Buscar ubicación" className="border border-tech-border">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-tech-textSecond" />
+              <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Buscar ubicación..." className="w-full rounded-2xl border border-tech-border bg-white py-3 pl-10 pr-4 text-sm outline-none transition placeholder:text-tech-textSecond focus:border-tech-primary focus:ring-2 focus:ring-blue-100" />
             </div>
           </SectionCard>
-        </div>
 
-        {/* Barra lateral con listado */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Búsqueda */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Buscar ubicación..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-petrol-500 focus:ring-2 focus:ring-petrol-50"
-            />
-          </div>
-
-          {/* Lista de ubicaciones */}
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {filteredLocations.length === 0 ? (
-              <div className="rounded-lg bg-slate-50 p-4 text-center">
-                <p className="text-sm text-slate-600">No se encontraron ubicaciones.</p>
-              </div>
-            ) : (
-              filteredLocations.map((loc) => (
-                <button
-                  key={loc.id}
-                  onClick={() => setSelectedLocation(loc)}
-                  className={`w-full rounded-lg border-2 p-3 text-left transition ${
-                    selectedLocation?.id === loc.id
-                      ? "border-petrol-500 bg-petrol-50"
-                      : "border-slate-200 bg-white hover:border-petrol-300"
-                  }`}
-                >
-                  <div className="flex items-start gap-2">
-                    <div className={`mt-1 h-3 w-3 rounded-full flex-shrink-0 ${
-                      loc.category === "admisiones" ? "bg-blue-500" :
-                      loc.category === "servicios" ? "bg-purple-500" :
-                      loc.category === "educacion" ? "bg-green-500" :
-                      loc.category === "recreacion" ? "bg-orange-500" :
-                      "bg-red-500"
-                    }`}></div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-slate-900">{loc.name}</h4>
-                      <p className="text-xs text-slate-600 mt-1">{loc.description}</p>
+          <SectionCard title="Ubicaciones" className="border border-tech-border">
+            <div className="max-h-[22rem] space-y-3 overflow-y-auto pr-1">
+              {filteredLocations.length === 0 ? (
+                <div className="rounded-2xl bg-tech-bg p-4 text-center text-sm text-tech-textSecond">No se encontraron ubicaciones.</div>
+              ) : (
+                filteredLocations.map((loc) => (
+                  <button
+                    key={loc.id}
+                    onClick={() => setSelectedLocation(loc)}
+                    className={`w-full rounded-2xl border p-4 text-left transition ${selectedLocation?.id === loc.id ? "border-tech-primary bg-blue-50" : "border-tech-border bg-white hover:border-tech-primary"}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`mt-1 h-3.5 w-3.5 rounded-full flex-shrink-0 ${loc.category === "admisiones" ? "bg-blue-500" : loc.category === "servicios" ? "bg-sky-500" : loc.category === "educacion" ? "bg-cyan-500" : loc.category === "recreacion" ? "bg-amber-500" : "bg-slate-500"}`} />
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-tech-textMain">{loc.name}</h4>
+                        <p className="mt-1 text-xs text-tech-textSecond">{loc.description}</p>
+                      </div>
                     </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </SectionCard>
+
+          {selectedLocation && (
+            <SectionCard title={selectedLocation.name} className="border border-tech-border">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">Detalle</p>
+                  <p className="mt-2 text-sm leading-6 text-tech-textSecond">{selectedLocation.description}</p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl bg-tech-bg p-4">
+                    <div className="flex items-center gap-2 text-tech-primary">
+                      <Clock className="h-4 w-4" />
+                      <span className="text-sm font-semibold text-tech-textMain">Horario</span>
+                    </div>
+                    <p className="mt-2 text-sm text-tech-textSecond">{selectedLocation.hours}</p>
                   </div>
-                </button>
-              ))
-            )}
-          </div>
+                  <div className="rounded-2xl bg-tech-bg p-4">
+                    <div className="flex items-center gap-2 text-tech-primary">
+                      <Navigation className="h-4 w-4" />
+                      <span className="text-sm font-semibold text-tech-textMain">Ruta</span>
+                    </div>
+                    <p className="mt-2 text-sm text-tech-textSecond">{selectedLocation.directions}</p>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-tech-border bg-white p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">Tiempo estimado</p>
+                  <p className="mt-2 text-2xl font-semibold text-tech-textMain">{selectedLocation.estimatedTime}</p>
+                  <button className="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-tech-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-tech-primary/90">Ver ruta en mapa</button>
+                </div>
+              </div>
+            </SectionCard>
+          )}
         </div>
       </div>
 
-      {/* Detalle de ubicación seleccionada */}
-      {selectedLocation && (
-        <SectionCard title={selectedLocation.name} className="mt-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-semibold text-slate-900 mb-1">Descripción</h4>
-                <p className="text-sm text-slate-600">{selectedLocation.description}</p>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-1">
-                  <Clock className="h-4 w-4 text-petrol-700" />
-                  Horario
-                </div>
-                <p className="text-sm text-slate-600">{selectedLocation.hours}</p>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-1">
-                  <Navigation className="h-4 w-4 text-petrol-700" />
-                  Ubicación
-                </div>
-                <p className="text-sm text-slate-600">{selectedLocation.directions}</p>
-              </div>
-            </div>
-
-            <div className="bg-slate-50 rounded-lg p-4">
-              <div className="text-center">
-                <p className="text-sm font-medium text-slate-600 mb-2">Tiempo estimado desde entrada principal</p>
-                <p className="text-2xl font-bold text-petrol-700">{selectedLocation.estimatedTime}</p>
-              </div>
-              <button className="mt-4 w-full rounded-lg bg-petrol-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-petrol-800">
-                Ver ruta en mapa
-              </button>
-            </div>
-          </div>
-        </SectionCard>
-      )}
-
-      {/* Recomendaciones */}
-      <SectionCard title="Tips de navegación" className="mt-6">
-        <div className="space-y-3 text-sm text-slate-700">
-          <div className="flex gap-3">
-            <span className="font-bold text-petrol-700">1.</span>
-            <p>Ingresa al campus por la entrada principal. Ahí encontrarás orientadores disponibles.</p>
-          </div>
-          <div className="flex gap-3">
-            <span className="font-bold text-petrol-700">2.</span>
-            <p>Usa este mapa interactivo para ubicar los servicios que necesites.</p>
-          </div>
-          <div className="flex gap-3">
-            <span className="font-bold text-petrol-700">3.</span>
-            <p>Los horarios pueden variar en períodos vacacionales. Verifica con anticipación.</p>
-          </div>
-          <div className="flex gap-3">
-            <span className="font-bold text-petrol-700">4.</span>
-            <p>Si necesitas ayuda en el campus, acércate a cualquier miembro del personal.</p>
-          </div>
+      <SectionCard title="Tips de navegación" className="mt-6 border border-tech-border">
+        <div className="space-y-3 text-sm text-tech-textSecond">
+          <div className="flex gap-3"><span className="font-bold text-tech-primary">1.</span><p>Ingresa al campus por la entrada principal. Ahí encontrarás orientadores disponibles.</p></div>
+          <div className="flex gap-3"><span className="font-bold text-tech-primary">2.</span><p>Usa este mapa interactivo para ubicar los servicios que necesites.</p></div>
+          <div className="flex gap-3"><span className="font-bold text-tech-primary">3.</span><p>Los horarios pueden variar en períodos vacacionales. Verifica con anticipación.</p></div>
+          <div className="flex gap-3"><span className="font-bold text-tech-primary">4.</span><p>Si necesitas ayuda en el campus, acércate a cualquier miembro del personal.</p></div>
         </div>
       </SectionCard>
     </PageShell>

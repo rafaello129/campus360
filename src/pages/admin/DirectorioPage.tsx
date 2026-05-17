@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Users } from 'lucide-react';
 import { SectionHeader } from '../../components/common/SectionHeader';
 import { adminDirectory } from '../../data/adminDirectory';
 import CreateContactModal from '../../components/admin/CreateContactModal';
@@ -20,9 +21,12 @@ export default function DirectorioPage(){
     <div className="space-y-6">
       <SectionHeader title="Directorio institucional" description="Consulta y administra los contactos académicos y administrativos disponibles para la comunidad." />
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 rounded-3xl border border-tech-border bg-white p-5 shadow-sm xl:flex-row xl:items-center xl:justify-between">
         <SearchInput value={query} onChange={(e)=>setQuery(e.currentTarget.value)} placeholder="Buscar por nombre, área, materia o correo..." />
-        <button onClick={() => setCreateOpen(true)} className="rounded-lg bg-petrol-700 px-4 py-2 text-white">Agregar contacto</button>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-2 rounded-full bg-tech-bg px-3 py-2 text-sm text-tech-textSecond"><Users className="h-4 w-4 text-tech-primary" /> {contacts.length} contactos</span>
+          <button onClick={() => setCreateOpen(true)} className="rounded-2xl bg-tech-primary px-4 py-2.5 text-white transition hover:bg-tech-primary/90">Agregar contacto</button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

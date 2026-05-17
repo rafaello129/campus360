@@ -21,7 +21,7 @@ export function ModuleScaffoldPage({ data }: ModuleScaffoldPageProps) {
             <button
               type="button"
               onClick={() => setLastAction(`${data.actionLabel} ejecutada`)}
-              className="rounded-lg bg-petrol-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-petrol-800"
+              className="rounded-2xl bg-tech-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-tech-primary/90"
             >
               {data.actionLabel}
             </button>
@@ -29,7 +29,7 @@ export function ModuleScaffoldPage({ data }: ModuleScaffoldPageProps) {
               <button
                 type="button"
                 onClick={() => setLastAction(`${data.secondaryActionLabel} ejecutada`)}
-                className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                className="rounded-2xl border border-tech-border px-3 py-2 text-sm font-medium text-tech-textSecond transition hover:bg-tech-bg"
               >
                 {data.secondaryActionLabel}
               </button>
@@ -39,7 +39,7 @@ export function ModuleScaffoldPage({ data }: ModuleScaffoldPageProps) {
       />
 
       {lastAction ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
           {lastAction} (simulado en frontend con estado local).
         </div>
       ) : null}
@@ -47,12 +47,12 @@ export function ModuleScaffoldPage({ data }: ModuleScaffoldPageProps) {
       <SectionCard title="Resumen del módulo" description={data.helperText}>
         <div className="grid gap-3 md:grid-cols-2">
           {data.highlights.map((item) => (
-            <article key={item.id} className="surface-muted p-4">
+            <article key={item.id} className="surface-muted rounded-2xl p-4">
               <div className="mb-2 flex items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold text-slate-900">{item.title}</h3>
+                <h3 className="text-sm font-semibold text-tech-textMain">{item.title}</h3>
                 {item.status ? <StatusBadge status={item.status} /> : null}
               </div>
-              <p className="text-sm text-slate-600">{item.description}</p>
+              <p className="text-sm leading-6 text-tech-textSecond">{item.description}</p>
             </article>
           ))}
         </div>

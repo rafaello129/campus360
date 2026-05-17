@@ -323,7 +323,7 @@ export const channels = [
     publications: 24,
     lastUpdate: "Hace 2 horas",
     color: "bg-blue-100 text-blue-700",
-    icon: "📢"
+    icon: "megaphone"
   },
   {
     id: "ch-2",
@@ -332,7 +332,7 @@ export const channels = [
     publications: 8,
     lastUpdate: "Hace 1 día",
     color: "bg-green-100 text-green-700",
-    icon: "💰"
+    icon: "coins"
   },
   {
     id: "ch-3",
@@ -341,7 +341,7 @@ export const channels = [
     publications: 12,
     lastUpdate: "Hace 4 horas",
     color: "bg-orange-100 text-orange-700",
-    icon: "⚽"
+    icon: "activity"
   },
   {
     id: "ch-4",
@@ -350,7 +350,7 @@ export const channels = [
     publications: 6,
     lastUpdate: "Hace 3 días",
     color: "bg-purple-100 text-purple-700",
-    icon: "🎭"
+    icon: "theater-masks"
   },
   {
     id: "ch-5",
@@ -359,7 +359,7 @@ export const channels = [
     publications: 10,
     lastUpdate: "Hace 1 día",
     color: "bg-red-100 text-red-700",
-    icon: "🗣️"
+    icon: "message-square"
   },
   {
     id: "ch-6",
@@ -368,7 +368,7 @@ export const channels = [
     publications: 15,
     lastUpdate: "Hoy",
     color: "bg-cyan-100 text-cyan-700",
-    icon: "📚"
+    icon: "book-open"
   },
   {
     id: "ch-7",
@@ -377,7 +377,7 @@ export const channels = [
     publications: 18,
     lastUpdate: "Hace 2 días",
     color: "bg-yellow-100 text-yellow-700",
-    icon: "📋"
+    icon: "clipboard"
   },
   {
     id: "ch-8",
@@ -386,7 +386,7 @@ export const channels = [
     publications: 14,
     lastUpdate: "Hace 5 horas",
     color: "bg-indigo-100 text-indigo-700",
-    icon: "💼"
+    icon: "briefcase"
   },
   {
     id: "ch-9",
@@ -395,7 +395,7 @@ export const channels = [
     publications: 9,
     lastUpdate: "Hace 2 días",
     color: "bg-pink-100 text-pink-700",
-    icon: "🚀"
+    icon: "rocket"
   },
   {
     id: "ch-10",
@@ -404,7 +404,7 @@ export const channels = [
     publications: 20,
     lastUpdate: "Hoy",
     color: "bg-teal-100 text-teal-700",
-    icon: "🎓"
+    icon: "graduation-cap"
   }
 ];
 
@@ -447,7 +447,7 @@ export const chatChannels = [
     name: "Club de Robótica",
     type: "club",
     unreadCount: 5,
-    lastMessage: "🤖 Reunión de hoy: ¡miren lo que armamos!",
+    lastMessage: "Reunión de hoy: revisen lo que armamos.",
     lastMessageTime: "Hace 1 hora"
   }
 ];

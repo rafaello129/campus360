@@ -28,12 +28,12 @@ export default function RoleModal({ role, onClose, onSave }: Props) {
     >
       <div className="mt-3 grid gap-3">
         <div>
-          <label className="text-sm text-slate-600">Nombre</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2" />
+          <label className="text-sm font-medium text-tech-textSecond">Nombre</label>
+          <input value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full rounded-xl border border-tech-border px-3 py-2.5 text-sm outline-none transition focus:border-tech-primary focus:ring-2 focus:ring-blue-100" />
         </div>
         <div>
-          <label className="text-sm text-slate-600">Descripción</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1 w-full rounded-lg border px-3 py-2" rows={3} />
+          <label className="text-sm font-medium text-tech-textSecond">Descripción</label>
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1 w-full rounded-xl border border-tech-border px-3 py-2.5 text-sm outline-none transition focus:border-tech-primary focus:ring-2 focus:ring-blue-100" rows={3} />
         </div>
       </div>
     </AlertActionModal>

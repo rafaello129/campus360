@@ -120,7 +120,7 @@ export function AspirantePerfilPage() {
           <div className="flex items-start gap-4">
             <UserAvatar name={applicant.name} subtitle={applicant.folio} />
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-petrol-700">{applicant.folio}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">{applicant.folio}</p>
               <h1 className="mt-1 text-2xl font-bold text-slate-900">{applicant.name}</h1>
               <p className="mt-2 text-sm text-slate-600">{applicant.career}</p>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -166,7 +166,7 @@ export function AspirantePerfilPage() {
               {applicant.timeline.map((item, index) => (
                 <div key={item.id} className="flex gap-4">
                   <div className="flex flex-col items-center">
-                    <span className="mt-1 h-3 w-3 rounded-full bg-petrol-700" />
+                    <span className="mt-1 h-3 w-3 rounded-full bg-tech-primary" />
                     {index < applicant.timeline.length - 1 ? <span className="mt-2 h-full w-px flex-1 bg-slate-200" /> : null}
                   </div>
                   <div className="pb-4">
@@ -217,9 +217,9 @@ export function AspirantePerfilPage() {
                     key={action.key}
                     type="button"
                     onClick={() => setActiveAction(action)}
-                    className="rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-petrol-300 hover:bg-petrol-50"
+                    className="rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-tech-accent/30 hover:bg-tech-bg"
                   >
-                    <Icon className="h-5 w-5 text-petrol-700" />
+                    <Icon className="h-5 w-5 text-tech-primary" />
                     <p className="mt-3 font-semibold text-slate-900">{action.label}</p>
                     <p className="mt-1 text-xs text-slate-600">Abrir flujo simulado</p>
                   </button>
@@ -238,7 +238,7 @@ export function AspirantePerfilPage() {
                   <span className="font-semibold text-slate-900">{applicant.conversionProbability}%</span>
                 </div>
                 <div className="h-3 rounded-full bg-slate-200">
-                  <div className="h-3 rounded-full bg-gradient-to-r from-petrol-600 to-teal-600" style={{ width: `${applicant.conversionProbability}%` }} />
+                  <div className="h-3 rounded-full bg-gradient-to-r from-tech-primary to-tech-accent" style={{ width: `${applicant.conversionProbability}%` }} />
                 </div>
               </div>
 
@@ -286,7 +286,7 @@ export function AspirantePerfilPage() {
                 value={actionNote}
                 onChange={(event) => setActionNote(event.target.value)}
                 rows={4}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-petrol-500"
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary"
                 placeholder="Escribe una nota breve..."
               />
             </label>
@@ -302,7 +302,7 @@ export function AspirantePerfilPage() {
                   setActionNote("");
                   setActiveAction(null);
                 }}
-                className="rounded-lg bg-petrol-700 px-4 py-2 text-sm font-semibold text-white"
+                className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white"
               >
                 Confirmar
               </button>

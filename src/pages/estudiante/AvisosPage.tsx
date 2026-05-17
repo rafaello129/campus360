@@ -1,4 +1,4 @@
-import { Bell, Check, Trash2 } from "lucide-react";
+import { Bell, Check, Clock3, ShieldAlert, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
@@ -44,44 +44,49 @@ export function AvisosPage() {
     <PageShell
       eyebrow="Notificaciones"
       title="Avisos y notificaciones"
-      description="Mantente informado de las últimas noticias y alertas importantes."
+      description="Consulta alertas, recordatorios y comunicados institucionales en un solo lugar."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Notificaciones */}
-        <div className="lg:col-span-2">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex flex-wrap gap-2">
+      <div className="grid gap-6 xl:grid-cols-[1.35fr_0.9fr]">
+        <div className="space-y-6">
+          <SectionCard className="border border-tech-border">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">Filtros</p>
+                <p className="mt-1 text-sm text-tech-textSecond">Refina los avisos por tipo, prioridad o estado de lectura.</p>
+              </div>
+              {unreadIds.length > 0 && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="rounded-full border border-tech-border bg-white px-4 py-2 text-sm font-semibold text-tech-textSecond transition hover:border-tech-primary hover:text-tech-primary"
+                >
+                  Marcar todas como leídas
+                </button>
+              )}
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
               {filters.map((filter) => (
                 <button
                   key={filter.id}
                   onClick={() => setSelectedFilter(filter.id)}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                     selectedFilter === filter.id
-                      ? "bg-petrol-700 text-white"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      ? "bg-tech-primary text-white shadow-sm"
+                      : "bg-tech-bg text-tech-textSecond hover:bg-blue-100"
                   }`}
                 >
                   {filter.label}
                 </button>
               ))}
             </div>
-
-            {unreadIds.length > 0 && (
-              <button
-                onClick={handleMarkAllAsRead}
-                className="text-sm font-semibold text-petrol-700 hover:text-petrol-800"
-              >
-                Marcar todas como leídas
-              </button>
-            )}
-          </div>
+          </SectionCard>
 
           <div className="space-y-3">
             {filteredNotices.length === 0 ? (
-              <SectionCard title="Sin avisos">
-                <div className="text-center py-8">
-                  <Bell className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-                  <p className="text-slate-600">No hay avisos que coincidan con el filtro.</p>
+              <SectionCard title="Sin avisos" className="border border-tech-border">
+                <div className="py-10 text-center">
+                  <Bell className="mx-auto h-12 w-12 text-tech-primary/30" />
+                  <p className="mt-3 text-tech-textSecond">No hay avisos que coincidan con el filtro.</p>
                 </div>
               </SectionCard>
             ) : (
@@ -90,27 +95,30 @@ export function AvisosPage() {
                 return (
                   <SectionCard
                     key={notice.id}
-                    className={`border-l-4 ${
+                    className={`border border-tech-border ${
                       notice.priority === "urgente"
-                        ? "border-l-rose-500 bg-rose-50"
+                        ? "bg-rose-50/70"
                         : notice.priority === "alta"
-                          ? "border-l-amber-500 bg-amber-50"
-                          : "border-l-slate-300 bg-white"
+                          ? "bg-amber-50/70"
+                          : "bg-white"
                     } ${isUnread ? "shadow-md" : ""}`}
                   >
                     <div className="flex items-start gap-4">
-                      <div className="flex-1">
-                        <div className="mb-2 flex items-center gap-3">
-                          <h3 className="font-bold text-slate-900">{notice.title}</h3>
+                      <div className="flex-1 space-y-3">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h3 className="font-semibold text-tech-textMain">{notice.title}</h3>
                           {isUnread && (
-                            <span className="inline-flex h-2 w-2 rounded-full bg-petrol-700"></span>
+                            <span className="inline-flex h-2.5 w-2.5 rounded-full bg-tech-primary"></span>
                           )}
                           <StatusBadge status={notice.status} />
+                          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${notice.priority === "urgente" ? "bg-rose-100 text-rose-700" : notice.priority === "alta" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-tech-primary"}`}>
+                            {notice.priority}
+                          </span>
                         </div>
-                        <p className="text-sm text-slate-600">{notice.summary}</p>
-                        <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
-                          <span>{notice.channel}</span>
-                          <span>Hace 2 horas</span>
+                        <p className="text-sm leading-6 text-tech-textSecond">{notice.summary}</p>
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-tech-textSecond">
+                          <span className="inline-flex items-center gap-1"><ShieldAlert className="h-3.5 w-3.5 text-tech-primary" /> {notice.channel}</span>
+                          <span className="inline-flex items-center gap-1"><Clock3 className="h-3.5 w-3.5 text-tech-primary" /> Hoy</span>
                         </div>
                       </div>
 
@@ -118,18 +126,18 @@ export function AvisosPage() {
                         {isUnread && (
                           <button
                             onClick={() => handleMarkAsRead(notice.id)}
-                            className="rounded-lg border border-slate-200 p-2 transition hover:bg-slate-100"
+                            className="rounded-lg border border-tech-border p-2 transition hover:bg-tech-bg"
                             title="Marcar como leído"
                           >
-                            <Check className="h-4 w-4 text-slate-600" />
+                            <Check className="h-4 w-4 text-tech-accent" />
                           </button>
                         )}
                         <button
                           onClick={() => handleDelete(notice.id)}
-                          className="rounded-lg border border-slate-200 p-2 transition hover:bg-slate-100"
+                          className="rounded-lg border border-tech-border p-2 transition hover:bg-tech-bg"
                           title="Eliminar"
                         >
-                          <Trash2 className="h-4 w-4 text-slate-600" />
+                          <Trash2 className="h-4 w-4 text-tech-accent" />
                         </button>
                       </div>
                     </div>
@@ -142,42 +150,42 @@ export function AvisosPage() {
 
         {/* Sidebar con recordatorios importantes */}
         <aside className="space-y-4">
-          <SectionCard title="Recordatorios importantes" className="sticky top-4">
+          <SectionCard title="Recordatorios" className="sticky top-4 border border-tech-border">
             <div className="space-y-3">
-              <div className="rounded-lg border-l-4 border-l-rose-500 bg-rose-50 p-4">
-                <p className="text-sm font-bold text-rose-900">📅 Cierre de documentos</p>
-                <p className="mt-1 text-xs text-rose-800">28 de mayo de 2026</p>
+              <div className="rounded-2xl border border-tech-border bg-tech-bg p-4">
+                <p className="text-sm font-semibold text-tech-textMain">Cierre de documentos</p>
+                <p className="mt-1 text-xs text-tech-textSecond">28 de mayo de 2026</p>
               </div>
 
-              <div className="rounded-lg border-l-4 border-l-amber-500 bg-amber-50 p-4">
-                <p className="text-sm font-bold text-amber-900">💰 Cierre de becas</p>
-                <p className="mt-1 text-xs text-amber-800">31 de mayo de 2026</p>
+              <div className="rounded-2xl border border-tech-border bg-tech-bg p-4">
+                <p className="text-sm font-semibold text-tech-textMain">Cierre de becas</p>
+                <p className="mt-1 text-xs text-tech-textSecond">31 de mayo de 2026</p>
               </div>
 
-              <div className="rounded-lg border-l-4 border-l-teal-500 bg-teal-50 p-4">
-                <p className="text-sm font-bold text-teal-900">🎓 Tutoría programada</p>
-                <p className="mt-1 text-xs text-teal-800">Mié, 17 de mayo · 14:00</p>
+              <div className="rounded-2xl border border-tech-border bg-tech-bg p-4">
+                <p className="text-sm font-semibold text-tech-textMain">Tutoría programada</p>
+                <p className="mt-1 text-xs text-tech-textSecond">Mié, 17 de mayo · 14:00</p>
               </div>
 
-              <div className="rounded-lg border-l-4 border-l-green-500 bg-green-50 p-4">
-                <p className="text-sm font-bold text-green-900">✨ Convocatoria nueva</p>
-                <p className="mt-1 text-xs text-green-800">Hace 2 horas</p>
+              <div className="rounded-2xl border border-tech-border bg-tech-bg p-4">
+                <p className="text-sm font-semibold text-tech-textMain">Convocatoria nueva</p>
+                <p className="mt-1 text-xs text-tech-textSecond">Hace 2 horas</p>
               </div>
             </div>
           </SectionCard>
 
-          <SectionCard title="Estadísticas">
+          <SectionCard title="Estadísticas" className="border border-tech-border">
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm text-slate-600">No leídas</span>
-                <span className="font-bold text-slate-900">{unreadIds.length}</span>
+                <span className="text-sm text-tech-textSecond">No leídas</span>
+                <span className="font-bold text-tech-textMain">{unreadIds.length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-slate-600">Urgentes</span>
+                <span className="text-sm text-tech-textSecond">Urgentes</span>
                 <span className="font-bold text-rose-700">{notices.filter((n) => n.priority === "urgente").length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-slate-600">Total</span>
+                <span className="text-sm text-tech-textSecond">Total</span>
                 <span className="font-bold text-slate-900">{notices.length}</span>
               </div>
             </div>

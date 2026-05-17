@@ -23,15 +23,20 @@ export function SectionCard({
     <section
       onClick={onClick}
       style={style}
-      className={`surface-card p-5 ${onClick ? "cursor-pointer" : ""} ${className}`}
+      className={`rounded-lg border border-tech-border bg-white shadow-sm transition duration-200 hover:border-tech-primary/20 hover:shadow-md ${
+        onClick ? "cursor-pointer" : ""
+      } p-4 md:p-5 ${className}`}
     >
       {title ? (
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-            {description ? <p className="mt-1 text-sm text-slate-600">{description}</p> : null}
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full border border-blue-200 bg-blue-50 shadow-[inset_0_0_0_2px_white]"></div>
+              <h2 className="text-base md:text-lg font-semibold text-tech-textMain">{title}</h2>
+            </div>
+            {description ? <p className="mt-2 text-xs md:text-sm text-tech-textSecond">{description}</p> : null}
           </div>
-          {action}
+          {action ? <div className="flex-shrink-0">{action}</div> : null}
         </div>
       ) : null}
       {children}

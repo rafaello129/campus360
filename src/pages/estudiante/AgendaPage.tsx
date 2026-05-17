@@ -56,43 +56,42 @@ export function AgendaPage() {
       title="Mi agenda"
       description="Gestiona tu calendario de clases, tutorías, eventos y entregas."
     >
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Calendario */}
-        <div className="lg:col-span-2">
-          <SectionCard title="Calendario" className="p-0 overflow-hidden">
-            {/* Encabezado del mes */}
-            <div className="border-b border-slate-200 p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-slate-900">
+      <div className="grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
+        <div className="lg:col-span-1">
+          <SectionCard title="Calendario" description="Navega por el mes y selecciona el día que necesitas revisar." className="overflow-hidden p-0">
+            <div className="border-b border-tech-border bg-surface-card p-5">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-primary">Vista mensual</p>
+                  <h2 className="mt-1 text-lg font-semibold text-tech-textMain">
                   {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
-                </h2>
+                  </h2>
+                </div>
                 <div className="flex gap-2">
                   <button
                     onClick={handlePrevMonth}
-                    className="rounded-lg border border-slate-200 p-2 transition hover:bg-slate-50"
+                    className="rounded-full border border-tech-border bg-white p-2 transition hover:bg-blue-50"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
                   <button
                     onClick={handleNextMonth}
-                    className="rounded-lg border border-slate-200 p-2 transition hover:bg-slate-50"
+                    className="rounded-full border border-tech-border bg-white p-2 transition hover:bg-blue-50"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
               </div>
 
-              {/* Días de la semana */}
-              <div className="grid grid-cols-7 gap-2 text-center text-sm font-semibold text-slate-600">
+              <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold uppercase tracking-[0.18em] text-tech-textSecond">
                 {DAYS_OF_WEEK.map((day) => (
                   <div key={day}>{day}</div>
                 ))}
               </div>
             </div>
 
-            {/* Días del calendario */}
-            <div className="p-6">
-              <div className="grid grid-cols-7 gap-2">
+            <div className="p-5">
+              <div className="grid grid-cols-7 gap-2 sm:gap-3">
                 {emptyDays.map((_, i) => (
                   <div key={`empty-${i}`}></div>
                 ))}
@@ -100,10 +99,10 @@ export function AgendaPage() {
                   <button
                     key={day}
                     onClick={() => setSelectedDay(day)}
-                    className={`aspect-square rounded-lg text-sm font-medium transition ${
+                    className={`aspect-square rounded-xl text-sm font-medium transition ${
                       day === selectedDay
-                        ? "bg-petrol-700 text-white"
-                        : "border border-slate-200 text-slate-700 hover:border-petrol-500 hover:bg-petrol-50"
+                        ? "bg-tech-primary text-white shadow-sm"
+                        : "border border-tech-border text-tech-textSecond hover:border-tech-primary hover:bg-blue-50"
                     }`}
                   >
                     {day}
@@ -114,26 +113,24 @@ export function AgendaPage() {
           </SectionCard>
         </div>
 
-        {/* Actividades de la semana */}
-        <SectionCard title="Esta semana" className="lg:col-span-1">
+        <SectionCard title="Esta semana" description="Vista rápida de los próximos compromisos.">
           <div className="space-y-3">
             {agendaItems.slice(0, 4).map((item) => (
-              <div key={item.id} className="rounded-lg border-l-4 border-l-petrol-500 bg-slate-50 p-3">
-                <p className="text-xs font-semibold text-petrol-700 uppercase">{item.date}</p>
-                <p className="mt-1 font-semibold text-slate-900">{item.title}</p>
-                <p className="text-xs text-slate-600">{item.time}</p>
+              <div key={item.id} className="rounded-2xl border border-tech-border bg-white p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-tech-primary">{item.date}</p>
+                <p className="mt-1 font-semibold text-tech-textMain">{item.title}</p>
+                <p className="text-xs text-tech-textSecond">{item.time}</p>
               </div>
             ))}
           </div>
         </SectionCard>
       </div>
 
-      {/* Filtros y actividades del día seleccionado */}
       <SectionCard
         title={`Actividades del ${selectedDay} de ${MONTHS[currentDate.getMonth()]}`}
+        description="Filtra por tipo y revisa la información del día seleccionado."
         className="mt-6"
       >
-        {/* Filtros */}
         <div className="mb-6 flex flex-wrap gap-2">
           {types.map((type) => (
             <button
@@ -141,8 +138,8 @@ export function AgendaPage() {
               onClick={() => setSelectedType(type.id)}
               className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                 selectedType === type.id
-                  ? "bg-petrol-700 text-white"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  ? "bg-tech-primary text-white"
+                  : "border border-tech-border bg-surface-card text-tech-textSecond hover:bg-blue-50"
               }`}
             >
               {type.label}
@@ -150,20 +147,19 @@ export function AgendaPage() {
           ))}
         </div>
 
-        {/* Lista de actividades */}
         {selectedDayItems.length === 0 ? (
-          <div className="rounded-lg bg-slate-50 p-8 text-center">
-            <p className="text-slate-600">No tienes actividades programadas para este día.</p>
+          <div className="rounded-2xl border border-dashed border-tech-border bg-surface-card p-8 text-center">
+            <p className="text-tech-textSecond">No tienes actividades programadas para este día.</p>
           </div>
         ) : (
           <div className="space-y-3">
             {selectedDayItems.map((item) => (
-              <div key={item.id} className="rounded-lg border border-slate-200 p-4 hover:border-petrol-300">
+              <div key={item.id} className="rounded-2xl border border-tech-border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <h3 className="font-semibold text-slate-900">{item.title}</h3>
+                  <h3 className="font-semibold text-tech-textMain">{item.title}</h3>
                   <StatusBadge status={item.status} />
                 </div>
-                <div className="grid gap-2 text-sm text-slate-600 md:grid-cols-2">
+                <div className="grid gap-2 text-sm text-tech-textSecond md:grid-cols-2">
                   <p>
                     <Clock className="inline h-4 w-4 mr-1" />
                     {item.time}
@@ -173,8 +169,8 @@ export function AgendaPage() {
                     {item.location}
                   </p>
                 </div>
-                <p className="mt-2 text-xs text-slate-500">{item.course}</p>
-                <button className="mt-3 rounded-lg bg-petrol-50 px-3 py-2 text-sm font-semibold text-petrol-700 transition hover:bg-petrol-100">
+                <p className="mt-2 text-xs text-tech-textSecond">{item.course}</p>
+                <button className="mt-3 rounded-full bg-blue-50 px-3 py-2 text-sm font-semibold text-tech-primary transition hover:bg-blue-100">
                   Agregar recordatorio
                 </button>
               </div>
