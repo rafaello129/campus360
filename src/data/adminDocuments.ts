@@ -1,4 +1,19 @@
-export const adminDocuments = [
+export interface AdminDocumentRecord {
+  id: string;
+  applicantName: string;
+  userType: string;
+  folio: string;
+  documentType: string;
+  status: string;
+  submittedAt: string;
+  dueDate: string;
+  area: string;
+  note: string;
+  applicantId?: string;
+  sourceDocumentId?: string;
+}
+
+export const adminDocuments: AdminDocumentRecord[] = [
   {
     id: 'd1',
     applicantName: 'María López',

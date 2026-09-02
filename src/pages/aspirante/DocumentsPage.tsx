@@ -1,8 +1,13 @@
 import { Download, Eye, Upload, AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
 import { StatusBadge } from "../../components/common/StatusBadge";
+import {
+  getCurrentApplicant,
+  getDocumentUpdatedLabel,
+  updateApplicantDocument
+} from "../../data/applicantStorage";
 
 interface Document {
   id: string;
@@ -12,10 +17,12 @@ interface Document {
   dueDate: string;
   uploadedAt?: string;
   fileSize?: string;
+  fileName?: string;
+  reviewNote?: string;
   required: boolean;
 }
 
-const documents: Document[] = [
+const demoDocuments: Document[] = [
   {
     id: "doc-1",
     name: "Acta de nacimiento",
@@ -91,9 +98,29 @@ const documents: Document[] = [
 ];
 
 export function DocumentsPage() {
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [currentApplicant, setCurrentApplicant] = useState(() => getCurrentApplicant());
   const [showModal, setShowModal] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+  const [pendingUploadDoc, setPendingUploadDoc] = useState<Document | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const documents: Document[] = currentApplicant
+    ? currentApplicant.documents.map((document) => ({
+        id: document.id,
+        name: document.name,
+        description: document.description ?? "Documento requerido para el expediente de admisión",
+        status: document.status === "completado" || document.status === "urgente" || document.status === "activo"
+          ? "pendiente"
+          : document.status,
+        dueDate: document.dueDate ?? "Por definir",
+        uploadedAt: document.uploadedAt,
+        fileSize: document.fileSize,
+        fileName: document.fileName,
+        reviewNote: document.reviewNote,
+        required: document.required !== false
+      }))
+    : demoDocuments;
 
   const approvedCount = documents.filter((d) => d.status === "aprobado").length;
   const requiredCount = documents.filter((d) => d.required).length;
@@ -101,10 +128,69 @@ export function DocumentsPage() {
   const completionPercentage = Math.round((requiredApproved / requiredCount) * 100);
   const missingRequired = documents.filter((d) => d.required && d.status === "pendiente");
 
-  const handleUpload = (docId: string) => {
-    if (!uploadedFiles.includes(docId)) {
-      setUploadedFiles([...uploadedFiles, docId]);
+  const requestUpload = (document: Document) => {
+    if (!currentApplicant) {
+      setUploadError("Primero registra una solicitud para asociar los documentos a tu expediente.");
+      return;
+    }
+    setUploadError(null);
+    setPendingUploadDoc(document);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || !pendingUploadDoc || !currentApplicant) return;
+
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    const allowedExtensions = new Set(["pdf", "jpg", "jpeg", "png"]);
+    if (!extension || !allowedExtensions.has(extension)) {
+      setUploadError("Formato no permitido. Selecciona un archivo PDF, JPG o PNG.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError("El archivo supera el límite de 10 MB.");
+      return;
+    }
+
+    const sizeLabel = file.size >= 1024 * 1024
+      ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+      : `${Math.max(1, Math.round(file.size / 1024))} KB`;
+
+    try {
+      const updatedApplicant = updateApplicantDocument(
+        currentApplicant.id,
+        pendingUploadDoc.id,
+        {
+          status: "en_revision",
+          fileName: file.name,
+          fileSize: sizeLabel,
+          uploadedAt: getDocumentUpdatedLabel(),
+          updatedAt: getDocumentUpdatedLabel(),
+          reviewNote: undefined
+        },
+        {
+          timelineEvent: {
+            title: "Documento cargado",
+            detail: `${pendingUploadDoc.name}: ${file.name}`,
+            status: "en_revision"
+          }
+        }
+      );
+      setCurrentApplicant(updatedApplicant);
+      setSelectedDoc({
+        ...pendingUploadDoc,
+        status: "en_revision",
+        fileName: file.name,
+        fileSize: sizeLabel,
+        uploadedAt: getDocumentUpdatedLabel(),
+        reviewNote: undefined
+      });
+      setUploadError(null);
       setShowModal(true);
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "No fue posible registrar el documento.");
     }
   };
 
@@ -114,6 +200,19 @@ export function DocumentsPage() {
       title="Documentos requeridos"
       description="Gestiona los archivos necesarios para completar tu proceso de admisión."
     >
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+        onChange={handleFileSelected}
+        className="hidden"
+        aria-label="Seleccionar documento"
+      />
+      {uploadError ? (
+        <div role="alert" className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800">
+          {uploadError}
+        </div>
+      ) : null}
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="space-y-6">
           <SectionCard title="Progreso de documentación" description="Resumen del estado actual del expediente.">
@@ -209,12 +308,19 @@ export function DocumentsPage() {
                         </div>
                         <p className="mt-1 text-sm text-tech-textSecond">{doc.description}</p>
 
-                        {doc.status !== "pendiente" && (
-                          <div className="mt-2 text-xs text-tech-textSecond">
-                            {doc.uploadedAt && <p>Cargado: {doc.uploadedAt}</p>}
-                            {doc.fileSize && <p>Tamaño: {doc.fileSize}</p>}
-                          </div>
-                        )}
+                            {doc.status !== "pendiente" && (
+                              <div className="mt-2 text-xs text-tech-textSecond">
+                                {doc.uploadedAt && <p>Cargado: {doc.uploadedAt}</p>}
+                                {doc.fileName && <p>Archivo: {doc.fileName}</p>}
+                                {doc.fileSize && <p>Tamaño: {doc.fileSize}</p>}
+                              </div>
+                            )}
+
+                            {doc.reviewNote ? (
+                              <p className={`mt-3 rounded-lg px-3 py-2 text-xs font-medium ${doc.status === "rechazado" ? "bg-rose-50 text-rose-800" : "bg-blue-50 text-tech-primary"}`}>
+                                Observación: {doc.reviewNote}
+                              </p>
+                            ) : null}
 
                         <p className="mt-2 text-xs font-medium text-tech-textSecond">
                           Fecha límite: <span className="font-semibold text-tech-primary">{doc.dueDate}</span>
@@ -242,7 +348,7 @@ export function DocumentsPage() {
                             </>
                           )}
                           <button
-                            onClick={() => handleUpload(doc.id)}
+                                onClick={() => requestUpload(doc)}
                             className="rounded-full bg-tech-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-tech-mid"
                           >
                             <Upload className="inline h-4 w-4 mr-1" />
@@ -276,7 +382,7 @@ export function DocumentsPage() {
                   <div className="flex items-center gap-2">
                     <StatusBadge status={doc.status} />
                     <button
-                      onClick={() => handleUpload(doc.id)}
+                             onClick={() => requestUpload(doc)}
                       className="rounded-full bg-blue-50 px-3 py-2 text-sm font-semibold text-tech-primary transition hover:bg-blue-100"
                     >
                       <Upload className="inline h-4 w-4 mr-1" />
@@ -296,6 +402,7 @@ export function DocumentsPage() {
             <div className="rounded-2xl border border-tech-border bg-surface-card p-5 text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Documento seleccionado</p>
               <h3 className="mt-2 text-xl font-semibold text-tech-textMain">{selectedDoc.name}</h3>
+              {selectedDoc.fileName ? <p className="mt-1 text-sm text-tech-textSecond">{selectedDoc.fileName}</p> : null}
               <div className="mt-4 rounded-2xl border border-tech-border bg-white p-8">
                 <p className="text-sm text-tech-textSecond">Vista previa del documento</p>
                 <p className="mt-3 text-5xl text-tech-primary">▣</p>
@@ -316,6 +423,12 @@ export function DocumentsPage() {
                   <p className="mt-2 font-medium text-tech-textMain">{selectedDoc.fileSize ?? "No cargado"}</p>
                 </div>
               </div>
+              {selectedDoc.reviewNote ? (
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+                  <p className="font-semibold">Observación del revisor</p>
+                  <p className="mt-1">{selectedDoc.reviewNote}</p>
+                </div>
+              ) : null}
               <div className="flex flex-col gap-2 sm:flex-row">
                 <button
                   onClick={() => setSelectedDoc(null)}

@@ -1,16 +1,52 @@
 import { useMemo, useState } from 'react';
 import { SectionHeader } from '../../components/common/SectionHeader';
-import { adminDocuments } from '../../data/adminDocuments';
+import { adminDocuments, type AdminDocumentRecord } from '../../data/adminDocuments';
 import DocumentReviewModal from '../../components/admin/DocumentReviewModal';
 import { SearchInput } from '../../components/common/SearchInput';
 import { FilterPill } from '../../components/common/FilterPill';
 import { EmptyState } from '../../components/common/EmptyState';
+import {
+  getDocumentUpdatedLabel,
+  listApplicants,
+  updateApplicantDocument
+} from '../../data/applicantStorage';
+
+function statusLabel(status: string) {
+  if (status === 'aprobado') return 'Aprobado';
+  if (status === 'rechazado') return 'Rechazado';
+  if (status === 'en_revision') return 'En revisión';
+  return 'Pendiente';
+}
+
+function getApplicantDocuments(): AdminDocumentRecord[] {
+  return listApplicants().flatMap((applicant) =>
+    applicant.documents
+      .filter((document) => Boolean(document.fileName))
+      .map((document) => ({
+        id: `${applicant.id}::${document.id}`,
+        applicantName: applicant.name,
+        userType: 'Aspirante',
+        folio: applicant.folio,
+        documentType: document.name,
+        status: statusLabel(document.status),
+        submittedAt: document.uploadedAt ?? document.updatedAt,
+        dueDate: document.dueDate ?? 'Por definir',
+        area: 'Admisiones',
+        note: document.reviewNote ?? '',
+        applicantId: applicant.id,
+        sourceDocumentId: document.id
+      }))
+  );
+}
 
 export default function DocumentosPage() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('Todos');
-  const [selected, setSelected] = useState<any | null>(null);
-  const [docs, setDocs] = useState(adminDocuments);
+  const [selected, setSelected] = useState<AdminDocumentRecord | null>(null);
+  const [legacyDocs, setLegacyDocs] = useState(adminDocuments);
+  const [applicantDocs, setApplicantDocs] = useState(() => getApplicantDocuments());
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const docs = [...applicantDocs, ...legacyDocs];
 
   const metrics = useMemo(() => ({
     received: docs.length,
@@ -20,19 +56,68 @@ export default function DocumentosPage() {
   }), [docs]);
 
   const list = useMemo(() => docs.filter((d)=>{
-    if (filter !== 'Todos' && d.userType !== filter) return false;
+    if (filter === 'Aspirantes' && d.userType !== 'Aspirante') return false;
+    if (filter === 'Estudiantes' && d.userType !== 'Estudiante') return false;
+    if (filter === 'Pendientes' && d.status !== 'Pendiente') return false;
+    if (filter === 'En revisión' && d.status !== 'En revisión') return false;
+    if (filter === 'Aprobados' && d.status !== 'Aprobado') return false;
+    if (filter === 'Rechazados' && d.status !== 'Rechazado') return false;
+    if (filter === 'Críticos' && d.status !== 'Rechazado' && d.status !== 'Pendiente') return false;
     if (!query) return true;
     const q = query.toLowerCase();
     return d.applicantName.toLowerCase().includes(q) || d.folio.toLowerCase().includes(q) || d.documentType.toLowerCase().includes(q);
   }), [docs, query, filter]);
 
   function handleSave(id: string, status: string, note?: string) {
-    setDocs((prev) => prev.map((p) => (p.id === id ? { ...p, status, note: note ?? p.note } : p)));
+    const document = docs.find((item) => item.id === id);
+    if (!document) return;
+
+    if (document.applicantId && document.sourceDocumentId) {
+      try {
+        const persistedStatus = status === 'Aprobado'
+          ? 'aprobado'
+          : status === 'En revisión'
+            ? 'en_revision'
+            : status === 'Pendiente' ? 'pendiente' : 'rechazado';
+        const actionTitle = status === 'Aprobado'
+          ? 'Documento aprobado'
+          : status === 'Solicitar corrección'
+            ? 'Corrección solicitada'
+            : status === 'Rechazado'
+              ? 'Documento rechazado'
+              : status === 'Pendiente' ? 'Documento marcado como pendiente' : 'Documento en revisión';
+        updateApplicantDocument(
+          document.applicantId,
+          document.sourceDocumentId,
+          {
+            status: persistedStatus,
+            updatedAt: getDocumentUpdatedLabel(),
+            reviewNote: note || undefined
+          },
+          {
+            timelineEvent: {
+              title: actionTitle,
+              detail: `${document.documentType}${note ? `: ${note}` : ''}`,
+              status: persistedStatus
+            }
+          }
+        );
+        setApplicantDocs(getApplicantDocuments());
+        setSaveError(null);
+      } catch (error) {
+        setSaveError(error instanceof Error ? error.message : 'No fue posible guardar la revisión.');
+      }
+      return;
+    }
+
+    setLegacyDocs((previous) => previous.map((item) => item.id === id ? { ...item, status, note: note ?? item.note } : item));
   }
 
   return (
     <div className="space-y-6">
       <SectionHeader title="Gestión documental" description="Revisa, valida y da seguimiento a documentos institucionales enviados por aspirantes y estudiantes." />
+
+      {saveError ? <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800">{saveError}</div> : null}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
         <div className="surface-card rounded-2xl border border-tech-border p-4">

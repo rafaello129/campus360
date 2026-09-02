@@ -34,6 +34,20 @@ interface CreateApplicantOptions {
   setAsCurrent?: boolean;
 }
 
+export interface TimelineEventInput {
+  title: string;
+  detail: string;
+  status?: Status;
+}
+
+interface UpdateDocumentOptions {
+  timelineEvent?: TimelineEventInput;
+}
+
+interface UpdateApplicantOptions {
+  timelineEvent?: TimelineEventInput;
+}
+
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 }
@@ -72,6 +86,13 @@ function isDocumentItem(value: unknown): value is ApplicantDocumentItem {
     typeof item.id === "string" &&
     typeof item.name === "string" &&
     typeof item.updatedAt === "string" &&
+    (item.description === undefined || typeof item.description === "string") &&
+    (item.required === undefined || typeof item.required === "boolean") &&
+    (item.dueDate === undefined || typeof item.dueDate === "string") &&
+    (item.fileName === undefined || typeof item.fileName === "string") &&
+    (item.fileSize === undefined || typeof item.fileSize === "string") &&
+    (item.uploadedAt === undefined || typeof item.uploadedAt === "string") &&
+    (item.reviewNote === undefined || typeof item.reviewNote === "string") &&
     isStatus(item.status)
   );
 }
@@ -158,6 +179,15 @@ function formatTimelineTime(date: Date) {
   return `${day} · ${time}`;
 }
 
+function formatShortDateTime(date: Date) {
+  return new Intl.DateTimeFormat("es-MX", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(date);
+}
+
 function normalizeLabel(value: string | undefined, labels: Record<string, string>, fallback: string) {
   if (!value) return fallback;
   return labels[value] ?? value;
@@ -225,13 +255,94 @@ function buildApplicant(input: CreateApplicantInput): AdminApplicantRecord {
       }
     ],
     documents: [
-      { id: `doc-${token}-1`, name: "Acta de nacimiento", status: "pendiente", updatedAt: "Nunca" },
-      { id: `doc-${token}-2`, name: "CURP", status: "pendiente", updatedAt: "Nunca" },
-      { id: `doc-${token}-3`, name: "Certificado", status: "pendiente", updatedAt: "Nunca" },
-      { id: `doc-${token}-4`, name: "Identificación", status: "pendiente", updatedAt: "Nunca" },
-      { id: `doc-${token}-5`, name: "Comprobante", status: "pendiente", updatedAt: "Nunca" }
+      {
+        id: `doc-${token}-1`,
+        name: "Acta de nacimiento",
+        description: "Documento oficial de nacimiento",
+        required: true,
+        dueDate: "28 febrero 2026",
+        status: "pendiente",
+        updatedAt: "Nunca"
+      },
+      {
+        id: `doc-${token}-2`,
+        name: "CURP",
+        description: "Clave Única de Registro de Población",
+        required: true,
+        dueDate: "28 febrero 2026",
+        status: "pendiente",
+        updatedAt: "Nunca"
+      },
+      {
+        id: `doc-${token}-3`,
+        name: "Certificado de bachillerato",
+        description: "Certificado del nivel de educación anterior",
+        required: true,
+        dueDate: "28 febrero 2026",
+        status: "pendiente",
+        updatedAt: "Nunca"
+      },
+      {
+        id: `doc-${token}-4`,
+        name: "Identificación oficial",
+        description: "Credencial, pasaporte o documento de identidad",
+        required: true,
+        dueDate: "28 febrero 2026",
+        status: "pendiente",
+        updatedAt: "Nunca"
+      },
+      {
+        id: `doc-${token}-5`,
+        name: "Comprobante de domicilio",
+        description: "Recibo de servicios o documento equivalente",
+        required: true,
+        dueDate: "5 marzo 2026",
+        status: "pendiente",
+        updatedAt: "Nunca"
+      }
     ]
   };
+}
+
+function buildTimelineItem(event: TimelineEventInput): ApplicantTimelineItem {
+  return {
+    id: `tl-${randomToken()}`,
+    title: event.title,
+    detail: event.detail,
+    time: formatTimelineTime(new Date()),
+    status: event.status ?? "activo"
+  };
+}
+
+function calculateDocumentStatus(documents: ApplicantDocumentItem[]): Status {
+  const requiredDocuments = documents.filter((document) => document.required !== false);
+  if (documents.some((document) => document.status === "rechazado")) return "rechazado";
+  if (requiredDocuments.length > 0 && requiredDocuments.every((document) => document.status === "aprobado")) {
+    return "aprobado";
+  }
+  if (documents.some((document) => document.status !== "pendiente")) return "en_revision";
+  return "pendiente";
+}
+
+function writeStoredApplicants(applicants: AdminApplicantRecord[]) {
+  if (!canUseStorage()) {
+    throw new Error("El almacenamiento local no está disponible en este navegador.");
+  }
+
+  const previousValue = window.localStorage.getItem(APPLICANTS_STORAGE_KEY);
+  const payload: ApplicantStoragePayload = { version: STORAGE_VERSION, applicants };
+
+  try {
+    window.localStorage.setItem(APPLICANTS_STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    try {
+      if (previousValue === null) window.localStorage.removeItem(APPLICANTS_STORAGE_KEY);
+      else window.localStorage.setItem(APPLICANTS_STORAGE_KEY, previousValue);
+    } catch {
+      // Preserve the original storage failure for the calling UI.
+    }
+    throw new Error("No fue posible guardar los cambios en este navegador. Intenta nuevamente.");
+  }
 }
 
 export function listApplicants(): AdminApplicantRecord[] {
@@ -302,4 +413,61 @@ export function createApplicant(
   }
 
   return applicant;
+}
+
+export function updateApplicant(
+  id: string,
+  changes: Partial<Omit<AdminApplicantRecord, "id">>,
+  options: UpdateApplicantOptions = {}
+): AdminApplicantRecord {
+  const currentApplicant = getApplicantById(id);
+  if (!currentApplicant) throw new Error("No se encontró el aspirante que deseas actualizar.");
+
+  const updatedApplicant: AdminApplicantRecord = {
+    ...currentApplicant,
+    ...changes,
+    id,
+    timeline: options.timelineEvent
+      ? [...(changes.timeline ?? currentApplicant.timeline), buildTimelineItem(options.timelineEvent)]
+      : (changes.timeline ?? currentApplicant.timeline)
+  };
+  const storedApplicants = readStoredApplicants();
+  writeStoredApplicants([
+    updatedApplicant,
+    ...storedApplicants.filter((applicant) => applicant.id !== id)
+  ]);
+  return updatedApplicant;
+}
+
+export function addTimelineEvent(id: string, event: TimelineEventInput): AdminApplicantRecord {
+  return updateApplicant(id, {}, { timelineEvent: event });
+}
+
+export function updateApplicantDocument(
+  applicantId: string,
+  documentId: string,
+  changes: Partial<Omit<ApplicantDocumentItem, "id">>,
+  options: UpdateDocumentOptions = {}
+): AdminApplicantRecord {
+  const applicant = getApplicantById(applicantId);
+  if (!applicant) throw new Error("No se encontró el aspirante que deseas actualizar.");
+  const documentExists = applicant.documents.some((document) => document.id === documentId);
+  if (!documentExists) throw new Error("No se encontró el documento que deseas actualizar.");
+
+  const documents = applicant.documents.map((document) =>
+    document.id === documentId ? { ...document, ...changes, id: document.id } : document
+  );
+  const timeline = options.timelineEvent
+    ? [...applicant.timeline, buildTimelineItem(options.timelineEvent)]
+    : applicant.timeline;
+
+  return updateApplicant(applicantId, {
+    documents,
+    documentStatus: calculateDocumentStatus(documents),
+    timeline
+  });
+}
+
+export function getDocumentUpdatedLabel() {
+  return formatShortDateTime(new Date());
 }

@@ -158,7 +158,11 @@ export function ProcessPage() {
     ? currentApplicant.documents.map((document) => ({
         id: document.id,
         name: document.name,
-        detail: document.updatedAt === "Nunca" ? "Documento pendiente" : document.updatedAt,
+        detail: document.reviewNote
+          ? `Observación: ${document.reviewNote}`
+          : document.fileName
+            ? `${document.fileName} · ${document.fileSize ?? document.updatedAt}`
+            : document.updatedAt === "Nunca" ? "Documento pendiente" : document.updatedAt,
         status: document.status
       }))
     : [

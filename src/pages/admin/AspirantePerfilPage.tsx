@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { CalendarPlus, PhoneCall, Send, UserCog, ClipboardEdit } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CalendarPlus, PhoneCall, Send, UserCog, ClipboardEdit, StickyNote, FileCheck2 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { DataTable } from "../../components/common/DataTable";
 import { EmptyState } from "../../components/common/EmptyState";
@@ -8,11 +8,21 @@ import { ProgressStepper } from "../../components/common/ProgressStepper";
 import { SectionCard } from "../../components/common/SectionCard";
 import { StatusBadge } from "../../components/common/StatusBadge";
 import { UserAvatar } from "../../components/common/UserAvatar";
-import { type ApplicantPriority, type ApplicantStage } from "../../data/adminApplicants";
-import { getApplicantById } from "../../data/applicantStorage";
+import {
+  type ApplicantDocumentItem,
+  type ApplicantPriority,
+  type ApplicantStage
+} from "../../data/adminApplicants";
+import {
+  getApplicantById,
+  getDocumentUpdatedLabel,
+  updateApplicant,
+  updateApplicantDocument
+} from "../../data/applicantStorage";
+import type { Status } from "../../types";
 import type { ProgressStep } from "../../types/campus";
 
-type QuickActionKey = "llamada" | "recordatorio" | "cita" | "estatus" | "responsable";
+type QuickActionKey = "llamada" | "recordatorio" | "cita" | "estatus" | "responsable" | "nota";
 
 interface QuickActionConfig {
   key: QuickActionKey;
@@ -66,8 +76,32 @@ const quickActions: QuickActionConfig[] = [
     icon: UserCog,
     title: "Asignar responsable",
     helper: "Selecciona la persona encargada del seguimiento."
+  },
+  {
+    key: "nota",
+    label: "Agregar nota",
+    icon: StickyNote,
+    title: "Agregar nota interna",
+    helper: "Registra una observación útil para el seguimiento del aspirante."
   }
 ];
+
+const advisors = [
+  "Lic. Brenda Salas",
+  "Mtra. Daniela Cruz",
+  "Lic. Adrián Mora",
+  "Mtra. Laura Treviño",
+  "Lic. Mariana Peña"
+];
+
+const stageValues: Record<ApplicantStage, { status: Status; conversionProbability: number; nextAction: string }> = {
+  "Nuevo registro": { status: "activo", conversionProbability: 48, nextAction: "Realizar primer contacto" },
+  "Contacto inicial": { status: "activo", conversionProbability: 58, nextAction: "Confirmar interés y resolver dudas" },
+  "Interés confirmado": { status: "activo", conversionProbability: 68, nextAction: "Solicitar documentación de admisión" },
+  "Documentación pendiente": { status: "en_revision", conversionProbability: 76, nextAction: "Completar y validar documentos" },
+  "Evaluación / entrevista": { status: "en_revision", conversionProbability: 88, nextAction: "Realizar evaluación o entrevista" },
+  "Inscripción finalizada": { status: "aprobado", conversionProbability: 100, nextAction: "Enviar bienvenida e instrucciones de inicio" }
+};
 
 function buildProgressSteps(stage: ApplicantStage): ProgressStep[] {
   const currentIndex = stageOrder.indexOf(stage);
@@ -88,14 +122,177 @@ function priorityClasses(priority: ApplicantPriority) {
 
 export function AspirantePerfilPage() {
   const { id } = useParams();
+  const [applicant, setApplicant] = useState(() => getApplicantById(id));
   const [activeAction, setActiveAction] = useState<QuickActionConfig | null>(null);
   const [actionNote, setActionNote] = useState("");
   const [actionConfirmation, setActionConfirmation] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [selectedStage, setSelectedStage] = useState<ApplicantStage>("Nuevo registro");
+  const [selectedOwner, setSelectedOwner] = useState(advisors[0]);
+  const [appointmentDate, setAppointmentDate] = useState("");
+  const [appointmentTime, setAppointmentTime] = useState("");
+  const [appointmentModality, setAppointmentModality] = useState("Presencial");
+  const [documentReview, setDocumentReview] = useState<ApplicantDocumentItem | null>(null);
+  const [documentReviewStatus, setDocumentReviewStatus] = useState<"aprobado" | "rechazado" | "correccion" | "en_revision">("aprobado");
+  const [documentReviewNote, setDocumentReviewNote] = useState("");
+  const [documentReviewError, setDocumentReviewError] = useState<string | null>(null);
 
-  const applicant = useMemo(
-    () => getApplicantById(id),
-    [id]
-  );
+  useEffect(() => {
+    setApplicant(getApplicantById(id));
+  }, [id]);
+
+  const openAction = (action: QuickActionConfig) => {
+    setActionError(null);
+    setActionNote("");
+    if (applicant) {
+      setSelectedStage(applicant.stage);
+      setSelectedOwner(applicant.owner === "Pendiente de asignación" ? advisors[0] : applicant.owner);
+    }
+    setAppointmentDate("");
+    setAppointmentTime("");
+    setAppointmentModality("Presencial");
+    setActiveAction(action);
+  };
+
+  const handleConfirmAction = () => {
+    if (!applicant || !activeAction) return;
+    const note = actionNote.trim();
+    const noteRequired = ["llamada", "recordatorio", "nota"].includes(activeAction.key);
+    if (noteRequired && !note) {
+      setActionError("Escribe un comentario antes de confirmar.");
+      return;
+    }
+    if (activeAction.key === "cita" && (!appointmentDate || !appointmentTime)) {
+      setActionError("Selecciona la fecha y la hora de la cita.");
+      return;
+    }
+
+    try {
+      let updatedApplicant = applicant;
+      const contactTime = new Intl.DateTimeFormat("es-MX", {
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(new Date());
+
+      if (activeAction.key === "estatus") {
+        updatedApplicant = updateApplicant(
+          applicant.id,
+          { stage: selectedStage, ...stageValues[selectedStage] },
+          {
+            timelineEvent: {
+              title: "Etapa actualizada",
+              detail: note || `La solicitud avanzó a ${selectedStage}.`,
+              status: stageValues[selectedStage].status
+            }
+          }
+        );
+      } else if (activeAction.key === "responsable") {
+        updatedApplicant = updateApplicant(
+          applicant.id,
+          { owner: selectedOwner },
+          {
+            timelineEvent: {
+              title: "Responsable asignado",
+              detail: note || `${selectedOwner} quedó a cargo del seguimiento.`,
+              status: "activo"
+            }
+          }
+        );
+      } else if (activeAction.key === "llamada" || activeAction.key === "recordatorio") {
+        const isCall = activeAction.key === "llamada";
+        updatedApplicant = updateApplicant(
+          applicant.id,
+          { lastContact: `Hoy ${contactTime}`, daysWithoutFollowUp: 0 },
+          {
+            timelineEvent: {
+              title: isCall ? "Llamada registrada" : "Recordatorio enviado",
+              detail: note,
+              status: "completado"
+            }
+          }
+        );
+      } else if (activeAction.key === "cita") {
+        const appointmentLabel = `${appointmentDate} a las ${appointmentTime} · ${appointmentModality}`;
+        updatedApplicant = updateApplicant(
+          applicant.id,
+          { nextAction: `Asistir a cita: ${appointmentLabel}` },
+          {
+            timelineEvent: {
+              title: "Cita programada",
+              detail: note ? `${appointmentLabel}. ${note}` : appointmentLabel,
+              status: "activo"
+            }
+          }
+        );
+      } else if (activeAction.key === "nota") {
+        updatedApplicant = updateApplicant(
+          applicant.id,
+          { observations: applicant.observations ? `${applicant.observations}\n${note}` : note },
+          {
+            timelineEvent: {
+              title: "Nota interna agregada",
+              detail: note,
+              status: "activo"
+            }
+          }
+        );
+      }
+
+      setApplicant(updatedApplicant);
+      setActionConfirmation(`${activeAction.label} registrada para ${applicant.name}.`);
+      setActionNote("");
+      setActionError(null);
+      setActiveAction(null);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "No fue posible guardar la acción.");
+    }
+  };
+
+  const openDocumentReview = (document: ApplicantDocumentItem) => {
+    setDocumentReview(document);
+    setDocumentReviewStatus(document.status === "rechazado" ? "rechazado" : document.status === "en_revision" ? "en_revision" : "aprobado");
+    setDocumentReviewNote(document.reviewNote ?? "");
+    setDocumentReviewError(null);
+  };
+
+  const handleDocumentReview = () => {
+    if (!applicant || !documentReview) return;
+    if ((documentReviewStatus === "rechazado" || documentReviewStatus === "correccion") && !documentReviewNote.trim()) {
+      setDocumentReviewError("Agrega una observación para explicar el rechazo o la corrección solicitada.");
+      return;
+    }
+
+    try {
+      const persistedStatus: Status = documentReviewStatus === "correccion" ? "rechazado" : documentReviewStatus;
+      const actionTitle = documentReviewStatus === "aprobado"
+        ? "Documento aprobado"
+        : documentReviewStatus === "correccion"
+          ? "Corrección solicitada"
+          : documentReviewStatus === "rechazado" ? "Documento rechazado" : "Documento en revisión";
+      const updatedApplicant = updateApplicantDocument(
+        applicant.id,
+        documentReview.id,
+        {
+          status: persistedStatus,
+          updatedAt: getDocumentUpdatedLabel(),
+          reviewNote: documentReviewNote.trim() || undefined
+        },
+        {
+          timelineEvent: {
+            title: actionTitle,
+            detail: `${documentReview.name}${documentReviewNote.trim() ? `: ${documentReviewNote.trim()}` : ""}`,
+            status: persistedStatus
+          }
+        }
+      );
+      setApplicant(updatedApplicant);
+      setActionConfirmation(`${documentReview.name} actualizado correctamente.`);
+      setDocumentReview(null);
+      setDocumentReviewError(null);
+    } catch (error) {
+      setDocumentReviewError(error instanceof Error ? error.message : "No fue posible actualizar el documento.");
+    }
+  };
 
   if (!applicant) {
     return (
@@ -194,7 +391,13 @@ export function AspirantePerfilPage() {
                 {
                   id: "name",
                   header: "Documento",
-                  render: (row) => <span className="font-medium text-slate-900">{row.name}</span>
+                  render: (row) => (
+                    <div>
+                      <span className="font-medium text-slate-900">{row.name}</span>
+                      {row.fileName ? <p className="mt-1 text-xs text-slate-500">{row.fileName} · {row.fileSize}</p> : null}
+                      {row.reviewNote ? <p className="mt-1 text-xs font-medium text-rose-700">{row.reviewNote}</p> : null}
+                    </div>
+                  )
                 },
                 {
                   id: "status",
@@ -205,6 +408,20 @@ export function AspirantePerfilPage() {
                   id: "updatedAt",
                   header: "Actualizado",
                   render: (row) => <span className="text-slate-600">{row.updatedAt}</span>
+                },
+                {
+                  id: "action",
+                  header: "Acción",
+                  render: (row) => row.fileName || row.status !== "pendiente" ? (
+                    <button
+                      type="button"
+                      onClick={() => openDocumentReview(row)}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-tech-border px-3 py-1.5 text-xs font-semibold text-tech-primary transition hover:bg-blue-50"
+                    >
+                      <FileCheck2 className="h-3.5 w-3.5" />
+                      Revisar
+                    </button>
+                  ) : <span className="text-xs text-slate-400">Sin carga</span>
                 }
               ]}
             />
@@ -219,12 +436,12 @@ export function AspirantePerfilPage() {
                   <button
                     key={action.key}
                     type="button"
-                    onClick={() => setActiveAction(action)}
+                    onClick={() => openAction(action)}
                     className="rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-tech-accent/30 hover:bg-tech-bg"
                   >
                     <Icon className="h-5 w-5 text-tech-primary" />
                     <p className="mt-3 font-semibold text-slate-900">{action.label}</p>
-                    <p className="mt-1 text-xs text-slate-600">Abrir flujo simulado</p>
+                    <p className="mt-1 text-xs text-slate-600">Registrar y guardar</p>
                   </button>
                 );
               })}
@@ -283,8 +500,57 @@ export function AspirantePerfilPage() {
               </button>
             </div>
 
+            {activeAction.key === "estatus" ? (
+              <label className="mb-4 block space-y-1 text-sm">
+                <span className="font-medium text-slate-700">Nueva etapa</span>
+                <select
+                  value={selectedStage}
+                  onChange={(event) => setSelectedStage(event.target.value as ApplicantStage)}
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary"
+                >
+                  {stageOrder.map((stage) => <option key={stage} value={stage}>{stage}</option>)}
+                </select>
+              </label>
+            ) : null}
+
+            {activeAction.key === "responsable" ? (
+              <label className="mb-4 block space-y-1 text-sm">
+                <span className="font-medium text-slate-700">Responsable</span>
+                <select
+                  value={selectedOwner}
+                  onChange={(event) => setSelectedOwner(event.target.value)}
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary"
+                >
+                  {advisors.map((advisor) => <option key={advisor} value={advisor}>{advisor}</option>)}
+                </select>
+              </label>
+            ) : null}
+
+            {activeAction.key === "cita" ? (
+              <div className="mb-4 grid gap-3 sm:grid-cols-2">
+                <label className="space-y-1 text-sm">
+                  <span className="font-medium text-slate-700">Fecha</span>
+                  <input type="date" value={appointmentDate} onChange={(event) => setAppointmentDate(event.target.value)} className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary" />
+                </label>
+                <label className="space-y-1 text-sm">
+                  <span className="font-medium text-slate-700">Hora</span>
+                  <input type="time" value={appointmentTime} onChange={(event) => setAppointmentTime(event.target.value)} className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary" />
+                </label>
+                <label className="space-y-1 text-sm sm:col-span-2">
+                  <span className="font-medium text-slate-700">Modalidad</span>
+                  <select value={appointmentModality} onChange={(event) => setAppointmentModality(event.target.value)} className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary">
+                    <option>Presencial</option>
+                    <option>Videollamada</option>
+                    <option>Telefónica</option>
+                  </select>
+                </label>
+              </div>
+            ) : null}
+
             <label className="space-y-1 text-sm">
-              <span className="font-medium text-slate-700">Comentario</span>
+              <span className="font-medium text-slate-700">
+                Comentario {activeAction.key === "estatus" || activeAction.key === "responsable" || activeAction.key === "cita" ? "(opcional)" : ""}
+              </span>
               <textarea
                 value={actionNote}
                 onChange={(event) => setActionNote(event.target.value)}
@@ -294,21 +560,61 @@ export function AspirantePerfilPage() {
               />
             </label>
 
+            {actionError ? (
+              <div role="alert" className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-800">
+                {actionError}
+              </div>
+            ) : null}
+
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => setActiveAction(null)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">
                 Cancelar
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setActionConfirmation(`${activeAction.label} registrada para ${applicant.name}.`);
-                  setActionNote("");
-                  setActiveAction(null);
-                }}
+                onClick={handleConfirmAction}
                 className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white"
               >
                 Confirmar
               </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {documentReview ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-tech-primary">Revisión documental</p>
+              <h3 className="mt-1 text-xl font-bold text-slate-900">{documentReview.name}</h3>
+              <p className="mt-1 text-sm text-slate-600">{documentReview.fileName ?? "Documento demo"}</p>
+            </div>
+
+            <label className="block space-y-1 text-sm">
+              <span className="font-medium text-slate-700">Resultado</span>
+              <select
+                value={documentReviewStatus}
+                onChange={(event) => setDocumentReviewStatus(event.target.value as typeof documentReviewStatus)}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary"
+              >
+                <option value="en_revision">En revisión</option>
+                <option value="aprobado">Aprobado</option>
+                <option value="rechazado">Rechazado</option>
+                <option value="correccion">Solicitar corrección</option>
+              </select>
+            </label>
+
+            <label className="mt-4 block space-y-1 text-sm">
+              <span className="font-medium text-slate-700">Observación {documentReviewStatus === "rechazado" || documentReviewStatus === "correccion" ? "(obligatoria)" : "(opcional)"}</span>
+              <textarea value={documentReviewNote} onChange={(event) => setDocumentReviewNote(event.target.value)} rows={4} className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary" />
+            </label>
+
+            {documentReviewError ? <div role="alert" className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-800">{documentReviewError}</div> : null}
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setDocumentReview(null)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
+              <button type="button" onClick={handleDocumentReview} className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white">Guardar revisión</button>
             </div>
           </div>
         </div>

@@ -22,6 +22,13 @@ export interface ApplicantDocumentItem {
   name: string;
   status: Status;
   updatedAt: string;
+  description?: string;
+  required?: boolean;
+  dueDate?: string;
+  fileName?: string;
+  fileSize?: string;
+  uploadedAt?: string;
+  reviewNote?: string;
 }
 
 export interface AdminApplicantRecord {
