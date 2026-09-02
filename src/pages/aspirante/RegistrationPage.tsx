@@ -4,6 +4,7 @@ import { Clock, Mail, Phone, MessageCircle, ShieldCheck, ClipboardList, FileChec
 import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
 import { careers } from "../../data/careers";
+import { createApplicant } from "../../data/applicantStorage";
 import { paths } from "../../router/paths";
 
 interface FormData {
@@ -31,6 +32,7 @@ export function RegistrationPage() {
   });
   const [showModal, setShowModal] = useState(false);
   const [folio, setFolio] = useState("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -39,17 +41,26 @@ export function RegistrationPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Simular generación de folio
-    const newFolio = `ASP-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000)
-      .toString()
-      .padStart(4, "0")}`;
-    
-    setFolio(newFolio);
-    setShowModal(true);
-    
-    // Limpiar formulario
-    setTimeout(() => {
+
+    try {
+      setSubmitError(null);
+      const applicant = createApplicant(
+        {
+          name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          career: formData.career,
+          modality: formData.modality,
+          education: formData.education,
+          source: formData.source,
+          comments: formData.comments,
+          origin: "public"
+        },
+        { setAsCurrent: true }
+      );
+
+      setFolio(applicant.folio);
+      setShowModal(true);
       setFormData({
         fullName: "",
         email: "",
@@ -60,7 +71,13 @@ export function RegistrationPage() {
         source: "",
         comments: ""
       });
-    }, 500);
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "No fue posible guardar la solicitud. Intenta nuevamente."
+      );
+    }
   };
 
   return (
@@ -71,6 +88,11 @@ export function RegistrationPage() {
     >
       <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {submitError ? (
+            <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800">
+              {submitError}
+            </div>
+          ) : null}
           <SectionCard
             title="Datos personales"
             description="Asegura que podamos contactarte y dar seguimiento sin fricción."

@@ -6,7 +6,7 @@ import { StatusBadge } from "../../components/common/StatusBadge";
 import { careers } from "../../data/careers";
 import { paths } from "../../router/paths";
 
-const AREAS = ["Todos", "Tecnología", "Ciencias Aplicadas", "Creatividad y Tecnología", "Sociales"];
+const AREAS = ["Todos", ...Array.from(new Set(careers.map((career) => career.area)))];
 
 export function CareersPage() {
   const [searchTerm, setSearchTerm] = useState("");

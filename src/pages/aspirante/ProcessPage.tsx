@@ -4,10 +4,12 @@ import { PageShell } from "../../components/common/PageShell";
 import { ProgressStepper } from "../../components/common/ProgressStepper";
 import { SectionCard } from "../../components/common/SectionCard";
 import { StatusBadge } from "../../components/common/StatusBadge";
+import { getCurrentApplicant } from "../../data/applicantStorage";
 import { careers } from "../../data/careers";
 import { paths } from "../../router/paths";
+import type { ProgressStep } from "../../types/campus";
 
-const admissionStages = [
+const demoAdmissionStages: ProgressStep[] = [
   { id: "1", title: "Registro recibido", detail: "Solicitud registrada", state: "completado" as const },
   { id: "2", title: "Contacto inicial", detail: "Revisión inicial por el equipo", state: "completado" as const },
   { id: "3", title: "Documentación", detail: "Revisión de documentos", state: "activo" as const },
@@ -15,6 +17,33 @@ const admissionStages = [
   { id: "5", title: "Resultado", detail: "Publicación de resultados", state: "pendiente" as const },
   { id: "6", title: "Inscripción", detail: "Proceso de inscripción", state: "pendiente" as const }
 ];
+
+const admissionStageLabels = [
+  { title: "Registro recibido", detail: "Solicitud registrada" },
+  { title: "Contacto inicial", detail: "Revisión inicial por el equipo" },
+  { title: "Documentación", detail: "Revisión de documentos" },
+  { title: "Evaluación", detail: "Evaluación académica en curso" },
+  { title: "Resultado", detail: "Publicación de resultados" },
+  { title: "Inscripción", detail: "Proceso de inscripción" }
+];
+
+function getPublicStageIndex(stage: string) {
+  if (stage === "Contacto inicial" || stage === "Interés confirmado") return 1;
+  if (stage === "Documentación pendiente") return 2;
+  if (stage === "Evaluación / entrevista") return 3;
+  if (stage === "Inscripción finalizada") return 5;
+  return 0;
+}
+
+function buildAdmissionStages(stage: string): ProgressStep[] {
+  const currentIndex = getPublicStageIndex(stage);
+
+  return admissionStageLabels.map((step, index) => ({
+    id: String(index + 1),
+    ...step,
+    state: index < currentIndex ? "completado" : index === currentIndex ? "activo" : "pendiente"
+  }));
+}
 
 const timelineEvents = [
   {
@@ -73,22 +102,72 @@ const nextActions = [
 ];
 
 export function ProcessPage() {
-  // Mock aspirant data
-  const applicant = {
-    name: "Carlos Alberto Morales",
-    folio: "ASP-2026-0148",
-    career: careers[0]?.name || "Ingeniería en Software",
-    status: "en_revision" as const,
-    stage: 3
-  };
+  const currentApplicant = getCurrentApplicant();
+  const currentStageIndex = currentApplicant ? getPublicStageIndex(currentApplicant.stage) : 2;
+  const applicant = currentApplicant
+    ? {
+        name: currentApplicant.name,
+        folio: currentApplicant.folio,
+        career: currentApplicant.career,
+        status: currentApplicant.status,
+        stage: currentStageIndex + 1
+      }
+    : {
+        name: "Carlos Alberto Morales",
+        folio: "ASP-2026-0148",
+        career: careers[0]?.name || "Ingeniería en Software",
+        status: "en_revision" as const,
+        stage: 3
+      };
+
+  const visibleAdmissionStages = currentApplicant
+    ? buildAdmissionStages(currentApplicant.stage)
+    : demoAdmissionStages;
+
+  const visibleTimelineEvents = currentApplicant
+    ? currentApplicant.timeline.map((event) => ({
+        id: event.id,
+        date: event.time,
+        time: "",
+        title: event.title,
+        description: event.detail,
+        icon: Check
+      }))
+    : timelineEvents;
 
   const advisor = {
-    name: "Dra. María Elena Rodríguez",
-    position: "Asesora Académica",
-    email: "mrodriguez@campus360.edu",
+    name: currentApplicant?.owner ?? "Dra. María Elena Rodríguez",
+    position: currentApplicant ? "Asesor pendiente de asignación" : "Asesora Académica",
+    email: currentApplicant ? "admisiones@campus360.edu" : "mrodriguez@campus360.edu",
     phone: "+56 9 XXXX XXXX",
     hours: "Lunes a viernes, 09:00 - 18:00"
   };
+
+  const visibleNextActions = currentApplicant
+    ? [
+        {
+          title: currentApplicant.nextAction,
+          description: "El equipo de admisiones dará seguimiento a tu solicitud.",
+          deadline: "Por definir",
+          priority: "pendiente"
+        }
+      ]
+    : nextActions;
+
+  const visibleDocuments = currentApplicant
+    ? currentApplicant.documents.map((document) => ({
+        id: document.id,
+        name: document.name,
+        detail: document.updatedAt === "Nunca" ? "Documento pendiente" : document.updatedAt,
+        status: document.status
+      }))
+    : [
+        { id: "demo-1", name: "Certificado de bachillerato", detail: "PDF · 2.4 MB", status: "aprobado" as const },
+        { id: "demo-2", name: "Identificación oficial", detail: "En revisión", status: "en_revision" as const },
+        { id: "demo-3", name: "CURP", detail: "Documento faltante", status: "pendiente" as const }
+      ];
+  const completedDocuments = visibleDocuments.filter((document) => document.status === "aprobado").length;
+  const documentProgress = Math.round((completedDocuments / Math.max(visibleDocuments.length, 1)) * 100);
 
   return (
     <PageShell
@@ -102,19 +181,23 @@ export function ProcessPage() {
         description="Una vista compacta de tu solicitud y del paso donde te encuentras."
       >
         <div className="flex flex-wrap items-center gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Folio</p>
-              <p className="font-mono font-semibold text-tech-primary">{applicant.folio}</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Carrera</p>
-              <p className="font-semibold text-tech-textMain">{applicant.career}</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Estado</p>
-              <StatusBadge status={applicant.status} />
-            </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Aspirante</p>
+            <p className="font-semibold text-tech-textMain">{applicant.name}</p>
           </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Folio</p>
+            <p className="font-mono font-semibold text-tech-primary">{applicant.folio}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Carrera</p>
+            <p className="font-semibold text-tech-textMain">{applicant.career}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Estado</p>
+            <StatusBadge status={applicant.status} />
+          </div>
+        </div>
       </SectionCard>
 
       <section className="mb-8 rounded-2xl border border-tech-border bg-white p-6 shadow-sm">
@@ -123,14 +206,14 @@ export function ProcessPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-primary">Seguimiento</p>
             <h3 className="mt-1 text-xl font-semibold text-tech-textMain">Etapas del proceso</h3>
           </div>
-          <p className="text-sm text-tech-textSecond">Paso {applicant.stage} de {admissionStages.length}</p>
+          <p className="text-sm text-tech-textSecond">Paso {applicant.stage} de {visibleAdmissionStages.length}</p>
         </div>
-        <ProgressStepper steps={admissionStages} />
+        <ProgressStepper steps={visibleAdmissionStages} />
       </section>
 
       <SectionCard title="Historial de eventos" description="Registro cronológico de hitos relevantes en tu proceso." className="mb-6">
         <div className="space-y-4">
-          {timelineEvents.map((event, index) => {
+          {visibleTimelineEvents.map((event, index) => {
             const IconComponent = event.icon;
             return (
               <div key={event.id} className="flex gap-4">
@@ -138,13 +221,13 @@ export function ProcessPage() {
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-tech-primary">
                     <IconComponent className="h-5 w-5" />
                   </div>
-                  {index < timelineEvents.length - 1 && (
+                  {index < visibleTimelineEvents.length - 1 && (
                     <div className="mt-1 h-12 w-0.5 bg-tech-border"></div>
                   )}
                 </div>
                 <div className="flex-1 pb-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">
-                    {event.date} · {event.time}
+                    {event.date}{event.time ? ` · ${event.time}` : ""}
                   </p>
                   <h4 className="mt-1 font-semibold text-tech-textMain">{event.title}</h4>
                   <p className="text-sm leading-6 text-tech-textSecond">{event.description}</p>
@@ -195,7 +278,7 @@ export function ProcessPage() {
         {/* Próximas acciones */}
         <SectionCard title="Próximas acciones">
           <div className="space-y-3">
-            {nextActions.map((action, index) => (
+            {visibleNextActions.map((action, index) => (
               <div
                 key={index}
                 className={`rounded-2xl border p-4 ${
@@ -218,36 +301,22 @@ export function ProcessPage() {
 
       <SectionCard title="Estado de documentación" description="Resumen del expediente documental y su avance actual." className="mb-6">
         <div className="space-y-3">
-          <div className="flex items-center justify-between rounded-2xl border border-tech-border bg-surface-card p-3">
-            <div>
-              <p className="text-sm font-medium text-tech-textMain">Certificado de bachillerato</p>
-              <p className="text-xs text-tech-textSecond">PDF · 2.4 MB</p>
+          {visibleDocuments.map((document) => (
+            <div key={document.id} className="flex items-center justify-between rounded-2xl border border-tech-border bg-surface-card p-3">
+              <div>
+                <p className="text-sm font-medium text-tech-textMain">{document.name}</p>
+                <p className="text-xs text-tech-textSecond">{document.detail}</p>
+              </div>
+              <StatusBadge status={document.status} />
             </div>
-            <StatusBadge status="aprobado" />
-          </div>
-
-          <div className="flex items-center justify-between rounded-2xl border border-tech-border bg-surface-card p-3">
-            <div>
-              <p className="text-sm font-medium text-tech-textMain">Identificación oficial</p>
-              <p className="text-xs text-tech-textSecond">En revisión</p>
-            </div>
-            <StatusBadge status="en_revision" />
-          </div>
-
-          <div className="flex items-center justify-between rounded-2xl border border-tech-border bg-surface-card p-3">
-            <div>
-              <p className="text-sm font-medium text-tech-textMain">CURP</p>
-              <p className="text-xs text-tech-textSecond">Documento faltante</p>
-            </div>
-            <StatusBadge status="pendiente" />
-          </div>
+          ))}
 
           <div className="mt-4 rounded-2xl bg-surface-card p-3">
             <div className="flex h-2 overflow-hidden rounded-full bg-tech-divider">
-              <div className="h-full w-2/3 bg-tech-primary"></div>
+              <div className="h-full bg-tech-primary" style={{ width: `${documentProgress}%` }}></div>
             </div>
             <p className="mt-2 text-xs text-tech-textSecond">
-              <span className="font-semibold">66%</span> de documentación completada
+              <span className="font-semibold">{documentProgress}%</span> de documentación completada
             </p>
           </div>
 
@@ -267,14 +336,16 @@ export function ProcessPage() {
           <div className="flex-1">
             <h3 className="font-semibold text-tech-textMain">Acción requerida</h3>
             <p className="mt-1 text-sm text-tech-textSecond">
-              Necesitamos que cargues el CURP antes del 28 de febrero para completar tu expediente.
+              {currentApplicant
+                ? "Tu solicitud fue recibida. Prepara los documentos solicitados mientras el equipo de admisiones realiza el primer contacto."
+                : "Necesitamos que cargues el CURP antes del 28 de febrero para completar tu expediente."}
             </p>
           </div>
           <Link
             to={paths.aspirante.documentacion}
             className="rounded-full bg-tech-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-tech-mid"
           >
-            Subir documento
+            {currentApplicant ? "Preparar documentos" : "Subir documento"}
           </Link>
         </div>
       </section>

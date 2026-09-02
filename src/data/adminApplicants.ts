@@ -33,7 +33,9 @@ export interface AdminApplicantRecord {
   phone: string;
   city: string;
   modality: string;
+  education?: string;
   source: string;
+  comments?: string;
   lastContact: string;
   owner: string;
   priority: ApplicantPriority;
@@ -100,7 +102,7 @@ export const adminApplicants: AdminApplicantRecord[] = [
     id: "APL-2026-002",
     folio: "ADM-26-1002",
     name: "Jesús Pineda",
-    career: "Analítica de Datos",
+    career: "Licenciatura en Analítica de Datos",
     email: "jesus.pineda@mail.com",
     phone: "811-555-0183",
     city: "Guadalupe",

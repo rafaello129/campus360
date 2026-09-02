@@ -22,10 +22,11 @@ import { EmptyState } from "../../components/common/EmptyState";
 import { StatusBadge } from "../../components/common/StatusBadge";
 import { UserAvatar } from "../../components/common/UserAvatar";
 import type { Status } from "../../types";
-import { adminApplicants, adminApplicantStages, type ApplicantPriority } from "../../data/adminApplicants";
+import { adminApplicantStages, type ApplicantPriority } from "../../data/adminApplicants";
+import { createApplicant, listApplicants } from "../../data/applicantStorage";
+import { careers as academicCareers } from "../../data/careers";
 import { paths } from "../../router/paths";
 
-const careers = Array.from(new Set(adminApplicants.map((applicant) => applicant.career))).sort();
 const priorities: Array<ApplicantPriority | "todas"> = ["todas", "alta", "media", "baja"];
 
 const evaluationSteps = [
@@ -48,7 +49,7 @@ const emptyDraft: ApplicantDraft = {
   name: "",
   email: "",
   phone: "",
-  career: careers[0] ?? "",
+  career: academicCareers[0]?.name ?? "",
   source: "Portal web"
 };
 
@@ -74,10 +75,22 @@ export function CaptacionKanbanPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCareer, setActiveCareer] = useState("todas");
   const [activePriority, setActivePriority] = useState<ApplicantPriority | "todas">("todas");
-  const [applicants, setApplicants] = useState(adminApplicants);
+  const [applicants, setApplicants] = useState(() => listApplicants());
   const [showModal, setShowModal] = useState(false);
   const [draft, setDraft] = useState<ApplicantDraft>(emptyDraft);
   const [confirmation, setConfirmation] = useState<string | null>(null);
+  const [creationError, setCreationError] = useState<string | null>(null);
+
+  const careerOptions = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...applicants.map((applicant) => applicant.career),
+          ...academicCareers.map((career) => career.name)
+        ])
+      ).sort(),
+    [applicants]
+  );
 
   const filteredApplicants = useMemo(() => {
     return applicants.filter((applicant) => {
@@ -104,7 +117,7 @@ export function CaptacionKanbanPage() {
   const newRecords = applicants.filter((applicant) => applicant.stage === "Nuevo registro").length;
   const completedApplicants = applicants.filter((applicant) => applicant.stage === "Inscripción finalizada").length;
   const conversionRate = Math.round((completedApplicants / Math.max(applicants.length, 1)) * 100);
-  const topCareers = careers
+  const topCareers = careerOptions
     .map((career) => ({
       career,
       total: applicants.filter((applicant) => applicant.career === career).length
@@ -122,49 +135,30 @@ export function CaptacionKanbanPage() {
   ];
 
   const handleCreateApplicant = () => {
-    const newApplicant = {
-      id: `APL-2026-${String(applicants.length + 1).padStart(3, "0")}`,
-      folio: `ADM-26-${String(1000 + applicants.length + 1)}`,
-      name: draft.name,
-      career: draft.career,
-      email: draft.email,
-      phone: draft.phone,
-      city: "Por definir",
-      modality: "Presencial",
-      source: draft.source,
-      lastContact: "Sin contacto",
-      owner: "Pendiente de asignación",
-      priority: "media",
-      documentStatus: "pendiente",
-      stage: "Nuevo registro",
-      status: "activo",
-      registeredAt: "Hoy",
-      conversionProbability: 48,
-      nextAction: "Realizar primer contacto",
-      daysWithoutFollowUp: 0,
-      observations: "Captura creada desde el panel administrativo.",
-      timeline: [
-        {
-          id: "tl-1",
-          title: "Registro creado",
-          detail: "Alta manual desde el tablero de captación.",
-          time: "Hoy",
-          status: "activo"
-        }
-      ],
-      documents: [
-        { id: "doc-1", name: "Acta de nacimiento", status: "pendiente", updatedAt: "Nunca" },
-        { id: "doc-2", name: "CURP", status: "pendiente", updatedAt: "Nunca" },
-        { id: "doc-3", name: "Certificado", status: "pendiente", updatedAt: "Nunca" },
-        { id: "doc-4", name: "Identificación", status: "pendiente", updatedAt: "Nunca" },
-        { id: "doc-5", name: "Comprobante", status: "pendiente", updatedAt: "Nunca" }
-      ]
-    } satisfies (typeof adminApplicants)[number];
+    if (!draft.name.trim() || !draft.email.trim() || !draft.career) return;
 
-    setApplicants((previous) => [newApplicant, ...previous]);
-    setShowModal(false);
-    setDraft({ ...emptyDraft, career: draft.career });
-    setConfirmation(`${draft.name} se agregó al tablero.`);
+    try {
+      setCreationError(null);
+      const newApplicant = createApplicant({
+        name: draft.name,
+        email: draft.email,
+        phone: draft.phone,
+        career: draft.career,
+        source: draft.source,
+        origin: "admin"
+      });
+
+      setApplicants(listApplicants());
+      setShowModal(false);
+      setDraft({ ...emptyDraft, career: draft.career });
+      setConfirmation(`${newApplicant.name} se agregó al tablero.`);
+    } catch (error) {
+      setCreationError(
+        error instanceof Error
+          ? error.message
+          : "No fue posible guardar el aspirante. Intenta nuevamente."
+      );
+    }
   };
 
   return (
@@ -218,7 +212,10 @@ export function CaptacionKanbanPage() {
             </div>
             <button
               type="button"
-              onClick={() => setShowModal(true)}
+              onClick={() => {
+                setCreationError(null);
+                setShowModal(true);
+              }}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-tech-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-tech-mid"
             >
               <Plus className="h-4 w-4" />
@@ -264,7 +261,7 @@ export function CaptacionKanbanPage() {
                   Todas las carreras
                   <span className="ml-2 opacity-80">{applicants.length}</span>
                 </button>
-                {careers.map((career) => (
+                {careerOptions.map((career) => (
                   <button
                     key={career}
                     type="button"
@@ -388,7 +385,13 @@ export function CaptacionKanbanPage() {
                       className="group rounded-lg border border-tech-divider bg-white p-3 shadow-sm transition hover:border-tech-primary/25 hover:shadow-md"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <UserAvatar name={applicant.name} subtitle={applicant.folio} compact />
+                        <div className="flex min-w-0 items-center gap-2">
+                          <UserAvatar name={applicant.name} compact />
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-tech-textMain">{applicant.name}</p>
+                            <p className="truncate text-[11px] text-tech-textSecond">{applicant.folio}</p>
+                          </div>
+                        </div>
                         <span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] ${priorityClass(applicant.priority)}`}>
                           {applicant.priority}
                         </span>
@@ -554,7 +557,13 @@ export function CaptacionKanbanPage() {
                       className="group rounded-lg border border-tech-divider bg-white p-4 shadow-sm transition hover:border-tech-primary/25 hover:shadow-md"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <UserAvatar name={applicant.name} subtitle={applicant.folio} compact />
+                        <div className="flex min-w-0 items-center gap-2">
+                          <UserAvatar name={applicant.name} compact />
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-tech-textMain">{applicant.name}</p>
+                            <p className="truncate text-[11px] text-tech-textSecond">{applicant.folio}</p>
+                          </div>
+                        </div>
                         <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.1em] ${priorityClass(applicant.priority)}`}>
                           {applicant.priority}
                         </span>
@@ -680,11 +689,17 @@ export function CaptacionKanbanPage() {
             </div>
 
             <div className="grid gap-4 px-6 py-5 sm:grid-cols-2">
+              {creationError ? (
+                <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800 sm:col-span-2">
+                  {creationError}
+                </div>
+              ) : null}
               <label className="space-y-1.5 text-sm">
                 <span className="font-semibold text-tech-textMain">Nombre</span>
                 <input
                   value={draft.name}
                   onChange={(event) => setDraft({ ...draft, name: event.target.value })}
+                  required
                   className="w-full rounded-lg border border-tech-border bg-tech-bg px-3 py-2.5 outline-none transition focus:border-tech-primary focus:bg-white"
                 />
               </label>
@@ -693,6 +708,8 @@ export function CaptacionKanbanPage() {
                 <input
                   value={draft.email}
                   onChange={(event) => setDraft({ ...draft, email: event.target.value })}
+                  type="email"
+                  required
                   className="w-full rounded-lg border border-tech-border bg-tech-bg px-3 py-2.5 outline-none transition focus:border-tech-primary focus:bg-white"
                 />
               </label>
@@ -711,7 +728,7 @@ export function CaptacionKanbanPage() {
                   onChange={(event) => setDraft({ ...draft, career: event.target.value })}
                   className="w-full rounded-lg border border-tech-border bg-tech-bg px-3 py-2.5 outline-none transition focus:border-tech-primary focus:bg-white"
                 >
-                  {careers.map((career) => (
+                  {careerOptions.map((career) => (
                     <option key={career} value={career}>
                       {career}
                     </option>
@@ -739,7 +756,8 @@ export function CaptacionKanbanPage() {
               <button
                 type="button"
                 onClick={handleCreateApplicant}
-                className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-tech-mid"
+                disabled={!draft.name.trim() || !draft.email.trim() || !draft.career}
+                className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-tech-mid disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Guardar aspirante
               </button>

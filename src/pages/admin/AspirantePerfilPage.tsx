@@ -8,7 +8,8 @@ import { ProgressStepper } from "../../components/common/ProgressStepper";
 import { SectionCard } from "../../components/common/SectionCard";
 import { StatusBadge } from "../../components/common/StatusBadge";
 import { UserAvatar } from "../../components/common/UserAvatar";
-import { adminApplicants, type ApplicantPriority, type ApplicantStage } from "../../data/adminApplicants";
+import { type ApplicantPriority, type ApplicantStage } from "../../data/adminApplicants";
+import { getApplicantById } from "../../data/applicantStorage";
 import type { ProgressStep } from "../../types/campus";
 
 type QuickActionKey = "llamada" | "recordatorio" | "cita" | "estatus" | "responsable";
@@ -92,7 +93,7 @@ export function AspirantePerfilPage() {
   const [actionConfirmation, setActionConfirmation] = useState<string | null>(null);
 
   const applicant = useMemo(
-    () => adminApplicants.find((candidate) => candidate.id === id) ?? adminApplicants[0],
+    () => getApplicantById(id),
     [id]
   );
 
@@ -146,8 +147,10 @@ export function AspirantePerfilPage() {
                 ["Teléfono", applicant.phone],
                 ["Ciudad", applicant.city],
                 ["Modalidad", applicant.modality],
+                ["Último nivel de estudios", applicant.education ?? "Por definir"],
                 ["Medio de origen", applicant.source],
-                ["Fecha de registro", applicant.registeredAt]
+                ["Fecha de registro", applicant.registeredAt],
+                ["Comentarios", applicant.comments ?? "Sin comentarios"]
               ].map(([label, value]) => (
                 <div key={label} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</p>
