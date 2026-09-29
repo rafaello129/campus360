@@ -102,8 +102,15 @@ export function CaptacionKanbanPage() {
   );
 
   const filteredApplicants = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
     return applicants.filter((applicant) => {
-      const matchesSearch = applicant.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch =
+        !query ||
+        applicant.name.toLowerCase().includes(query) ||
+        applicant.email.toLowerCase().includes(query) ||
+        applicant.folio.toLowerCase().includes(query) ||
+        applicant.career.toLowerCase().includes(query);
       const matchesCareer = activeCareer === "todas" || applicant.career === activeCareer;
       const matchesPriority = activePriority === "todas" || applicant.priority === activePriority;
 
@@ -215,7 +222,7 @@ export function CaptacionKanbanPage() {
               <input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Buscar aspirante por nombre"
+                placeholder="Buscar por nombre, correo, folio o carrera"
                 className="w-full rounded-lg border border-tech-border bg-tech-bg py-2.5 pl-10 pr-3 text-sm text-tech-textMain outline-none transition placeholder:text-tech-textSecond focus:border-tech-primary focus:bg-white"
               />
             </div>

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Clock, Mail, FileText, Calendar, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { EmptyState } from "../../components/common/EmptyState";
@@ -6,6 +7,7 @@ import { ProgressStepper } from "../../components/common/ProgressStepper";
 import { SectionCard } from "../../components/common/SectionCard";
 import { StatusBadge } from "../../components/common/StatusBadge";
 import { getCurrentApplicant } from "../../data/applicantStorage";
+import { subscribeToCampusStorageChange } from "../../data/storageEvents";
 import { paths } from "../../router/paths";
 import type { ProgressStep } from "../../types/campus";
 
@@ -37,7 +39,15 @@ function buildAdmissionStages(stage: string): ProgressStep[] {
 }
 
 export function ProcessPage() {
-  const currentApplicant = getCurrentApplicant();
+  const [currentApplicant, setCurrentApplicant] = useState(() => getCurrentApplicant());
+
+  useEffect(
+    () =>
+      subscribeToCampusStorageChange(() => {
+        setCurrentApplicant(getCurrentApplicant());
+      }),
+    []
+  );
 
   if (!currentApplicant) {
     return (
@@ -82,9 +92,10 @@ export function ProcessPage() {
     icon: Check
   }));
 
+  const advisorPending = currentApplicant.owner === "Pendiente de asignación";
   const advisor = {
     name: currentApplicant.owner,
-    position: "Asesor pendiente de asignación",
+    position: advisorPending ? "Asesor pendiente de asignación" : "Responsable de admisiones",
     email: "admisiones@campus360.edu",
     phone: "+56 9 XXXX XXXX",
     hours: "Lunes a viernes, 09:00 - 18:00"
@@ -281,7 +292,7 @@ export function ProcessPage() {
           <div className="flex-1">
             <h3 className="font-semibold text-tech-textMain">Acción requerida</h3>
             <p className="mt-1 text-sm text-tech-textSecond">
-              Tu solicitud fue recibida. Prepara los documentos solicitados mientras el equipo de admisiones realiza el primer contacto.
+              Siguiente paso: {currentApplicant.nextAction}.
             </p>
           </div>
           <Link

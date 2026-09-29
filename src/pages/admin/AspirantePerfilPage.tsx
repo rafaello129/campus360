@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CalendarPlus, PhoneCall, Send, UserCog, ClipboardEdit, StickyNote, FileCheck2 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { DataTable } from "../../components/common/DataTable";
@@ -16,9 +16,17 @@ import {
 import {
   getApplicantById,
   getDocumentUpdatedLabel,
+  normalizeEmail,
   updateApplicant,
   updateApplicantDocument
 } from "../../data/applicantStorage";
+import { subscribeToCampusStorageChange } from "../../data/storageEvents";
+import {
+  DEMO_ADVISOR,
+  DEMO_APPLICANT,
+  DEMO_CALL_NOTE,
+  DEMO_TARGET_STAGE
+} from "../../config/demo";
 import type { Status } from "../../types";
 import type { ProgressStep } from "../../types/campus";
 
@@ -87,7 +95,7 @@ const quickActions: QuickActionConfig[] = [
 ];
 
 const advisors = [
-  "Lic. Brenda Salas",
+  DEMO_ADVISOR,
   "Mtra. Daniela Cruz",
   "Lic. Adrián Mora",
   "Mtra. Laura Treviño",
@@ -127,8 +135,10 @@ export function AspirantePerfilPage() {
   const [actionNote, setActionNote] = useState("");
   const [actionConfirmation, setActionConfirmation] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [isActionSubmitting, setIsActionSubmitting] = useState(false);
+  const actionSubmittingRef = useRef(false);
   const [selectedStage, setSelectedStage] = useState<ApplicantStage>("Nuevo registro");
-  const [selectedOwner, setSelectedOwner] = useState(advisors[0]);
+  const [selectedOwner, setSelectedOwner] = useState(DEMO_ADVISOR);
   const [appointmentDate, setAppointmentDate] = useState("");
   const [appointmentTime, setAppointmentTime] = useState("");
   const [appointmentModality, setAppointmentModality] = useState("Presencial");
@@ -138,15 +148,25 @@ export function AspirantePerfilPage() {
   const [documentReviewError, setDocumentReviewError] = useState<string | null>(null);
 
   useEffect(() => {
-    setApplicant(getApplicantById(id));
+    const syncApplicant = () => setApplicant(getApplicantById(id));
+    syncApplicant();
+    return subscribeToCampusStorageChange(syncApplicant);
   }, [id]);
 
   const openAction = (action: QuickActionConfig) => {
     setActionError(null);
     setActionNote("");
     if (applicant) {
-      setSelectedStage(applicant.stage);
-      setSelectedOwner(applicant.owner === "Pendiente de asignación" ? advisors[0] : applicant.owner);
+      const isDemoProfile =
+        normalizeEmail(applicant.email) === normalizeEmail(DEMO_APPLICANT.email);
+      setSelectedStage(
+        action.key === "estatus" && isDemoProfile && applicant.stage === "Nuevo registro"
+          ? DEMO_TARGET_STAGE
+          : applicant.stage
+      );
+      setSelectedOwner(
+        applicant.owner === "Pendiente de asignación" ? DEMO_ADVISOR : applicant.owner
+      );
     }
     setAppointmentDate("");
     setAppointmentTime("");
@@ -155,9 +175,10 @@ export function AspirantePerfilPage() {
   };
 
   const handleConfirmAction = () => {
-    if (!applicant || !activeAction) return;
+    if (!applicant || !activeAction || actionSubmittingRef.current) return;
     const note = actionNote.trim();
     const noteRequired = ["llamada", "recordatorio", "nota"].includes(activeAction.key);
+
     if (noteRequired && !note) {
       setActionError("Escribe un comentario antes de confirmar.");
       return;
@@ -166,9 +187,21 @@ export function AspirantePerfilPage() {
       setActionError("Selecciona la fecha y la hora de la cita.");
       return;
     }
+    if (activeAction.key === "estatus" && selectedStage === applicant.stage) {
+      setActionError("Selecciona una etapa diferente antes de confirmar.");
+      return;
+    }
+    if (activeAction.key === "responsable" && selectedOwner === applicant.owner) {
+      setActionError("Selecciona un responsable diferente antes de confirmar.");
+      return;
+    }
+
+    actionSubmittingRef.current = true;
+    setIsActionSubmitting(true);
 
     try {
       let updatedApplicant = applicant;
+      let confirmationMessage = "Acción guardada correctamente.";
       const contactTime = new Intl.DateTimeFormat("es-MX", {
         hour: "2-digit",
         minute: "2-digit"
@@ -186,6 +219,7 @@ export function AspirantePerfilPage() {
             }
           }
         );
+        confirmationMessage = "Etapa actualizada correctamente.";
       } else if (activeAction.key === "responsable") {
         updatedApplicant = updateApplicant(
           applicant.id,
@@ -198,6 +232,7 @@ export function AspirantePerfilPage() {
             }
           }
         );
+        confirmationMessage = "Responsable actualizado correctamente.";
       } else if (activeAction.key === "llamada" || activeAction.key === "recordatorio") {
         const isCall = activeAction.key === "llamada";
         updatedApplicant = updateApplicant(
@@ -211,6 +246,9 @@ export function AspirantePerfilPage() {
             }
           }
         );
+        confirmationMessage = isCall
+          ? "Llamada registrada correctamente."
+          : "Recordatorio registrado correctamente.";
       } else if (activeAction.key === "cita") {
         const appointmentLabel = `${appointmentDate} a las ${appointmentTime} · ${appointmentModality}`;
         updatedApplicant = updateApplicant(
@@ -224,6 +262,7 @@ export function AspirantePerfilPage() {
             }
           }
         );
+        confirmationMessage = "Cita programada correctamente.";
       } else if (activeAction.key === "nota") {
         updatedApplicant = updateApplicant(
           applicant.id,
@@ -236,15 +275,19 @@ export function AspirantePerfilPage() {
             }
           }
         );
+        confirmationMessage = "Nota agregada correctamente.";
       }
 
       setApplicant(updatedApplicant);
-      setActionConfirmation(`${activeAction.label} registrada para ${applicant.name}.`);
+      setActionConfirmation(confirmationMessage);
       setActionNote("");
       setActionError(null);
       setActiveAction(null);
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "No fue posible guardar la acción.");
+    } finally {
+      actionSubmittingRef.current = false;
+      setIsActionSubmitting(false);
     }
   };
 
@@ -304,6 +347,14 @@ export function AspirantePerfilPage() {
   }
 
   const progressSteps = buildProgressSteps(applicant.stage);
+  const isDemoProfile =
+    normalizeEmail(applicant.email) === normalizeEmail(DEMO_APPLICANT.email);
+  const actionHasNoChange =
+    activeAction?.key === "estatus"
+      ? selectedStage === applicant.stage
+      : activeAction?.key === "responsable"
+        ? selectedOwner === applicant.owner
+        : false;
 
   return (
     <PageShell title="Perfil del aspirante" description="Vista detallada para el seguimiento de captación y admisión." eyebrow="Perfil individual">
@@ -495,7 +546,12 @@ export function AspirantePerfilPage() {
                 <h3 className="text-xl font-bold text-slate-900">{activeAction.title}</h3>
                 <p className="text-sm text-slate-600">{activeAction.helper}</p>
               </div>
-              <button type="button" onClick={() => setActiveAction(null)} className="text-sm font-semibold text-slate-500">
+              <button
+                type="button"
+                onClick={() => setActiveAction(null)}
+                disabled={isActionSubmitting}
+                className="text-sm font-semibold text-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
                 Cerrar
               </button>
             </div>
@@ -556,7 +612,11 @@ export function AspirantePerfilPage() {
                 onChange={(event) => setActionNote(event.target.value)}
                 rows={4}
                 className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary"
-                placeholder="Escribe una nota breve..."
+                placeholder={
+                  activeAction.key === "llamada" && isDemoProfile
+                    ? DEMO_CALL_NOTE
+                    : "Escribe una nota breve..."
+                }
               />
             </label>
 
@@ -567,15 +627,21 @@ export function AspirantePerfilPage() {
             ) : null}
 
             <div className="mt-5 flex justify-end gap-2">
-              <button type="button" onClick={() => setActiveAction(null)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">
+              <button
+                type="button"
+                onClick={() => setActiveAction(null)}
+                disabled={isActionSubmitting}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={handleConfirmAction}
-                className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white"
+                disabled={isActionSubmitting || actionHasNoChange}
+                className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Confirmar
+                {isActionSubmitting ? "Guardando..." : "Confirmar"}
               </button>
             </div>
           </div>
