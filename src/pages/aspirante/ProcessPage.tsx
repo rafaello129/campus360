@@ -281,7 +281,7 @@ export function ProcessPage() {
           <div className="flex-1">
             <h3 className="font-semibold text-tech-textMain">Acción requerida</h3>
             <p className="mt-1 text-sm text-tech-textSecond">
-              "Tu solicitud fue recibida. Prepara los documentos solicitados mientras el equipo de admisiones realiza el primer contacto."
+              Tu solicitud fue recibida. Prepara los documentos solicitados mientras el equipo de admisiones realiza el primer contacto.
             </p>
           </div>
           <Link
