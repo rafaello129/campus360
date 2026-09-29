@@ -5,6 +5,7 @@ export const paths = {
     carreras: "/aspirante/carreras",
     carreraDetalle: (careerId: string) => `/aspirante/carreras/${careerId}`,
     registro: "/aspirante/registro",
+    registroCarrera: (careerId: string) => `/aspirante/registro?career=${encodeURIComponent(careerId)}`,
     proceso: "/aspirante/proceso",
     documentos: "/aspirante/documentos",
     chatbot: "/aspirante/chatbot",

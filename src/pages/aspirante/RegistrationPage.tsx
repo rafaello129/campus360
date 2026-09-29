@@ -1,10 +1,14 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Clock, Mail, Phone, MessageCircle, ShieldCheck, ClipboardList, FileCheck } from "lucide-react";
 import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
 import { careers } from "../../data/careers";
-import { createApplicant } from "../../data/applicantStorage";
+import { createApplicant, type CreateApplicantInput } from "../../data/applicantStorage";
+import {
+  createOrResumeDemoApplicant,
+  isDemoApplicant
+} from "../../data/demoSession";
 import { paths } from "../../router/paths";
 
 interface FormData {
@@ -18,21 +22,36 @@ interface FormData {
   comments: string;
 }
 
-export function RegistrationPage() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState<FormData>({
+function getValidCareerId(careerId: string | null) {
+  if (!careerId) return "";
+  return careers.some((career) => career.id === careerId) ? careerId : "";
+}
+
+function buildInitialFormData(careerId: string | null): FormData {
+  return {
     fullName: "",
     email: "",
     phone: "",
-    career: "",
+    career: getValidCareerId(careerId),
     modality: "",
     education: "",
     source: "",
     comments: ""
-  });
+  };
+}
+
+export function RegistrationPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [formData, setFormData] = useState<FormData>(() =>
+    buildInitialFormData(searchParams.get("career"))
+  );
   const [showModal, setShowModal] = useState(false);
   const [folio, setFolio] = useState("");
+  const [registrationResult, setRegistrationResult] = useState<"created" | "resumed">("created");
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -41,42 +60,46 @@ export function RegistrationPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
+
+    submittingRef.current = true;
+    setIsSubmitting(true);
 
     try {
       setSubmitError(null);
-      const applicant = createApplicant(
-        {
-          name: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          career: formData.career,
-          modality: formData.modality,
-          education: formData.education,
-          source: formData.source,
-          comments: formData.comments,
-          origin: "public"
-        },
-        { setAsCurrent: true }
-      );
 
-      setFolio(applicant.folio);
+      const input: CreateApplicantInput = {
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        career: formData.career,
+        modality: formData.modality,
+        education: formData.education,
+        source: formData.source,
+        comments: formData.comments,
+        origin: "public"
+      };
+
+      if (isDemoApplicant(input)) {
+        const result = createOrResumeDemoApplicant(input);
+        setFolio(result.applicant.folio);
+        setRegistrationResult(result.created ? "created" : "resumed");
+      } else {
+        const applicant = createApplicant(input, { setAsCurrent: true });
+        setFolio(applicant.folio);
+        setRegistrationResult("created");
+      }
+
       setShowModal(true);
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        career: "",
-        modality: "",
-        education: "",
-        source: "",
-        comments: ""
-      });
     } catch (error) {
       setSubmitError(
         error instanceof Error
           ? error.message
           : "No fue posible guardar la solicitud. Intenta nuevamente."
       );
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -233,9 +256,10 @@ export function RegistrationPage() {
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="submit"
-              className="flex-1 rounded-full bg-tech-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-tech-mid"
+              disabled={isSubmitting}
+              className="flex-1 rounded-full bg-tech-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-tech-mid disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Enviar solicitud
+              {isSubmitting ? "Enviando..." : "Enviar solicitud"}
             </button>
             <Link
               to={paths.aspirante.root}
@@ -337,13 +361,22 @@ export function RegistrationPage() {
       {/* Modal de confirmación */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
-          <div className="w-full max-w-md rounded-3xl border border-tech-border bg-white p-8 shadow-2xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="registration-success-title"
+            className="w-full max-w-md rounded-3xl border border-tech-border bg-white p-8 shadow-2xl"
+          >
             <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-tech-primary">
               <ShieldCheck className="h-6 w-6" />
             </div>
-            <h3 className="text-xl font-semibold text-tech-textMain">¡Registro completado!</h3>
+            <h3 id="registration-success-title" className="text-xl font-semibold text-tech-textMain">
+              {registrationResult === "resumed" ? "Solicitud recuperada" : "¡Registro completado!"}
+            </h3>
             <p className="mt-2 text-tech-textSecond">
-              Tu solicitud ha sido recibida exitosamente. Tu proceso de admisión ha iniciado.
+              {registrationResult === "resumed"
+                ? "Tu solicitud ya estaba registrada. Puedes continuar con el mismo proceso de admisión."
+                : "Tu solicitud ha sido recibida exitosamente. Tu proceso de admisión ha iniciado."}
             </p>
 
             <div className="mt-6 space-y-3 rounded-2xl border border-tech-border bg-surface-card p-4">
@@ -367,15 +400,18 @@ export function RegistrationPage() {
                 Ver mi proceso de admisión
               </button>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false);
+                  navigate(paths.aspirante.root);
+                }}
                 className="w-full rounded-full border border-tech-border px-4 py-2.5 text-sm font-semibold text-tech-textSecond transition hover:bg-blue-50"
               >
-                Volver al inicio
+                Seguir explorando
               </button>
             </div>
 
             <p className="mt-4 text-center text-xs text-tech-textSecond">
-              Te hemos enviado un correo de confirmación con instrucciones.
+              Guarda tu folio para consultar y dar seguimiento a tu proceso.
             </p>
           </div>
         </div>

@@ -1,9 +1,12 @@
 import { CAMPUS360_STORAGE_KEYS, DEMO_APPLICANT } from "../config/demo";
 import type { AdminApplicantRecord } from "./adminApplicants";
 import {
+  createApplicant,
   findApplicantByEmail,
   getApplicantById,
-  normalizeEmail
+  normalizeEmail,
+  setCurrentApplicant,
+  type CreateApplicantInput
 } from "./applicantStorage";
 import { emitCampusStorageChange } from "./storageEvents";
 
@@ -99,6 +102,30 @@ export function markDemoApplicant(applicantId: string): DemoSessionState {
   }
 
   return setDemoSession({ demoApplicantId: applicant.id });
+}
+
+export interface DemoApplicantResult {
+  applicant: AdminApplicantRecord;
+  created: boolean;
+}
+
+export function createOrResumeDemoApplicant(
+  input: CreateApplicantInput
+): DemoApplicantResult {
+  if (!isDemoApplicant(input)) {
+    throw new Error("El registro indicado no corresponde al aspirante de demostración.");
+  }
+
+  const existingApplicant = getDemoApplicant();
+  if (existingApplicant) {
+    setCurrentApplicant(existingApplicant.id);
+    markDemoApplicant(existingApplicant.id);
+    return { applicant: existingApplicant, created: false };
+  }
+
+  const applicant = createApplicant(input, { setAsCurrent: true });
+  markDemoApplicant(applicant.id);
+  return { applicant, created: true };
 }
 
 export function hasActiveDemoSession() {

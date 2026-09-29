@@ -169,6 +169,12 @@ function formatRegistrationDate(date: Date) {
   }).format(date);
 }
 
+function addDays(date: Date, days: number) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
 function formatTimelineTime(date: Date) {
   const day = new Intl.DateTimeFormat("es-MX", {
     day: "numeric",
@@ -201,6 +207,8 @@ function buildApplicant(input: CreateApplicantInput): AdminApplicantRecord {
   const now = new Date();
   const year = now.getFullYear();
   const token = randomToken();
+  const requiredDocumentsDueDate = formatRegistrationDate(addDays(now, 7));
+  const addressDueDate = formatRegistrationDate(addDays(now, 14));
   const originDetail =
     input.origin === "public"
       ? "Solicitud enviada desde el portal de aspirantes."
@@ -264,7 +272,7 @@ function buildApplicant(input: CreateApplicantInput): AdminApplicantRecord {
         name: "Acta de nacimiento",
         description: "Documento oficial de nacimiento",
         required: true,
-        dueDate: "28 febrero 2026",
+        dueDate: requiredDocumentsDueDate,
         status: "pendiente",
         updatedAt: "Nunca"
       },
@@ -273,7 +281,7 @@ function buildApplicant(input: CreateApplicantInput): AdminApplicantRecord {
         name: "CURP",
         description: "Clave Única de Registro de Población",
         required: true,
-        dueDate: "28 febrero 2026",
+        dueDate: requiredDocumentsDueDate,
         status: "pendiente",
         updatedAt: "Nunca"
       },
@@ -282,7 +290,7 @@ function buildApplicant(input: CreateApplicantInput): AdminApplicantRecord {
         name: "Certificado de bachillerato",
         description: "Certificado del nivel de educación anterior",
         required: true,
-        dueDate: "28 febrero 2026",
+        dueDate: requiredDocumentsDueDate,
         status: "pendiente",
         updatedAt: "Nunca"
       },
@@ -291,7 +299,7 @@ function buildApplicant(input: CreateApplicantInput): AdminApplicantRecord {
         name: "Identificación oficial",
         description: "Credencial, pasaporte o documento de identidad",
         required: true,
-        dueDate: "28 febrero 2026",
+        dueDate: requiredDocumentsDueDate,
         status: "pendiente",
         updatedAt: "Nunca"
       },
@@ -300,7 +308,7 @@ function buildApplicant(input: CreateApplicantInput): AdminApplicantRecord {
         name: "Comprobante de domicilio",
         description: "Recibo de servicios o documento equivalente",
         required: true,
-        dueDate: "5 marzo 2026",
+        dueDate: addressDueDate,
         status: "pendiente",
         updatedAt: "Nunca"
       }

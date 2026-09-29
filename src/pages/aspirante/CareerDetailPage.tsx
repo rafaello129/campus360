@@ -30,7 +30,7 @@ export function CareerDetailPage() {
         <>
           <StatusBadge status={career.status} />
           <Link
-            to={paths.aspirante.registro}
+            to={paths.aspirante.registroCarrera(career.id)}
             className="rounded-lg bg-tech-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-tech-primary/90"
           >
             Registrarme en esta carrera
@@ -154,7 +154,7 @@ export function CareerDetailPage() {
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
-            to={paths.aspirante.registro}
+            to={paths.aspirante.registroCarrera(career.id)}
             className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-tech-primary/90"
           >
             Iniciar registro

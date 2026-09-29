@@ -1,22 +1,13 @@
-import { Clock, Mail, FileText, Calendar, Check, User, Inbox, ClipboardList } from "lucide-react";
+import { Clock, Mail, FileText, Calendar, Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import { EmptyState } from "../../components/common/EmptyState";
 import { PageShell } from "../../components/common/PageShell";
 import { ProgressStepper } from "../../components/common/ProgressStepper";
 import { SectionCard } from "../../components/common/SectionCard";
 import { StatusBadge } from "../../components/common/StatusBadge";
 import { getCurrentApplicant } from "../../data/applicantStorage";
-import { careers } from "../../data/careers";
 import { paths } from "../../router/paths";
 import type { ProgressStep } from "../../types/campus";
-
-const demoAdmissionStages: ProgressStep[] = [
-  { id: "1", title: "Registro recibido", detail: "Solicitud registrada", state: "completado" as const },
-  { id: "2", title: "Contacto inicial", detail: "Revisión inicial por el equipo", state: "completado" as const },
-  { id: "3", title: "Documentación", detail: "Revisión de documentos", state: "activo" as const },
-  { id: "4", title: "Evaluación", detail: "Evaluación académica en curso", state: "pendiente" as const },
-  { id: "5", title: "Resultado", detail: "Publicación de resultados", state: "pendiente" as const },
-  { id: "6", title: "Inscripción", detail: "Proceso de inscripción", state: "pendiente" as const }
-];
 
 const admissionStageLabels = [
   { title: "Registro recibido", detail: "Solicitud registrada" },
@@ -45,131 +36,81 @@ function buildAdmissionStages(stage: string): ProgressStep[] {
   }));
 }
 
-const timelineEvents = [
-  {
-    id: 1,
-    date: "18 Febrero 2026",
-    time: "14:32",
-    title: "Registro completado",
-    description: "Tu solicitud fue recibida exitosamente.",
-    icon: Check
-  },
-  {
-    id: 2,
-    date: "19 Febrero 2026",
-    time: "09:15",
-    title: "Asesor asignado",
-    description: "Dra. María Elena Rodríguez te ha sido asignada como asesor académico.",
-    icon: User
-  },
-  {
-    id: 3,
-    date: "20 Febrero 2026",
-    time: "10:45",
-    title: "Contacto inicial",
-    description: "Tu asesor se puso en contacto contigo vía correo electrónico.",
-    icon: Inbox
-  },
-  {
-    id: 4,
-    date: "21 Febrero 2026",
-    time: "16:20",
-    title: "Documentos solicitados",
-    description: "Se solicitaron los documentos faltantes para completar tu expediente.",
-    icon: ClipboardList
-  }
-];
-
-const nextActions = [
-  {
-    title: "Subir CURP",
-    description: "Documento de identidad oficial",
-    deadline: "28 Febrero 2026",
-    priority: "urgente"
-  },
-  {
-    title: "Confirmar cita",
-    description: "Entrevista diagnóstica el 3 de marzo",
-    deadline: "1 Marzo 2026",
-    priority: "urgente"
-  },
-  {
-    title: "Revisar documentación requerida",
-    description: "Verifica todos los archivos solicitados",
-    deadline: "28 Febrero 2026",
-    priority: "pendiente"
-  }
-];
-
 export function ProcessPage() {
   const currentApplicant = getCurrentApplicant();
-  const currentStageIndex = currentApplicant ? getPublicStageIndex(currentApplicant.stage) : 2;
-  const applicant = currentApplicant
-    ? {
-        name: currentApplicant.name,
-        folio: currentApplicant.folio,
-        career: currentApplicant.career,
-        status: currentApplicant.status,
-        stage: currentStageIndex + 1
-      }
-    : {
-        name: "Carlos Alberto Morales",
-        folio: "ASP-2026-0148",
-        career: careers[0]?.name || "Ingeniería en Software",
-        status: "en_revision" as const,
-        stage: 3
-      };
 
-  const visibleAdmissionStages = currentApplicant
-    ? buildAdmissionStages(currentApplicant.stage)
-    : demoAdmissionStages;
+  if (!currentApplicant) {
+    return (
+      <PageShell
+        eyebrow="Admisión"
+        title="Mi proceso de admisión"
+        description="Monitorea cada etapa de tu solicitud de ingreso."
+      >
+        <EmptyState
+          title="Aún no tienes una solicitud activa"
+          description="Registra una solicitud de admisión para consultar aquí tu folio, etapas, documentos y seguimiento."
+          action={
+            <Link
+              to={paths.aspirante.registro}
+              className="inline-flex rounded-full bg-tech-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-tech-mid"
+            >
+              Iniciar registro
+            </Link>
+          }
+        />
+      </PageShell>
+    );
+  }
 
-  const visibleTimelineEvents = currentApplicant
-    ? currentApplicant.timeline.map((event) => ({
-        id: event.id,
-        date: event.time,
-        time: "",
-        title: event.title,
-        description: event.detail,
-        icon: Check
-      }))
-    : timelineEvents;
+  const currentStageIndex = getPublicStageIndex(currentApplicant.stage);
+  const applicant = {
+    name: currentApplicant.name,
+    folio: currentApplicant.folio,
+    career: currentApplicant.career,
+    status: currentApplicant.status,
+    stage: currentStageIndex + 1
+  };
+
+  const visibleAdmissionStages = buildAdmissionStages(currentApplicant.stage);
+
+  const visibleTimelineEvents = currentApplicant.timeline.map((event) => ({
+    id: event.id,
+    date: event.time,
+    time: "",
+    title: event.title,
+    description: event.detail,
+    icon: Check
+  }));
 
   const advisor = {
-    name: currentApplicant?.owner ?? "Dra. María Elena Rodríguez",
-    position: currentApplicant ? "Asesor pendiente de asignación" : "Asesora Académica",
-    email: currentApplicant ? "admisiones@campus360.edu" : "mrodriguez@campus360.edu",
+    name: currentApplicant.owner,
+    position: "Asesor pendiente de asignación",
+    email: "admisiones@campus360.edu",
     phone: "+56 9 XXXX XXXX",
     hours: "Lunes a viernes, 09:00 - 18:00"
   };
 
-  const visibleNextActions = currentApplicant
-    ? [
-        {
-          title: currentApplicant.nextAction,
-          description: "El equipo de admisiones dará seguimiento a tu solicitud.",
-          deadline: "Por definir",
-          priority: "pendiente"
-        }
-      ]
-    : nextActions;
+  const visibleNextActions = [
+    {
+      title: currentApplicant.nextAction,
+      description: "El equipo de admisiones dará seguimiento a tu solicitud.",
+      deadline: "Por definir",
+      priority: "pendiente"
+    }
+  ];
 
-  const visibleDocuments = currentApplicant
-    ? currentApplicant.documents.map((document) => ({
-        id: document.id,
-        name: document.name,
-        detail: document.reviewNote
-          ? `Observación: ${document.reviewNote}`
-          : document.fileName
-            ? `${document.fileName} · ${document.fileSize ?? document.updatedAt}`
-            : document.updatedAt === "Nunca" ? "Documento pendiente" : document.updatedAt,
-        status: document.status
-      }))
-    : [
-        { id: "demo-1", name: "Certificado de bachillerato", detail: "PDF · 2.4 MB", status: "aprobado" as const },
-        { id: "demo-2", name: "Identificación oficial", detail: "En revisión", status: "en_revision" as const },
-        { id: "demo-3", name: "CURP", detail: "Documento faltante", status: "pendiente" as const }
-      ];
+  const visibleDocuments = currentApplicant.documents.map((document) => ({
+    id: document.id,
+    name: document.name,
+    detail: document.reviewNote
+      ? `Observación: ${document.reviewNote}`
+      : document.fileName
+        ? `${document.fileName} · ${document.fileSize ?? document.updatedAt}`
+        : document.updatedAt === "Nunca"
+          ? "Documento pendiente"
+          : document.updatedAt,
+    status: document.status
+  }));
   const completedDocuments = visibleDocuments.filter((document) => document.status === "aprobado").length;
   const documentProgress = Math.round((completedDocuments / Math.max(visibleDocuments.length, 1)) * 100);
 
@@ -340,16 +281,14 @@ export function ProcessPage() {
           <div className="flex-1">
             <h3 className="font-semibold text-tech-textMain">Acción requerida</h3>
             <p className="mt-1 text-sm text-tech-textSecond">
-              {currentApplicant
-                ? "Tu solicitud fue recibida. Prepara los documentos solicitados mientras el equipo de admisiones realiza el primer contacto."
-                : "Necesitamos que cargues el CURP antes del 28 de febrero para completar tu expediente."}
+              "Tu solicitud fue recibida. Prepara los documentos solicitados mientras el equipo de admisiones realiza el primer contacto."
             </p>
           </div>
           <Link
             to={paths.aspirante.documentacion}
             className="rounded-full bg-tech-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-tech-mid"
           >
-            {currentApplicant ? "Preparar documentos" : "Subir documento"}
+            Preparar documentos
           </Link>
         </div>
       </section>
