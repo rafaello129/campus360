@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   AlertTriangle,
@@ -24,6 +24,7 @@ import { UserAvatar } from "../../components/common/UserAvatar";
 import type { Status } from "../../types";
 import { adminApplicantStages, type ApplicantPriority } from "../../data/adminApplicants";
 import { createApplicant, listApplicants } from "../../data/applicantStorage";
+import { subscribeToCampusStorageChange } from "../../data/storageEvents";
 import { careers as academicCareers } from "../../data/careers";
 import { paths } from "../../router/paths";
 
@@ -80,6 +81,14 @@ export function CaptacionKanbanPage() {
   const [draft, setDraft] = useState<ApplicantDraft>(emptyDraft);
   const [confirmation, setConfirmation] = useState<string | null>(null);
   const [creationError, setCreationError] = useState<string | null>(null);
+
+  useEffect(
+    () =>
+      subscribeToCampusStorageChange(() => {
+        setApplicants(listApplicants());
+      }),
+    []
+  );
 
   const careerOptions = useMemo(
     () =>

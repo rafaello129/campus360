@@ -1,5 +1,5 @@
 import { Download, Eye, Upload, AlertCircle } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
 import { StatusBadge } from "../../components/common/StatusBadge";
@@ -8,6 +8,7 @@ import {
   getDocumentUpdatedLabel,
   updateApplicantDocument
 } from "../../data/applicantStorage";
+import { subscribeToCampusStorageChange } from "../../data/storageEvents";
 
 interface Document {
   id: string;
@@ -104,6 +105,14 @@ export function DocumentsPage() {
   const [pendingUploadDoc, setPendingUploadDoc] = useState<Document | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(
+    () =>
+      subscribeToCampusStorageChange(() => {
+        setCurrentApplicant(getCurrentApplicant());
+      }),
+    []
+  );
 
   const documents: Document[] = currentApplicant
     ? currentApplicant.documents.map((document) => ({

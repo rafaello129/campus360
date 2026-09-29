@@ -1,4 +1,5 @@
 import {
+  AlertTriangle,
   ArrowRight,
   Building2,
   CheckCircle,
@@ -6,10 +7,14 @@ import {
   GraduationCap,
   Landmark,
   Network,
+  RotateCcw,
   ShieldCheck,
-  UserRoundPlus
+  UserRoundPlus,
+  X
 } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { resetDemoSession } from "../data/demoSession";
 import { paths } from "../router/paths";
 
 const roleCards = [
@@ -63,6 +68,38 @@ const routeSteps = [
 ];
 
 export function RoleSelectorPage() {
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetFeedback, setResetFeedback] = useState<
+    { type: "success" | "error"; message: string } | null
+  >(null);
+
+  const handleResetDemo = () => {
+    if (isResetting) return;
+
+    setIsResetting(true);
+    setResetFeedback(null);
+
+    try {
+      resetDemoSession();
+      setShowResetModal(false);
+      setResetFeedback({
+        type: "success",
+        message: "Simulación reiniciada. Campus360 está listo para iniciar un nuevo recorrido."
+      });
+    } catch (error) {
+      setResetFeedback({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "No fue posible reiniciar la simulación. Intenta nuevamente."
+      });
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-tech-bg text-tech-textMain">
       <div className="pointer-events-none absolute inset-0">
@@ -103,6 +140,24 @@ export function RoleSelectorPage() {
       </header>
 
       <main className="relative flex w-full flex-col gap-8 px-4 py-6 sm:px-5 lg:px-6 lg:py-8 2xl:px-8">
+        {resetFeedback ? (
+          <div
+            role={resetFeedback.type === "error" ? "alert" : "status"}
+            className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-sm font-medium ${
+              resetFeedback.type === "error"
+                ? "border-rose-200 bg-rose-50 text-rose-800"
+                : "border-emerald-200 bg-emerald-50 text-emerald-800"
+            }`}
+          >
+            {resetFeedback.type === "error" ? (
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            ) : (
+              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            )}
+            <span>{resetFeedback.message}</span>
+          </div>
+        ) : null}
+
         <section className="grid min-w-0 gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
           <div className="flex min-h-[30rem] min-w-0 flex-col justify-between rounded-lg border border-tech-border bg-white/92 p-6 shadow-sm md:min-h-[34rem] md:p-8 lg:p-10">
             <div>
@@ -213,7 +268,85 @@ export function RoleSelectorPage() {
             </div>
           </div>
         </section>
+
+        <section className="flex flex-col gap-3 rounded-lg border border-dashed border-tech-border bg-white/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-tech-textMain">Herramientas de demostración</p>
+            <p className="mt-1 text-xs leading-5 text-tech-textSecond">
+              Limpia únicamente el progreso guardado de Campus360 antes de iniciar un nuevo ensayo.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setResetFeedback(null);
+              setShowResetModal(true);
+            }}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-tech-border bg-white px-3 py-2 text-sm font-semibold text-tech-textSecond transition hover:border-tech-primary/30 hover:bg-tech-bg hover:text-tech-main"
+          >
+            <RotateCcw className="h-4 w-4" />
+            Reiniciar simulación
+          </button>
+        </section>
       </main>
+
+      {showResetModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reset-demo-title"
+            className="w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-tech-divider px-5 py-4">
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-amber-50 p-2 text-amber-700">
+                  <AlertTriangle className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 id="reset-demo-title" className="text-lg font-bold text-tech-textMain">
+                    Reiniciar simulación
+                  </h2>
+                  <p className="mt-1 text-sm leading-6 text-tech-textSecond">
+                    Esto eliminará los aspirantes creados durante la demostración, el expediente
+                    activo y el progreso guardado del guion. Los datos demostrativos del sistema
+                    permanecerán intactos.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowResetModal(false)}
+                disabled={isResetting}
+                className="rounded-lg border border-tech-border p-2 text-tech-textSecond transition hover:bg-tech-bg disabled:opacity-50"
+                aria-label="Cerrar confirmación"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-col-reverse gap-2 bg-tech-bg/60 px-5 py-4 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setShowResetModal(false)}
+                disabled={isResetting}
+                className="rounded-lg border border-tech-border bg-white px-4 py-2 text-sm font-semibold text-tech-textSecond transition hover:bg-tech-bg disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleResetDemo}
+                disabled={isResetting}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-tech-mid disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <RotateCcw className="h-4 w-4" />
+                {isResetting ? "Reiniciando..." : "Reiniciar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

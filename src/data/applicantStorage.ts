@@ -8,9 +8,9 @@ import {
 } from "./adminApplicants";
 import { careers } from "./careers";
 import type { Status } from "../types";
+import { CAMPUS360_STORAGE_KEYS } from "../config/demo";
+import { emitCampusStorageChange } from "./storageEvents";
 
-const APPLICANTS_STORAGE_KEY = "campus360:applicants:v1";
-const CURRENT_APPLICANT_STORAGE_KEY = "campus360:current-applicant:v1";
 const STORAGE_VERSION = 1;
 
 interface ApplicantStoragePayload {
@@ -50,6 +50,10 @@ interface UpdateApplicantOptions {
 
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+}
+
+export function normalizeEmail(value: string) {
+  return value.trim().toLowerCase();
 }
 
 const validStatuses = new Set<Status>([
@@ -137,7 +141,7 @@ function readStoredApplicants(): AdminApplicantRecord[] {
   if (!canUseStorage()) return [];
 
   try {
-    const rawValue = window.localStorage.getItem(APPLICANTS_STORAGE_KEY);
+    const rawValue = window.localStorage.getItem(CAMPUS360_STORAGE_KEYS.applicants);
     if (!rawValue) return [];
 
     const payload = JSON.parse(rawValue) as Partial<ApplicantStoragePayload>;
@@ -329,20 +333,22 @@ function writeStoredApplicants(applicants: AdminApplicantRecord[]) {
     throw new Error("El almacenamiento local no está disponible en este navegador.");
   }
 
-  const previousValue = window.localStorage.getItem(APPLICANTS_STORAGE_KEY);
+  const previousValue = window.localStorage.getItem(CAMPUS360_STORAGE_KEYS.applicants);
   const payload: ApplicantStoragePayload = { version: STORAGE_VERSION, applicants };
 
   try {
-    window.localStorage.setItem(APPLICANTS_STORAGE_KEY, JSON.stringify(payload));
+    window.localStorage.setItem(CAMPUS360_STORAGE_KEYS.applicants, JSON.stringify(payload));
   } catch {
     try {
-      if (previousValue === null) window.localStorage.removeItem(APPLICANTS_STORAGE_KEY);
-      else window.localStorage.setItem(APPLICANTS_STORAGE_KEY, previousValue);
+      if (previousValue === null) window.localStorage.removeItem(CAMPUS360_STORAGE_KEYS.applicants);
+      else window.localStorage.setItem(CAMPUS360_STORAGE_KEYS.applicants, previousValue);
     } catch {
       // Preserve the original storage failure for the calling UI.
     }
     throw new Error("No fue posible guardar los cambios en este navegador. Intenta nuevamente.");
   }
+
+  emitCampusStorageChange();
 }
 
 export function listApplicants(): AdminApplicantRecord[] {
@@ -360,12 +366,55 @@ export function getApplicantById(id: string | undefined): AdminApplicantRecord |
   return listApplicants().find((applicant) => applicant.id === id);
 }
 
+export function findApplicantByEmail(email: string): AdminApplicantRecord | undefined {
+  const normalizedEmail = normalizeEmail(email);
+  return listApplicants().find((applicant) => normalizeEmail(applicant.email) === normalizedEmail);
+}
+
+export function setCurrentApplicant(id: string) {
+  if (!canUseStorage()) {
+    throw new Error("El almacenamiento local no está disponible en este navegador.");
+  }
+  if (!getApplicantById(id)) {
+    throw new Error("No se encontró el aspirante que deseas seleccionar.");
+  }
+
+  try {
+    window.localStorage.setItem(CAMPUS360_STORAGE_KEYS.currentApplicant, id);
+  } catch {
+    throw new Error("No fue posible seleccionar el expediente en este navegador.");
+  }
+
+  emitCampusStorageChange();
+}
+
+export function clearCurrentApplicant() {
+  if (!canUseStorage()) {
+    throw new Error("El almacenamiento local no está disponible en este navegador.");
+  }
+
+  try {
+    window.localStorage.removeItem(CAMPUS360_STORAGE_KEYS.currentApplicant);
+  } catch {
+    throw new Error("No fue posible limpiar el expediente activo en este navegador.");
+  }
+
+  emitCampusStorageChange();
+}
+
 export function getCurrentApplicant(): AdminApplicantRecord | undefined {
   if (!canUseStorage()) return undefined;
 
   try {
-    const currentId = window.localStorage.getItem(CURRENT_APPLICANT_STORAGE_KEY);
-    return currentId ? getApplicantById(currentId) : undefined;
+    const currentId = window.localStorage.getItem(CAMPUS360_STORAGE_KEYS.currentApplicant);
+    if (!currentId) return undefined;
+
+    const applicant = getApplicantById(currentId);
+    if (applicant) return applicant;
+
+    // Heal a stale pointer without emitting during a read/render cycle.
+    window.localStorage.removeItem(CAMPUS360_STORAGE_KEYS.currentApplicant);
+    return undefined;
   } catch {
     return undefined;
   }
@@ -380,30 +429,30 @@ export function createApplicant(
   }
 
   const applicant = buildApplicant(input);
-  const previousApplicantsValue = window.localStorage.getItem(APPLICANTS_STORAGE_KEY);
-  const previousCurrentValue = window.localStorage.getItem(CURRENT_APPLICANT_STORAGE_KEY);
+  const previousApplicantsValue = window.localStorage.getItem(CAMPUS360_STORAGE_KEYS.applicants);
+  const previousCurrentValue = window.localStorage.getItem(CAMPUS360_STORAGE_KEYS.currentApplicant);
   const payload: ApplicantStoragePayload = {
     version: STORAGE_VERSION,
     applicants: [applicant, ...readStoredApplicants()]
   };
 
   try {
-    window.localStorage.setItem(APPLICANTS_STORAGE_KEY, JSON.stringify(payload));
+    window.localStorage.setItem(CAMPUS360_STORAGE_KEYS.applicants, JSON.stringify(payload));
     if (options.setAsCurrent) {
-      window.localStorage.setItem(CURRENT_APPLICANT_STORAGE_KEY, applicant.id);
+      window.localStorage.setItem(CAMPUS360_STORAGE_KEYS.currentApplicant, applicant.id);
     }
   } catch {
     try {
       if (previousApplicantsValue === null) {
-        window.localStorage.removeItem(APPLICANTS_STORAGE_KEY);
+        window.localStorage.removeItem(CAMPUS360_STORAGE_KEYS.applicants);
       } else {
-        window.localStorage.setItem(APPLICANTS_STORAGE_KEY, previousApplicantsValue);
+        window.localStorage.setItem(CAMPUS360_STORAGE_KEYS.applicants, previousApplicantsValue);
       }
 
       if (previousCurrentValue === null) {
-        window.localStorage.removeItem(CURRENT_APPLICANT_STORAGE_KEY);
+        window.localStorage.removeItem(CAMPUS360_STORAGE_KEYS.currentApplicant);
       } else {
-        window.localStorage.setItem(CURRENT_APPLICANT_STORAGE_KEY, previousCurrentValue);
+        window.localStorage.setItem(CAMPUS360_STORAGE_KEYS.currentApplicant, previousCurrentValue);
       }
     } catch {
       // The original write error is the actionable failure for the UI.
@@ -412,6 +461,7 @@ export function createApplicant(
     throw new Error("No fue posible guardar la solicitud en este navegador. Intenta nuevamente.");
   }
 
+  emitCampusStorageChange();
   return applicant;
 }
 
