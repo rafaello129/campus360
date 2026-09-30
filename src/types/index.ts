@@ -73,6 +73,7 @@ export interface AdmissionDocument {
 export interface AgendaItem {
   id: string;
   date: string;
+  dateISO?: string;
   time: string;
   title: string;
   course: string;
@@ -89,6 +90,7 @@ export interface Notice {
   status: Status;
   category?: string;
   priority?: string;
+  unread?: boolean;
 }
 
 export interface CampusEvent {
@@ -100,6 +102,10 @@ export interface CampusEvent {
   category: string;
   status: Status;
   summary: string;
+  description?: string;
+  organizer?: string;
+  requirements?: string[];
+  mapLocationId?: string;
   type?: string;
   capacity?: number;
   registered?: number;

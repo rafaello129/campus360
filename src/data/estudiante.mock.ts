@@ -46,206 +46,65 @@ export const currentStudent = {
 };
 
 export const agendaItems: AgendaItem[] = [
-  {
-    id: "ag-1",
-    date: "15 mayo",
-    time: "08:00",
-    title: "Laboratorio de Bases de Datos",
-    course: "Ingeniería en Software",
-    location: "Edificio B - Lab 2",
-    status: "activo",
-    type: "clase"
-  },
-  {
-    id: "ag-2",
-    date: "16 mayo",
-    time: "11:30",
-    title: "Tutoría de seguimiento",
-    course: "Programa de permanencia",
-    location: "Centro de acompañamiento",
-    status: "pendiente",
-    type: "tutoria"
-  },
-  {
-    id: "ag-3",
-    date: "17 mayo",
-    time: "14:00",
-    title: "Entrega de proyecto parcial",
-    course: "Arquitectura de Software",
-    location: "Campus Virtual",
-    status: "urgente",
-    type: "entrega"
-  },
-  {
-    id: "ag-4",
-    date: "18 mayo",
-    time: "10:00",
-    title: "Sesión de refuerzo académico",
-    course: "Programación Web",
-    location: "Aula 305 - Edificio A",
-    status: "activo",
-    type: "clase"
-  },
-  {
-    id: "ag-5",
-    date: "19 mayo",
-    time: "09:00",
-    title: "Taller: Git y GitHub avanzado",
-    course: "Desarrollo profesional",
-    location: "Centro de innovación",
-    status: "pendiente",
-    type: "taller"
-  },
-  {
-    id: "ag-6",
-    date: "20 mayo",
-    time: "09:00",
-    title: "Hackathon Campus360",
-    course: "Eventos",
-    location: "Auditorio principal",
-    status: "pendiente",
-    type: "evento"
-  }
+  { id: "ag-1", date: "5 octubre", dateISO: "2026-10-05", time: "08:00", title: "Laboratorio de Bases de Datos", course: "Ingeniería en Software", location: "Edificio B - Lab 2", status: "activo", type: "clase" },
+  { id: "ag-2", date: "6 octubre", dateISO: "2026-10-06", time: "11:30", title: "Tutoría de seguimiento", course: "Programa de permanencia", location: "Centro de acompañamiento", status: "pendiente", type: "tutoria" },
+  { id: "ag-3", date: "7 octubre", dateISO: "2026-10-07", time: "14:00", title: "Entrega de proyecto parcial", course: "Arquitectura de Software", location: "Campus Virtual", status: "urgente", type: "entrega" },
+  { id: "ag-4", date: "8 octubre", dateISO: "2026-10-08", time: "10:00", title: "Sesión de refuerzo académico", course: "Programación Web", location: "Aula 305 - Edificio A", status: "activo", type: "clase" },
+  { id: "ag-5", date: "9 octubre", dateISO: "2026-10-09", time: "09:00", title: "Taller: Git y GitHub avanzado", course: "Desarrollo profesional", location: "Centro de cómputo", status: "pendiente", type: "taller" },
+  { id: "ag-6", date: "10 octubre", dateISO: "2026-10-10", time: "09:00", title: "Hackathon Campus360", course: "Eventos", location: "Auditorio principal", status: "pendiente", type: "evento" },
+  { id: "ag-7", date: "12 octubre", dateISO: "2026-10-12", time: "10:00", title: "Feria de becas y financiamiento", course: "Vida universitaria", location: "Centro estudiantil", status: "pendiente", type: "evento" }
 ];
 
 export const notices: Notice[] = [
-  {
-    id: "av-1",
-    title: "Mantenimiento de plataforma LMS",
-    channel: "Canal TI",
-    summary: "Intermitencia programada de 22:00 a 23:30.",
-    status: "activo",
-    priority: "normal",
-    category: "Administrativa"
-  },
-  {
-    id: "av-2",
-    title: "Convocatoria de movilidad académica",
-    channel: "Relaciones internacionales",
-    summary: "Apertura de registro para intercambio 2026-B.",
-    status: "aprobado",
-    priority: "alta",
-    category: "Académica"
-  },
-  {
-    id: "av-3",
-    title: "Recordatorio de reinscripción",
-    channel: "Servicios escolares",
-    summary: "Cierre de periodo en 4 días.",
-    status: "urgente",
-    priority: "urgente",
-    category: "Administrativa"
-  },
-  {
-    id: "av-4",
-    title: "Abre inscripción para becas 2026-B",
-    channel: "Bienestar estudiantil",
-    summary: "Nuevo programa de apoyo económico disponible.",
-    status: "aprobado",
-    priority: "alta",
-    category: "Becas"
-  },
-  {
-    id: "av-5",
-    title: "Cambio de horario - Tutoría académica",
-    channel: "Acompañamiento",
-    summary: "Tu asesor cambió su horario de atención.",
-    status: "pendiente",
-    priority: "normal",
-    category: "Académica"
-  }
+  { id: "av-1", title: "Mantenimiento de plataforma LMS", channel: "Canal TI", summary: "Intermitencia programada el 8 de octubre de 22:00 a 23:30.", status: "activo", priority: "normal", category: "Administrativa", unread: false },
+  { id: "av-2", title: "Convocatoria de movilidad académica", channel: "Relaciones internacionales", summary: "Registro abierto para intercambio 2027-A hasta el 23 de octubre.", status: "aprobado", priority: "alta", category: "Académica", unread: true },
+  { id: "av-3", title: "Recordatorio de reinscripción", channel: "Servicios escolares", summary: "El periodo de reinscripción cierra el 16 de octubre.", status: "urgente", priority: "urgente", category: "Administrativa", unread: true },
+  { id: "av-4", title: "Feria de becas y financiamiento", channel: "Bienestar estudiantil", summary: "Consulta apoyos y requisitos el 12 de octubre en el Centro estudiantil.", status: "aprobado", priority: "alta", category: "Becas", unread: true },
+  { id: "av-5", title: "Cambio de horario - Tutoría académica", channel: "Acompañamiento", summary: "Tu tutor atenderá el 6 de octubre a las 11:30.", status: "pendiente", priority: "normal", category: "Académica", unread: false }
 ];
 
 export const campusEvents: CampusEvent[] = [
   {
-    id: "evt-hackathon",
-    title: "Hackathon Campus360",
-    date: "20 mayo 2026",
-    time: "09:00 - 18:00",
-    location: "Auditorio principal",
-    category: "Innovación",
-    status: "activo",
+    id: "evt-hackathon", title: "Hackathon Campus360", date: "10 octubre 2026", time: "09:00 - 18:00", location: "Auditorio principal", category: "Innovación", status: "activo",
     summary: "Reto colaborativo para soluciones de experiencia estudiantil.",
-    capacity: 150,
-    registered: 87,
-    type: "evento"
+    description: "Jornada intensiva de innovación en equipos multidisciplinarios para diseñar soluciones digitales enfocadas en la experiencia universitaria.",
+    organizer: "Centro de Innovación", requirements: ["Registro previo", "Equipo de 3 a 5 integrantes"], mapLocationId: "student-auditorio",
+    capacity: 150, registered: 87, type: "evento"
   },
   {
-    id: "evt-mentor",
-    title: "Mentorías para primer ingreso",
-    date: "22 mayo 2026",
-    time: "12:00 - 14:00",
-    location: "Biblioteca central",
-    category: "Acompañamiento",
-    status: "pendiente",
+    id: "evt-mentor", title: "Mentorías para primer ingreso", date: "11 octubre 2026", time: "12:00 - 14:00", location: "Biblioteca central", category: "Acompañamiento", status: "pendiente",
     summary: "Sesiones para fortalecer hábitos de estudio y adaptación universitaria.",
-    capacity: 60,
-    registered: 45,
-    type: "taller"
+    description: "Encuentro de acompañamiento con estudiantes mentores y docentes para resolver dudas académicas y de integración al campus.",
+    organizer: "Bienestar Estudiantil", requirements: ["Matrícula activa"], mapLocationId: "student-biblioteca",
+    capacity: 60, registered: 45, type: "taller"
   },
   {
-    id: "evt-feria",
-    title: "Feria de becas y financiamiento",
-    date: "24 mayo 2026",
-    time: "10:00 - 15:00",
-    location: "Centro estudiantil",
-    category: "Financiamiento",
-    status: "aprobado",
-    summary: "Stands informativos para apoyos económicos y programas externos.",
-    capacity: 300,
-    registered: 120,
-    type: "evento"
+    id: "evt-feria", title: "Feria de becas y financiamiento", date: "12 octubre 2026", time: "10:00 - 15:00", location: "Centro estudiantil", category: "Financiamiento", status: "activo",
+    summary: "Stands informativos para apoyos económicos y programas internos y externos.",
+    description: "Convocatoria presencial para conocer becas académicas, deportivas y de apoyo económico, resolver requisitos y preparar solicitudes para el siguiente periodo.",
+    organizer: "Bienestar Estudiantil", requirements: ["Matrícula activa", "Identificación estudiantil"], mapLocationId: "student-centro-estudiantil",
+    capacity: 300, registered: 120, type: "evento"
   },
   {
-    id: "evt-taller-git",
-    title: "Taller: Git y GitHub avanzado",
-    date: "19 mayo 2026",
-    time: "09:00 - 12:00",
-    location: "Centro de innovación",
-    category: "Desarrollo profesional",
-    status: "activo",
+    id: "evt-taller-git", title: "Taller: Git y GitHub avanzado", date: "9 octubre 2026", time: "09:00 - 12:00", location: "Centro de cómputo", category: "Desarrollo profesional", status: "activo",
     summary: "Aprende flujos de trabajo colaborativo con control de versiones.",
-    capacity: 40,
-    registered: 28,
-    type: "taller"
+    description: "Taller práctico de ramas, pull requests, revisión de código y estrategias de colaboración para proyectos académicos.",
+    organizer: "Centro de Cómputo", requirements: ["Laptop personal", "Cuenta de GitHub"], mapLocationId: "student-computo",
+    capacity: 40, registered: 28, type: "taller"
   },
   {
-    id: "evt-club-robotica",
-    title: "Club de Robótica - Reunión semanal",
-    date: "21 mayo 2026",
-    time: "17:00 - 19:00",
-    location: "Laboratorio de electrónica",
-    category: "Clubs",
-    status: "activo",
+    id: "evt-club-robotica", title: "Club de Robótica - Reunión semanal", date: "13 octubre 2026", time: "17:00 - 19:00", location: "Laboratorios de cómputo", category: "Clubs", status: "activo",
     summary: "Diseño y construcción de robots competitivos.",
-    capacity: 35,
-    registered: 22,
-    type: "club"
+    description: "Sesión abierta de trabajo del Club de Robótica para revisar prototipos, electrónica y programación de control.",
+    organizer: "Club de Robótica", requirements: ["Interés en participar"], mapLocationId: "student-labs",
+    capacity: 35, registered: 22, type: "club"
   }
 ];
 
 export const trajectoryMilestones: TrajectoryMilestone[] = [
-  {
-    id: "tr-1",
-    title: "Curso de inducción completado",
-    period: "Ago 2025",
-    status: "completado",
-    note: "Aprobado con participación destacada."
-  },
-  {
-    id: "tr-2",
-    title: "Tutoría académica mensual",
-    period: "Abr 2026",
-    status: "activo",
-    note: "Seguimiento activo sin riesgo académico."
-  },
-  {
-    id: "tr-3",
-    title: "Solicitud de beca institucional",
-    period: "May 2026",
-    status: "en_revision",
-    note: "Expediente en evaluación."
-  }
+  { id: "tr-1", title: "Curso de inducción completado", period: "Ago 2025", status: "completado", note: "Aprobado con participación destacada." },
+  { id: "tr-2", title: "Tutoría académica mensual", period: "Sep 2026", status: "completado", note: "Seguimiento académico realizado sin alertas críticas." },
+  { id: "tr-3", title: "Seguimiento de becas y financiamiento", period: "Oct 2026", status: "activo", note: "Revisar oportunidades y requisitos en la feria institucional." }
 ];
 
 export const studentDocuments: DocumentRequest[] = [
@@ -564,6 +423,22 @@ export const studentMapLocations: CampusMapLocation[] = [
     position: { x: 30, y: 78 },
     accessPoint: { x: 30, y: 82 },
     footprint: { x: 19, y: 72, w: 23, h: 14 }
+  },
+  {
+    id: "student-centro-estudiantil",
+    name: "Centro Estudiantil",
+    mapLabel: "Centro Estudiantil",
+    type: "Servicios",
+    zone: "Servicios y vida campus",
+    description: "Espacio para convocatorias, orientación, bienestar y atención de programas de apoyo.",
+    schedule: "08:00 - 18:00",
+    responsible: "Bienestar Estudiantil",
+    orientation: "Sector central del campus, entre Biblioteca y Cafetería.",
+    estimatedTime: "6 min desde entrada",
+    related: "Eventos: Feria de becas y financiamiento",
+    position: { x: 59, y: 64 },
+    accessPoint: { x: 50, y: 58 },
+    footprint: { x: 51, y: 57, w: 14, h: 11 }
   },
   {
     id: "student-computo",

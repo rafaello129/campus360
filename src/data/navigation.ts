@@ -35,7 +35,7 @@ export const aspiranteNavItems: NavItem[] = [
 export const estudianteNavItems: NavItem[] = [
   { label: "Inicio", path: paths.estudiante.root, icon: Home },
   { label: "Agenda", path: paths.estudiante.agenda, icon: CalendarDays },
-  { label: "Avisos", path: paths.estudiante.avisos, icon: Bell, badge: "3" },
+  { label: "Avisos", path: paths.estudiante.avisos, icon: Bell },
   { label: "Canales", path: paths.estudiante.canales, icon: Network },
   { label: "Eventos", path: paths.estudiante.eventos, icon: Megaphone },
   { label: "Trayectoria", path: paths.estudiante.trayectoria, icon: LineChart },
