@@ -34,5 +34,3 @@ test("chrome responsive mantiene cambio de rol y evita solapar el dock", async (
     await expect(page.getByRole("link", { name: "Ir a alertas" })).toBeVisible();
   }
 });
-
-[executed on device: localhost.localdomain (9efb35a7-f471-4803-9cf5-53e66e022ee9)]

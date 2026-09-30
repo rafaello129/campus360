@@ -39,5 +39,3 @@ test("rutas dinámicas inválidas muestran un estado controlado", async ({ page 
   await gotoRoute(page, "/aspirante/carreras/no-existe");
   await expect(page.getByText(/no encontrad/i).first()).toBeVisible();
 });
-
-[executed on device: localhost.localdomain (9efb35a7-f471-4803-9cf5-53e66e022ee9)]

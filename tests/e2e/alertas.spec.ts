@@ -27,5 +27,3 @@ test("atiende a Sofía y recalcula la bandeja", async ({ page }) => {
   const updated = page.locator("article").filter({ hasText: "Sofía Prieto" }).first();
   await expect(updated.getByRole("button", { name: "Ver atención" })).toBeVisible();
 });
-
-[executed on device: localhost.localdomain (9efb35a7-f471-4803-9cf5-53e66e022ee9)]

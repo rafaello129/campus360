@@ -81,5 +81,3 @@ test("recorre las siete escenas de Campus360 de extremo a extremo", async ({ pag
   await expect(page.getByText("Pendientes").first()).toBeVisible();
   await expect(page.getByText("Atendidas").first()).toBeVisible();
 });
-
-[executed on device: localhost.localdomain (9efb35a7-f471-4803-9cf5-53e66e022ee9)]

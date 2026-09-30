@@ -114,5 +114,3 @@ export async function approveDemoCertificate(page: Page) {
   await dialog.getByRole("button", { name: "Guardar revisión" }).click();
   await expect(dialog).toBeHidden();
 }
-
-[executed on device: localhost.localdomain (9efb35a7-f471-4803-9cf5-53e66e022ee9)]

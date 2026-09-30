@@ -14,5 +14,3 @@ export async function writeLocalStorage(page: Page, key: string, value: string) 
     { storageKey: key, storageValue: value }
   );
 }
-
-[executed on device: localhost.localdomain (9efb35a7-f471-4803-9cf5-53e66e022ee9)]

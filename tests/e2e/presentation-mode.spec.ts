@@ -48,5 +48,3 @@ test("NotFound permite volver a la escena actual", async ({ page }) => {
   await page.getByRole("link", { name: "Volver a la escena 4" }).click();
   await expect(page).toHaveURL(/#\/admin\/captacion/);
 });
-
-[executed on device: localhost.localdomain (9efb35a7-f471-4803-9cf5-53e66e022ee9)]
