@@ -2,7 +2,6 @@ import {
   ArrowRight,
   BookOpen,
   CheckCircle,
-  Clock,
   FileCheck,
   FileText,
   Landmark,
@@ -27,7 +26,7 @@ import { paths } from "../../router/paths";
 
 export function AspiranteOverviewPage() {
   const quickFacts = [
-    { icon: Clock, label: "Respuesta media", value: "48 h" },
+    { icon: FileCheck, label: "Seguimiento", value: "Visible" },
     { icon: FileText, label: "Documentos guía", value: "5" },
     { icon: Users, label: "Carreras activas", value: "18" }
   ];
@@ -125,7 +124,7 @@ export function AspiranteOverviewPage() {
                 <h2 className="mt-1 max-w-[19rem] text-xl font-bold text-tech-textMain sm:max-w-none">Sigue cada etapa sin perder contexto</h2>
               </div>
               <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-tech-primary">
-                Ciclo 2026-A
+                Ciclo 2026-B
               </span>
             </div>
             <div className="space-y-3">
@@ -255,9 +254,9 @@ export function AspiranteOverviewPage() {
                 <Trophy className="h-3.5 w-3.5" />
                 Convocatoria activa
               </div>
-              <h2 className="text-2xl font-bold">Convocatoria 2026-A abierta</h2>
+              <h2 className="text-2xl font-bold">Registro de admisión disponible</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-blue-100">
-                Cierre de registro: 30 de junio de 2026. Inicia tu solicitud y prepara tu expediente con anticipación.
+                Completa tu solicitud y consulta el avance del proceso desde el mismo portal Campus360.
               </p>
             </div>
             <Link

@@ -150,7 +150,7 @@ export function CareerDetailPage() {
       <section className="rounded-lg border border-blue-200 bg-blue-50 p-6">
         <h3 className="font-bold text-blue-900">¿Qué sigue?</h3>
         <p className="mt-2 text-sm text-blue-800">
-          Completa tu registro y comienza el proceso de admisión. Te contactaremos en menos de 48 horas con más información.
+          Completa tu registro para generar un folio y dar seguimiento al proceso de admisión desde Campus360.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
@@ -174,7 +174,7 @@ export function CareerDetailPage() {
           <div className="w-full max-w-md rounded-lg bg-white p-6">
             <h3 className="font-bold text-slate-900">Solicitud enviada</h3>
             <p className="mt-2 text-sm text-slate-600">
-              Hemos recibido tu solicitud de información. Un asesor académico se contactará contigo en las próximas 24 horas.
+              Hemos recibido tu solicitud de información. El folio queda disponible para identificar este seguimiento dentro del prototipo.
             </p>
             <div className="mt-4 space-y-2 rounded-lg bg-slate-50 p-3">
               <p className="text-xs text-slate-600">

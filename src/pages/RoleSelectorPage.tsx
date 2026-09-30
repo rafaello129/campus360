@@ -12,9 +12,18 @@ import {
   UserRoundPlus,
   X
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { PresentationDock } from "../components/demo/PresentationDock";
+import { PRESENTATION_SCENES, getPresentationScene } from "../config/presentationDemo";
 import { resetDemoSession } from "../data/demoSession";
+import { getPresentationReadiness } from "../data/presentationReadiness";
+import {
+  enablePresentation,
+  getPresentationSession,
+  subscribeToPresentationChanges
+} from "../data/presentationSession";
+import { subscribeToCampusStorageChange } from "../data/storageEvents";
 import { paths } from "../router/paths";
 
 const roleCards = [
@@ -26,8 +35,8 @@ const roleCards = [
     path: paths.aspirante.root,
     icon: UserRoundPlus,
     accentColor: "#003B70",
-    stat: "48 h",
-    statLabel: "respuesta media"
+    stat: "Registro",
+    statLabel: "y seguimiento"
   },
   {
     title: "Estudiante",
@@ -37,8 +46,8 @@ const roleCards = [
     path: paths.estudiante.root,
     icon: GraduationCap,
     accentColor: "#1D84B5",
-    stat: "360",
-    statLabel: "vista integral"
+    stat: "Vida campus",
+    statLabel: "experiencia integral"
   },
   {
     title: "Administrativo",
@@ -48,8 +57,8 @@ const roleCards = [
     path: paths.admin.root,
     icon: Building2,
     accentColor: "#0A4D8C",
-    stat: "3",
-    statLabel: "paneles clave"
+    stat: "Gestión",
+    statLabel: "y analítica"
   }
 ];
 
@@ -69,10 +78,60 @@ const routeSteps = [
 
 export function RoleSelectorPage() {
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showPrepareModal, setShowPrepareModal] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [presentationSession, setPresentationSession] = useState(() => getPresentationSession());
+  const [, setStorageRevision] = useState(0);
   const [resetFeedback, setResetFeedback] = useState<
     { type: "success" | "error"; message: string } | null
   >(null);
+
+  useEffect(
+    () =>
+      subscribeToPresentationChanges(() => {
+        setPresentationSession(getPresentationSession());
+      }),
+    []
+  );
+
+  useEffect(
+    () =>
+      subscribeToCampusStorageChange(() => {
+        setStorageRevision((value) => value + 1);
+      }),
+    []
+  );
+
+  const readiness = getPresentationReadiness();
+  const currentScene = getPresentationScene(presentationSession?.currentSceneId);
+
+  const handlePreparePresentation = () => {
+    if (isResetting) return;
+
+    setIsResetting(true);
+    setResetFeedback(null);
+
+    try {
+      resetDemoSession();
+      const session = enablePresentation(1);
+      setPresentationSession(session);
+      setShowPrepareModal(false);
+      setResetFeedback({
+        type: "success",
+        message: "Presentación preparada. Los datos de Ana están limpios y la guía inicia en la Escena 1."
+      });
+    } catch (error) {
+      setResetFeedback({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "No fue posible preparar la presentación."
+      });
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   const handleResetDemo = () => {
     if (isResetting) return;
@@ -269,26 +328,163 @@ export function RoleSelectorPage() {
           </div>
         </section>
 
-        <section className="flex flex-col gap-3 rounded-lg border border-dashed border-tech-border bg-white/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-tech-textMain">Herramientas de demostración</p>
-            <p className="mt-1 text-xs leading-5 text-tech-textSecond">
-              Limpia únicamente el progreso guardado de Campus360 antes de iniciar un nuevo ensayo.
-            </p>
+        <section className="rounded-lg border border-tech-border bg-white p-5 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">
+                Herramientas de presentación
+              </p>
+              <h2 className="mt-1 text-xl font-bold text-tech-textMain">Estado del recorrido</h2>
+              <p className="mt-2 text-sm leading-6 text-tech-textSecond">
+                Prepara una exposición limpia o continúa la escena guardada en esta pestaña.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {presentationSession?.enabled && currentScene ? (
+                <Link
+                  to={currentScene.entryPath}
+                  className="inline-flex items-center gap-2 rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white hover:bg-tech-mid"
+                >
+                  Continuar Escena {currentScene.id}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetFeedback(null);
+                    setShowPrepareModal(true);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white hover:bg-tech-mid"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Preparar presentación
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setResetFeedback(null);
+                  setShowResetModal(true);
+                }}
+                className="inline-flex items-center gap-2 rounded-lg border border-tech-border bg-white px-4 py-2 text-sm font-semibold text-tech-textSecond transition hover:bg-tech-bg"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Reiniciar datos
+              </button>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              setResetFeedback(null);
-              setShowResetModal(true);
-            }}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-tech-border bg-white px-3 py-2 text-sm font-semibold text-tech-textSecond transition hover:border-tech-primary/30 hover:bg-tech-bg hover:text-tech-main"
-          >
-            <RotateCcw className="h-4 w-4" />
-            Reiniciar simulación
-          </button>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {[
+              ["Registro", readiness.hasApplicant ? "Completo" : "Pendiente"],
+              ["Seguimiento", readiness.followUpComplete ? "Completo" : "Pendiente"],
+              [
+                "Documento",
+                readiness.documentStatus === "aprobado"
+                  ? "Aprobado"
+                  : readiness.documentStatus === "en_revision"
+                    ? "En revisión"
+                    : "Pendiente"
+              ]
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-xl border border-tech-divider bg-tech-bg/60 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-tech-textSecond">{label}</p>
+                <p className="mt-1 font-semibold text-tech-textMain">{value}</p>
+              </div>
+            ))}
+          </div>
+
+          {!presentationSession?.enabled && readiness.hasApplicant ? (
+            <p className="mt-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-tech-primary">
+              El progreso persistente sugiere retomar desde la Escena {readiness.suggestedSceneId}.
+            </p>
+          ) : null}
+
+          {presentationSession?.enabled ? (
+            <div className="mt-5">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-tech-textSecond">
+                Recorrido de siete escenas
+              </p>
+              <div className="grid gap-2 sm:grid-cols-4 lg:grid-cols-7">
+                {PRESENTATION_SCENES.map((scene) => (
+                  <Link
+                    key={scene.id}
+                    to={scene.entryPath}
+                    className={`rounded-xl border p-3 text-sm transition ${
+                      scene.id === presentationSession.currentSceneId
+                        ? "border-tech-primary bg-blue-50 text-tech-primary"
+                        : "border-tech-border bg-white text-tech-textSecond hover:bg-tech-bg"
+                    }`}
+                  >
+                    <span className="block text-xs font-bold">0{scene.id}</span>
+                    <span className="mt-1 block font-semibold">{scene.title}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </section>
       </main>
+
+      {showPrepareModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="prepare-demo-title"
+            className="w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-tech-divider px-5 py-4">
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-blue-50 p-2 text-tech-primary">
+                  <CheckCircle className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 id="prepare-demo-title" className="text-lg font-bold text-tech-textMain">
+                    Preparar presentación
+                  </h2>
+                  <p className="mt-1 text-sm leading-6 text-tech-textSecond">
+                    Se limpiará únicamente el progreso dinámico de admisión de Campus360 y se
+                    activará la guía en la Escena 1. Los datos demostrativos institucionales se conservan.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPrepareModal(false)}
+                disabled={isResetting}
+                className="rounded-lg border border-tech-border p-2 text-tech-textSecond transition hover:bg-tech-bg disabled:opacity-50"
+                aria-label="Cerrar preparación"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-col-reverse gap-2 bg-tech-bg/60 px-5 py-4 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setShowPrepareModal(false)}
+                disabled={isResetting}
+                className="rounded-lg border border-tech-border bg-white px-4 py-2 text-sm font-semibold text-tech-textSecond disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handlePreparePresentation}
+                disabled={isResetting}
+                className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              >
+                {isResetting ? "Preparando..." : "Preparar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <PresentationDock />
 
       {showResetModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
