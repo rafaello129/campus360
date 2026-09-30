@@ -53,7 +53,7 @@ export const adminNavItems: NavItem[] = [
   { label: "Aspirantes", path: paths.admin.aspirantesDemo, icon: ClipboardList },
   { label: "Estudiantes", path: paths.admin.estudiantes, icon: GraduationCap },
   { label: "Seguimiento", path: paths.admin.seguimiento, icon: LineChart },
-  { label: "Alertas", path: paths.admin.alertas, icon: ShieldAlert, badge: "Urgente" },
+  { label: "Alertas", path: paths.admin.alertas, icon: ShieldAlert },
   { label: "Difusión", path: paths.admin.difusion, icon: Send },
   { label: "Crear publicación", path: paths.admin.crearPublicacion, icon: PenSquare },
   { label: "Canales", path: paths.admin.canales, icon: Network },

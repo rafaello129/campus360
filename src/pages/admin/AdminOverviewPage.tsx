@@ -23,6 +23,7 @@ import {
   conversionByStage,
   eventParticipationByMonth
 } from "../../data/adminMetrics";
+import { ADMIN_DEMO } from "../../config/adminDemo";
 import { moduleSummaries, priorityActions, recentActivity } from "../../data/adminActivity";
 import { paths } from "../../router/paths";
 
@@ -52,10 +53,10 @@ export function AdminOverviewPage() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-tech-primary">Resumen institucional</p>
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-tech-textMain md:text-3xl">
-              Operación institucional 2026-A
+              Operación institucional {ADMIN_DEMO.cycle}
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-tech-textSecond">
-              Seguimiento de captación, alertas, documentos, difusión y actividad reciente para atención diaria.
+              {ADMIN_DEMO.snapshotLabel}. Seguimiento de captación, señales de riesgo, documentos, difusión y actividad reciente.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
@@ -173,7 +174,7 @@ export function AdminOverviewPage() {
           </div>
         </SectionCard>
 
-        <SectionCard title="Alertas por nivel de riesgo" description="Concentración de casos que requieren seguimiento">
+        <SectionCard title="Señales por nivel de riesgo" description="Distribución institucional agregada; la bandeja de Alertas muestra casos representativos.">
           <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">

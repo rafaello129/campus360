@@ -1,20 +1,41 @@
 import type { Metric } from "../types";
 
+export const enrollmentTrend = [
+  { period: "Jun", aspirantes: 860, inscritos: 359 },
+  { period: "Jul", aspirantes: 930, inscritos: 389 },
+  { period: "Ago", aspirantes: 1040, inscritos: 435 },
+  { period: "Sep", aspirantes: 1160, inscritos: 485 },
+  { period: "Oct", aspirantes: 1284, inscritos: 537 }
+];
+
+export const retentionTrend = [
+  { period: "2024-A", retencion: 82, egreso: 76 },
+  { period: "2024-B", retencion: 84, egreso: 77 },
+  { period: "2025-A", retencion: 86, egreso: 79 },
+  { period: "2025-B", retencion: 88, egreso: 81 },
+  { period: "2026-A", retencion: 89, egreso: 83 }
+];
+
+export const currentEnrollmentCut = enrollmentTrend[enrollmentTrend.length - 1];
+export const currentConversionRate = Number(
+  ((currentEnrollmentCut.inscritos / currentEnrollmentCut.aspirantes) * 100).toFixed(1)
+);
+
 export const adminOverviewMetrics: Metric[] = [
   {
     label: "Aspirantes activos",
-    value: "1,284",
+    value: currentEnrollmentCut.aspirantes.toLocaleString("es-MX"),
     trend: "+14% vs ciclo anterior",
     trendDirection: "up"
   },
   {
     label: "Tasa de conversión",
-    value: "41.8%",
+    value: `${currentConversionRate}%`,
     trend: "+2.4 puntos en 30 días",
     trendDirection: "up"
   },
   {
-    label: "Estudiantes con alerta",
+    label: "Señales de riesgo",
     value: "47",
     trend: "-8 respecto a la semana pasada",
     trendDirection: "down"
@@ -39,6 +60,17 @@ export const adminOverviewMetrics: Metric[] = [
   }
 ];
 
+export const analyticsSummaryMetrics: Metric[] = [
+  adminOverviewMetrics[0],
+  {
+    label: "Retención consolidada",
+    value: "89%",
+    trend: "+2.1 puntos",
+    trendDirection: "up"
+  },
+  adminOverviewMetrics[2]
+];
+
 export const conversionByStage = [
   { stage: "Nuevo registro", total: 320, converted: 68 },
   { stage: "Contacto inicial", total: 248, converted: 102 },
@@ -58,12 +90,11 @@ export const applicantsByCareer = [
 ];
 
 export const eventParticipationByMonth = [
-  { month: "Ene", value: 58 },
-  { month: "Feb", value: 64 },
-  { month: "Mar", value: 71 },
-  { month: "Abr", value: 77 },
-  { month: "May", value: 83 },
-  { month: "Jun", value: 79 }
+  { month: "Jun", value: 72 },
+  { month: "Jul", value: 75 },
+  { month: "Ago", value: 78 },
+  { month: "Sep", value: 81 },
+  { month: "Oct", value: 83 }
 ];
 
 export const alertRiskDistribution = [
@@ -71,3 +102,8 @@ export const alertRiskDistribution = [
   { name: "Media", value: 21, color: "#f59e0b" },
   { name: "Baja", value: 9, color: "#0f8b8d" }
 ];
+
+export const institutionalRiskTotal = alertRiskDistribution.reduce(
+  (total, item) => total + item.value,
+  0
+);

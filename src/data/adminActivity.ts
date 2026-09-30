@@ -50,7 +50,7 @@ export const priorityActions: PriorityAction[] = [
   {
     id: "action-4",
     title: "Atender alertas de estudiantes",
-    description: "47 alertas activas requieren priorización.",
+    description: "47 señales institucionales requieren seguimiento; la bandeja muestra casos representativos.",
     status: "pendiente",
     detail: "Revisar con coordinación académica"
   }
@@ -131,7 +131,7 @@ export const moduleSummaries: ModuleSummaryItem[] = [
     id: "alertas",
     title: "Alertas",
     description: "Casos de riesgo y prioridades operativas.",
-    metric: "17 críticas",
+    metric: "17 riesgo alto",
     status: "urgente",
     linkLabel: "Abrir módulo"
   },
