@@ -21,6 +21,7 @@ import { getPresentationReadiness } from "../data/presentationReadiness";
 import {
   enablePresentation,
   getPresentationSession,
+  setPresentationScene,
   subscribeToPresentationChanges
 } from "../data/presentationSession";
 import { subscribeToCampusStorageChange } from "../data/storageEvents";
@@ -412,6 +413,7 @@ export function RoleSelectorPage() {
                   <Link
                     key={scene.id}
                     to={scene.entryPath}
+                    onClick={() => setPresentationScene(scene.id)}
                     className={`rounded-xl border p-3 text-sm transition ${
                       scene.id === presentationSession.currentSceneId
                         ? "border-tech-primary bg-blue-50 text-tech-primary"
