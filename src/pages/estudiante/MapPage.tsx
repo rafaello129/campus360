@@ -1,5 +1,6 @@
 import { CalendarDays, Clock, Navigation, Search, UserRound } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { CampusMap2D } from "../../components/common/CampusMap2D";
 import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
@@ -8,9 +9,16 @@ import { studentMapLocations } from "../../data/estudiante.mock";
 const filters = ["Todos", "Academico", "Administrativo", "Servicios", "Recreativo", "Laboratorio", "Atencion estudiantil"];
 
 export function MapPage() {
+  const [searchParams] = useSearchParams();
+  const requestedLocation = searchParams.get("location");
+  const requestedLocationIsValid = studentMapLocations.some(
+    (location) => location.id === requestedLocation
+  );
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("Todos");
-  const [selectedId, setSelectedId] = useState(studentMapLocations[0]?.id ?? null);
+  const [selectedId, setSelectedId] = useState(
+    requestedLocationIsValid ? requestedLocation : studentMapLocations[0]?.id ?? null
+  );
 
   const filteredLocations = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -27,7 +35,10 @@ export function MapPage() {
     });
   }, [filter, query]);
 
-  const selectedLocation = studentMapLocations.find((location) => location.id === selectedId) ?? filteredLocations[0] ?? null;
+  const selectedLocation =
+    filteredLocations.find((location) => location.id === selectedId) ??
+    filteredLocations[0] ??
+    null;
 
   function handleSelect(id: string) {
     setSelectedId(id);

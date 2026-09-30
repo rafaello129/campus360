@@ -1,14 +1,17 @@
-import { Search, Calendar, MapPin, Users, Bookmark, Music } from "lucide-react";
+import { Bookmark, Calendar, ExternalLink, MapPin, Music, Search, Users } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { PageShell } from "../../components/common/PageShell";
 import { SectionCard } from "../../components/common/SectionCard";
 import { StatusBadge } from "../../components/common/StatusBadge";
 import { campusEvents } from "../../data/estudiante.mock";
+import { paths } from "../../router/paths";
 
 export function EventosPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState<string>("todos");
+  const [selectedType, setSelectedType] = useState("todos");
   const [registered, setRegistered] = useState<string[]>([]);
+  const [savedEventIds, setSavedEventIds] = useState<string[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
 
   const types = [
@@ -18,19 +21,35 @@ export function EventosPage() {
     { id: "club", label: "Clubs" }
   ];
 
+  const query = searchTerm.trim().toLowerCase();
   const filteredEvents = campusEvents.filter((event) => {
     const matchesSearch =
-      event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.summary.toLowerCase().includes(searchTerm.toLowerCase());
+      !query ||
+      [event.title, event.summary, event.category, event.location]
+        .some((value) => value.toLowerCase().includes(query));
     const matchesType = selectedType === "todos" || event.type === selectedType;
     return matchesSearch && matchesType;
   });
 
-  const selectedEventData = campusEvents.find((e) => e.id === selectedEvent);
+  const selectedEventData = campusEvents.find((event) => event.id === selectedEvent) ?? null;
 
   const toggleRegister = (eventId: string) => {
-    setRegistered((prev) =>
-      prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId]
+    const event = campusEvents.find((item) => item.id === eventId);
+    if (!event) return;
+
+    const isRegistered = registered.includes(eventId);
+    const capacity = event.capacity ?? Number.POSITIVE_INFINITY;
+    const isFull = (event.registered ?? 0) >= capacity;
+    if (!isRegistered && isFull) return;
+
+    setRegistered((current) =>
+      isRegistered ? current.filter((id) => id !== eventId) : [...current, eventId]
+    );
+  };
+
+  const toggleSaved = (eventId: string) => {
+    setSavedEventIds((current) =>
+      current.includes(eventId) ? current.filter((id) => id !== eventId) : [...current, eventId]
     );
   };
 
@@ -47,9 +66,9 @@ export function EventosPage() {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-tech-textSecond" />
               <input
                 type="text"
-                placeholder="Buscar evento..."
+                placeholder="Buscar por evento, categoría o ubicación..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(event) => setSearchTerm(event.target.value)}
                 className="w-full rounded-lg border border-tech-border bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition placeholder:text-tech-textSecond focus:border-tech-primary focus:ring-2 focus:ring-blue-100"
               />
             </div>
@@ -58,6 +77,7 @@ export function EventosPage() {
               {types.map((type) => (
                 <button
                   key={type.id}
+                  type="button"
                   onClick={() => setSelectedType(type.id)}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                     selectedType === type.id
@@ -81,7 +101,11 @@ export function EventosPage() {
             ) : (
               filteredEvents.map((event) => {
                 const isRegistered = registered.includes(event.id);
-                const spotsLeft = (event.capacity ?? 0) - (event.registered ?? 0);
+                const displayRegistered = (event.registered ?? 0) + (isRegistered ? 1 : 0);
+                const capacity = event.capacity ?? 0;
+                const spotsLeft = Math.max(capacity - displayRegistered, 0);
+                const isFull = capacity > 0 && displayRegistered >= capacity;
+
                 return (
                   <SectionCard
                     key={event.id}
@@ -99,39 +123,37 @@ export function EventosPage() {
                           <StatusBadge status={isRegistered ? "aprobado" : event.status} />
                         </div>
 
-                        <p className="text-sm leading-6 text-tech-textSecond">{event.summary}</p>
-
                         <div className="mt-4 grid gap-2 rounded-2xl bg-surface-card p-4 text-sm text-tech-textSecond sm:grid-cols-2">
-                          <p className="flex items-center gap-1.5">
-                            <Calendar className="inline h-4 w-4 mr-1" />
-                            {event.date} · {event.time}
-                          </p>
-                          <p className="flex items-center gap-1.5">
-                            <MapPin className="inline h-4 w-4 mr-1" />
-                            {event.location}
-                          </p>
-                          <p className="flex items-center gap-1.5">
-                            <Users className="inline h-4 w-4 mr-1" />
-                            {event.registered ?? 0}/{event.capacity ?? 0} inscritos
-                          </p>
-                          <p className="text-xs">
-                            {spotsLeft > 0 ? `${spotsLeft} lugares disponibles` : "Sin disponibilidad"}
-                          </p>
+                          <p><Calendar className="mr-1 inline h-4 w-4" />{event.date} · {event.time}</p>
+                          <p><MapPin className="mr-1 inline h-4 w-4" />{event.location}</p>
+                          <p><Users className="mr-1 inline h-4 w-4" />{displayRegistered}/{capacity} inscritos</p>
+                          <p className="text-xs">{spotsLeft > 0 ? `${spotsLeft} lugares disponibles` : "Sin disponibilidad"}</p>
                         </div>
+
+                        <Link
+                          to={paths.estudiante.eventoDetalle(event.id)}
+                          onClick={(clickEvent) => clickEvent.stopPropagation()}
+                          className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-tech-primary hover:text-tech-mid"
+                        >
+                          Ver convocatoria
+                          <ExternalLink className="h-4 w-4" />
+                        </Link>
                       </div>
 
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
+                        type="button"
+                        disabled={!isRegistered && isFull}
+                        onClick={(clickEvent) => {
+                          clickEvent.stopPropagation();
                           toggleRegister(event.id);
                         }}
-                        className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                        className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${
                           isRegistered
                             ? "border border-tech-border bg-blue-50 text-tech-primary hover:bg-blue-100"
                             : "bg-tech-primary text-white hover:bg-tech-mid"
                         }`}
                       >
-                        {isRegistered ? "Inscrito" : "Inscribirse"}
+                        {isRegistered ? "Inscrito" : isFull ? "Sin cupo" : "Inscribirse"}
                       </button>
                     </div>
                   </SectionCard>
@@ -149,48 +171,35 @@ export function EventosPage() {
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Evento</p>
                   <p className="mt-1 font-semibold text-tech-textMain">{selectedEventData.title}</p>
                 </div>
-
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-tech-textSecond">Categoría</p>
                   <p className="mt-1 text-sm text-tech-textMain">{selectedEventData.category}</p>
                 </div>
-
                 <div>
                   <p className="text-xs font-semibold text-tech-textSecond">FECHA Y HORA</p>
                   <p className="mt-1 text-sm text-tech-textMain">{selectedEventData.date}</p>
                   <p className="text-sm text-tech-textMain">{selectedEventData.time}</p>
                 </div>
-
                 <div>
                   <p className="text-xs font-semibold text-tech-textSecond">UBICACIÓN</p>
                   <p className="mt-1 text-sm text-tech-textMain">{selectedEventData.location}</p>
                 </div>
 
-                <div>
-                  <p className="text-xs font-semibold text-tech-textSecond">DISPONIBILIDAD</p>
-                  <p className="mt-1 text-sm text-tech-textMain">
-                    {selectedEventData.registered ?? 0}/{selectedEventData.capacity ?? 0}
-                  </p>
-                </div>
+                <Link
+                  to={paths.estudiante.eventoDetalle(selectedEventData.id)}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-tech-primary px-4 py-3 text-sm font-semibold text-white hover:bg-tech-mid"
+                >
+                  Ver convocatoria completa
+                  <ExternalLink className="h-4 w-4" />
+                </Link>
 
-                <div className="border-t border-tech-border pt-4">
-                  <button
-                    onClick={() => toggleRegister(selectedEventData.id)}
-                    className={`w-full rounded-full px-4 py-3 text-sm font-semibold transition ${
-                      registered.includes(selectedEventData.id)
-                        ? "border border-tech-border bg-blue-50 text-tech-primary hover:bg-blue-100"
-                        : "bg-tech-primary text-white hover:bg-tech-mid"
-                    }`}
-                  >
-                    {registered.includes(selectedEventData.id)
-                      ? "Ya estás inscrito"
-                      : "Inscribirse en este evento"}
-                  </button>
-                </div>
-
-                <button className="w-full rounded-full border border-tech-border px-4 py-2 text-sm font-semibold text-tech-textSecond hover:bg-blue-50 transition">
-                  <Bookmark className="inline h-4 w-4 mr-2" />
-                  Guardar
+                <button
+                  type="button"
+                  onClick={() => toggleSaved(selectedEventData.id)}
+                  className="w-full rounded-full border border-tech-border px-4 py-2 text-sm font-semibold text-tech-textSecond transition hover:bg-blue-50"
+                >
+                  <Bookmark className="mr-2 inline h-4 w-4" />
+                  {savedEventIds.includes(selectedEventData.id) ? "Guardado" : "Guardar"}
                 </button>
               </div>
             </SectionCard>

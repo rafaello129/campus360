@@ -24,6 +24,7 @@ import {
   currentStudent,
   studentDocuments
 } from "../../data/estudiante.mock";
+import { STUDENT_DEMO } from "../../config/studentDemo";
 import { paths } from "../../router/paths";
 
 const quickAccessItems = [
@@ -37,6 +38,10 @@ const quickAccessItems = [
 
 export function EstudianteOverviewPage() {
   const pendingDocuments = studentDocuments.filter((document) => document.status === "pendiente").length;
+  const featuredEvent = campusEvents.find((event) => event.id === STUDENT_DEMO.eventId) ?? campusEvents[0];
+  const upcomingAgendaItems = agendaItems
+    .slice()
+    .sort((a, b) => (a.dateISO ?? "").localeCompare(b.dateISO ?? "") || a.time.localeCompare(b.time));
 
   return (
     <div className="space-y-6">
@@ -133,16 +138,19 @@ export function EstudianteOverviewPage() {
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-tech-primary">Convocatoria destacada</p>
-                <h2 className="mt-1 text-xl font-bold text-tech-textMain">Becas 2026-B</h2>
+                <h2 className="mt-1 text-xl font-bold text-tech-textMain">{featuredEvent?.title}</h2>
                 <p className="mt-2 text-sm leading-6 text-tech-textSecond">
-                  Inscripciones abiertas para becas académicas y deportivas. Cierre: 31 de mayo.
+                  {featuredEvent?.summary}
                 </p>
               </div>
             </div>
           </div>
           <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-medium text-tech-textMain">Revisa requisitos y fechas desde eventos institucionales.</p>
-            <Link to={paths.estudiante.eventos} className="inline-flex items-center gap-2 text-sm font-semibold text-tech-primary transition hover:text-tech-mid">
+            <Link
+              to={featuredEvent ? paths.estudiante.eventoDetalle(featuredEvent.id) : paths.estudiante.eventos}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-tech-primary transition hover:text-tech-mid"
+            >
               Ver convocatoria
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -185,7 +193,7 @@ export function EstudianteOverviewPage() {
           }
         >
           <div className="space-y-3">
-            {agendaItems.slice(0, 4).map((item) => (
+            {upcomingAgendaItems.slice(0, 4).map((item) => (
               <div key={item.id} className="grid gap-3 border-t border-tech-divider pt-3 first:border-t-0 first:pt-0 sm:grid-cols-[auto_1fr_auto] sm:items-start">
                 <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50 text-tech-primary">
                   <Calendar className="h-5 w-5" />
@@ -274,9 +282,12 @@ export function EstudianteOverviewPage() {
                     {event.registered}/{event.capacity} inscritos
                   </p>
                 </div>
-                <button className="mt-4 w-full rounded-lg border border-tech-border bg-blue-50 px-3 py-2 text-sm font-semibold text-tech-primary transition hover:bg-blue-100">
-                  Inscribirse
-                </button>
+                <Link
+                  to={paths.estudiante.eventoDetalle(event.id)}
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-lg border border-tech-border bg-blue-50 px-3 py-2 text-sm font-semibold text-tech-primary transition hover:bg-blue-100"
+                >
+                  Ver evento
+                </Link>
               </div>
             </article>
           ))}
