@@ -20,7 +20,7 @@ export function TrayectoriaPage() {
     },
     {
       title: "Revisar convocatoria de becas",
-      description: "Cierra el 31 de mayo. Podrías ser beneficiario",
+      description: "Visita la Feria de becas y financiamiento del 12 de octubre para revisar opciones y requisitos.",
       priority: "alta"
     },
     {
@@ -36,11 +36,11 @@ export function TrayectoriaPage() {
   ];
 
   const monthlyParticipation = [
-    { month: "Ene", value: 60 },
-    { month: "Feb", value: 68 },
-    { month: "Mar", value: 72 },
-    { month: "Abr", value: 75 },
-    { month: "May", value: 78 }
+    { month: "Jun", value: 66 },
+    { month: "Jul", value: 69 },
+    { month: "Ago", value: 72 },
+    { month: "Sep", value: 75 },
+    { month: "Oct", value: 78 }
   ];
 
   return (
