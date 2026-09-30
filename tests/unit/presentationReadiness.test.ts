@@ -104,5 +104,3 @@ describe("presentationReadiness", () => {
     expect(getPresentationReadinessMessage(5)).toContain("ya está completada");
   });
 });
-
-[executed on device: localhost.localdomain (9efb35a7-f471-4803-9cf5-53e66e022ee9)]
