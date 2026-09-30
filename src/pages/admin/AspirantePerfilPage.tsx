@@ -146,6 +146,8 @@ export function AspirantePerfilPage() {
   const [documentReviewStatus, setDocumentReviewStatus] = useState<"aprobado" | "rechazado" | "correccion" | "en_revision">("aprobado");
   const [documentReviewNote, setDocumentReviewNote] = useState("");
   const [documentReviewError, setDocumentReviewError] = useState<string | null>(null);
+  const [isDocumentReviewSubmitting, setIsDocumentReviewSubmitting] = useState(false);
+  const documentReviewSubmittingRef = useRef(false);
 
   useEffect(() => {
     const syncApplicant = () => setApplicant(getApplicantById(id));
@@ -299,31 +301,53 @@ export function AspirantePerfilPage() {
   };
 
   const handleDocumentReview = () => {
-    if (!applicant || !documentReview) return;
-    if ((documentReviewStatus === "rechazado" || documentReviewStatus === "correccion") && !documentReviewNote.trim()) {
-      setDocumentReviewError("Agrega una observación para explicar el rechazo o la corrección solicitada.");
+    if (!applicant || !documentReview || documentReviewSubmittingRef.current) return;
+
+    const trimmedNote = documentReviewNote.trim();
+    const persistedStatus: Status =
+      documentReviewStatus === "correccion" ? "rechazado" : documentReviewStatus;
+    const currentNote = documentReview.reviewNote?.trim() ?? "";
+    const hasChanges =
+      persistedStatus !== documentReview.status || trimmedNote !== currentNote;
+
+    if (!hasChanges) {
+      setDocumentReviewError("No hay cambios para guardar.");
+      return;
+    }
+    if (
+      (documentReviewStatus === "rechazado" || documentReviewStatus === "correccion") &&
+      !trimmedNote
+    ) {
+      setDocumentReviewError(
+        "Agrega una observación para explicar el rechazo o la corrección solicitada."
+      );
       return;
     }
 
+    documentReviewSubmittingRef.current = true;
+    setIsDocumentReviewSubmitting(true);
+
     try {
-      const persistedStatus: Status = documentReviewStatus === "correccion" ? "rechazado" : documentReviewStatus;
-      const actionTitle = documentReviewStatus === "aprobado"
-        ? "Documento aprobado"
-        : documentReviewStatus === "correccion"
-          ? "Corrección solicitada"
-          : documentReviewStatus === "rechazado" ? "Documento rechazado" : "Documento en revisión";
+      const actionTitle =
+        documentReviewStatus === "aprobado"
+          ? "Documento aprobado"
+          : documentReviewStatus === "correccion"
+            ? "Corrección solicitada"
+            : documentReviewStatus === "rechazado"
+              ? "Documento rechazado"
+              : "Documento en revisión";
       const updatedApplicant = updateApplicantDocument(
         applicant.id,
         documentReview.id,
         {
           status: persistedStatus,
           updatedAt: getDocumentUpdatedLabel(),
-          reviewNote: documentReviewNote.trim() || undefined
+          reviewNote: trimmedNote || undefined
         },
         {
           timelineEvent: {
             title: actionTitle,
-            detail: `${documentReview.name}${documentReviewNote.trim() ? `: ${documentReviewNote.trim()}` : ""}`,
+            detail: `${documentReview.name}${trimmedNote ? `: ${trimmedNote}` : ""}`,
             status: persistedStatus
           }
         }
@@ -333,7 +357,12 @@ export function AspirantePerfilPage() {
       setDocumentReview(null);
       setDocumentReviewError(null);
     } catch (error) {
-      setDocumentReviewError(error instanceof Error ? error.message : "No fue posible actualizar el documento.");
+      setDocumentReviewError(
+        error instanceof Error ? error.message : "No fue posible actualizar el documento."
+      );
+    } finally {
+      documentReviewSubmittingRef.current = false;
+      setIsDocumentReviewSubmitting(false);
     }
   };
 
@@ -355,6 +384,15 @@ export function AspirantePerfilPage() {
       : activeAction?.key === "responsable"
         ? selectedOwner === applicant.owner
         : false;
+  const reviewPersistedStatus: Status | null = documentReview
+    ? documentReviewStatus === "correccion"
+      ? "rechazado"
+      : documentReviewStatus
+    : null;
+  const documentReviewHasNoChanges = documentReview
+    ? reviewPersistedStatus === documentReview.status &&
+      documentReviewNote.trim() === (documentReview.reviewNote?.trim() ?? "")
+    : true;
 
   return (
     <PageShell title="Perfil del aspirante" description="Vista detallada para el seguimiento de captación y admisión." eyebrow="Perfil individual">
@@ -463,7 +501,7 @@ export function AspirantePerfilPage() {
                 {
                   id: "action",
                   header: "Acción",
-                  render: (row) => row.fileName || row.status !== "pendiente" ? (
+                  render: (row) => (isDemoProfile ? Boolean(row.fileName) : row.fileName || row.status !== "pendiente") ? (
                     <button
                       type="button"
                       onClick={() => openDocumentReview(row)}
@@ -650,11 +688,16 @@ export function AspirantePerfilPage() {
 
       {documentReview ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="document-review-title"
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+          >
             <div className="mb-4">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-tech-primary">Revisión documental</p>
-              <h3 className="mt-1 text-xl font-bold text-slate-900">{documentReview.name}</h3>
-              <p className="mt-1 text-sm text-slate-600">{documentReview.fileName ?? "Documento demo"}</p>
+              <h3 id="document-review-title" className="mt-1 text-xl font-bold text-slate-900">{documentReview.name}</h3>
+              <p className="mt-1 text-sm text-slate-600">{documentReview.fileName ?? "Sin archivo cargado"}</p>
             </div>
 
             <label className="block space-y-1 text-sm">
@@ -662,7 +705,8 @@ export function AspirantePerfilPage() {
               <select
                 value={documentReviewStatus}
                 onChange={(event) => setDocumentReviewStatus(event.target.value as typeof documentReviewStatus)}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary"
+                disabled={isDocumentReviewSubmitting}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <option value="en_revision">En revisión</option>
                 <option value="aprobado">Aprobado</option>
@@ -673,14 +717,34 @@ export function AspirantePerfilPage() {
 
             <label className="mt-4 block space-y-1 text-sm">
               <span className="font-medium text-slate-700">Observación {documentReviewStatus === "rechazado" || documentReviewStatus === "correccion" ? "(obligatoria)" : "(opcional)"}</span>
-              <textarea value={documentReviewNote} onChange={(event) => setDocumentReviewNote(event.target.value)} rows={4} className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary" />
+              <textarea
+                value={documentReviewNote}
+                onChange={(event) => setDocumentReviewNote(event.target.value)}
+                rows={4}
+                disabled={isDocumentReviewSubmitting}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-tech-primary disabled:cursor-not-allowed disabled:opacity-60"
+              />
             </label>
 
             {documentReviewError ? <div role="alert" className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-800">{documentReviewError}</div> : null}
 
             <div className="mt-5 flex justify-end gap-2">
-              <button type="button" onClick={() => setDocumentReview(null)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
-              <button type="button" onClick={handleDocumentReview} className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white">Guardar revisión</button>
+              <button
+                type="button"
+                onClick={() => setDocumentReview(null)}
+                disabled={isDocumentReviewSubmitting}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDocumentReview}
+                disabled={isDocumentReviewSubmitting || documentReviewHasNoChanges}
+                className="rounded-lg bg-tech-primary px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isDocumentReviewSubmitting ? "Guardando..." : "Guardar revisión"}
+              </button>
             </div>
           </div>
         </div>
