@@ -3,7 +3,6 @@ import {
   Bell,
   Bot,
   CalendarDays,
-  ClipboardList,
   Compass,
   FileText,
   GraduationCap,
@@ -50,7 +49,6 @@ export const estudianteNavItems: NavItem[] = [
 export const adminNavItems: NavItem[] = [
   { label: "Dashboard", path: paths.admin.root, icon: LayoutDashboard },
   { label: "Captación", path: paths.admin.captacion, icon: UserSearch },
-  { label: "Aspirantes", path: paths.admin.aspirantesDemo, icon: ClipboardList },
   { label: "Estudiantes", path: paths.admin.estudiantes, icon: GraduationCap },
   { label: "Seguimiento", path: paths.admin.seguimiento, icon: LineChart },
   { label: "Alertas", path: paths.admin.alertas, icon: ShieldAlert },
@@ -63,4 +61,3 @@ export const adminNavItems: NavItem[] = [
   { label: "Analítica", path: paths.admin.analitica, icon: BarChart3 },
   { label: "Roles", path: paths.admin.roles, icon: UserCog }
 ];
-

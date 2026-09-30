@@ -1,7 +1,9 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
+import { PresentationDock } from "../components/demo/PresentationDock";
+import { RouteScrollReset } from "../components/navigation/RouteScrollReset";
 import { UserAvatar } from "../components/common/UserAvatar";
 import { estudianteNavItems } from "../data/navigation";
-import { students } from "../data/students";
+import { currentStudent } from "../data/estudiante.mock";
 import { paths } from "../router/paths";
 
 const activeDesktopClass =
@@ -10,10 +12,10 @@ const inactiveDesktopClass =
   "flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-tech-textSecond transition hover:bg-tech-bg hover:text-tech-textMain";
 
 export function EstudianteLayout() {
-  const currentStudent = students[0];
-
   return (
     <div className="min-h-screen bg-tech-bg pb-20 md:h-screen md:overflow-hidden md:pb-0">
+      <RouteScrollReset />
+
       <div className="md:grid md:h-screen md:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="hidden border-r border-tech-border bg-white md:sticky md:top-0 md:flex md:h-screen md:flex-col">
           <div className="border-b border-tech-border px-5 py-4">
@@ -41,7 +43,7 @@ export function EstudianteLayout() {
           <div className="border-t border-tech-border p-3">
             <Link
               to={paths.roleSelector}
-              className="block rounded-lg border border-tech-border px-3 py-2 text-center text-sm font-medium text-tech-textSecond hover:bg-tech-bg transition"
+              className="block rounded-lg border border-tech-border px-3 py-2 text-center text-sm font-medium text-tech-textSecond transition hover:bg-tech-bg"
             >
               Volver al selector
             </Link>
@@ -51,18 +53,32 @@ export function EstudianteLayout() {
         <div className="min-w-0 md:flex md:h-screen md:flex-col md:overflow-hidden">
           <header className="sticky top-0 z-20 border-b border-tech-border bg-white/95 px-4 py-3 backdrop-blur sm:px-5 lg:px-6 2xl:px-8">
             <div className="flex items-center justify-between gap-3">
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-wider text-tech-textSecond">
                   Campus360 Estudiante
                 </p>
-                <p className="text-base font-semibold text-tech-textMain">{currentStudent.name}</p>
-                <p className="text-xs text-tech-textSecond">{currentStudent.career}</p>
+                <p className="truncate text-base font-semibold text-tech-textMain">{currentStudent.name}</p>
+                <p className="truncate text-xs text-tech-textSecond">{currentStudent.career}</p>
               </div>
-              <UserAvatar name={currentStudent.name} subtitle={currentStudent.semester} />
+
+              <div className="flex shrink-0 items-center gap-2">
+                <Link
+                  to={paths.roleSelector}
+                  className="rounded-lg border border-tech-border px-3 py-2 text-xs font-semibold text-tech-textSecond transition hover:bg-tech-bg md:hidden"
+                >
+                  Cambiar rol
+                </Link>
+                <div className="hidden sm:block">
+                  <UserAvatar name={currentStudent.name} subtitle={currentStudent.semester} />
+                </div>
+              </div>
             </div>
           </header>
 
-          <main className="p-4 sm:p-5 md:flex-1 md:overflow-y-auto lg:p-6 2xl:p-8">
+          <main
+            data-route-scroll
+            className="p-4 sm:p-5 md:flex-1 md:overflow-y-auto lg:p-6 2xl:p-8"
+          >
             <Outlet />
           </main>
         </div>
@@ -91,7 +107,8 @@ export function EstudianteLayout() {
           })}
         </div>
       </nav>
+
+      <PresentationDock />
     </div>
   );
 }
-

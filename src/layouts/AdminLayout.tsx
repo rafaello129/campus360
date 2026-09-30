@@ -1,8 +1,10 @@
 import { Bell, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { SearchInput } from "../components/common/SearchInput";
+import { PresentationDock } from "../components/demo/PresentationDock";
+import { RouteScrollReset } from "../components/navigation/RouteScrollReset";
 import { UserAvatar } from "../components/common/UserAvatar";
+import { ADMIN_DEMO } from "../config/adminDemo";
 import { adminNavItems } from "../data/navigation";
 import { paths } from "../router/paths";
 
@@ -16,6 +18,8 @@ export function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-tech-bg md:h-screen md:overflow-hidden">
+      <RouteScrollReset />
+
       <div className="md:grid md:h-screen md:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="hidden border-r border-tech-border bg-white md:sticky md:top-0 md:flex md:h-screen md:flex-col">
           <div className="border-b border-tech-border px-5 py-4">
@@ -51,7 +55,7 @@ export function AdminLayout() {
           <div className="border-t border-tech-border p-3">
             <Link
               to={paths.roleSelector}
-              className="block rounded-lg border border-tech-border px-3 py-2 text-center text-sm font-medium text-tech-textSecond hover:bg-tech-bg transition"
+              className="block rounded-lg border border-tech-border px-3 py-2 text-center text-sm font-medium text-tech-textSecond transition hover:bg-tech-bg"
             >
               Volver al selector
             </Link>
@@ -63,28 +67,29 @@ export function AdminLayout() {
             <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
-                onClick={() => setMobileOpen((prev) => !prev)}
+                onClick={() => setMobileOpen((previous) => !previous)}
                 className="rounded-lg border border-tech-border p-2 text-tech-textSecond md:hidden"
                 aria-label="Alternar navegación administrativa"
               >
                 {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
 
-              <SearchInput
-                placeholder="Buscar aspirantes, estudiantes o documentos..."
-                className="hidden min-w-0 flex-1 sm:flex sm:max-w-xl"
-              />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-tech-primary">
+                  Panel administrativo
+                </p>
+                <p className="truncate text-sm text-tech-textSecond">
+                  {ADMIN_DEMO.cycle} · {ADMIN_DEMO.snapshotLabel}
+                </p>
+              </div>
 
-              <button
-                type="button"
-                className="relative ml-auto inline-flex h-10 w-10 items-center justify-center rounded-lg border border-tech-border text-tech-textSecond transition hover:bg-tech-bg sm:ml-0"
-                aria-label="Ver notificaciones"
+              <Link
+                to={paths.admin.alertas}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-tech-border text-tech-textSecond transition hover:bg-tech-bg"
+                aria-label="Ir a alertas"
               >
                 <Bell className="h-5 w-5" />
-                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white">
-                  4
-                </span>
-              </button>
+              </Link>
 
               <div className="hidden sm:block">
                 <UserAvatar name="Laura Mendoza" subtitle="Administración" />
@@ -114,16 +119,27 @@ export function AdminLayout() {
                     </NavLink>
                   );
                 })}
+                <Link
+                  to={paths.roleSelector}
+                  onClick={() => setMobileOpen(false)}
+                  className="mt-2 block rounded-lg border border-tech-border px-3 py-2 text-sm font-semibold text-tech-textSecond transition hover:bg-tech-bg"
+                >
+                  Cambiar rol
+                </Link>
               </nav>
             ) : null}
           </header>
 
-          <main className="p-4 sm:p-5 md:flex-1 md:overflow-y-auto lg:p-6 2xl:p-8">
+          <main
+            data-route-scroll
+            className="p-4 sm:p-5 md:flex-1 md:overflow-y-auto lg:p-6 2xl:p-8"
+          >
             <Outlet />
           </main>
         </div>
       </div>
+
+      <PresentationDock />
     </div>
   );
 }
-
