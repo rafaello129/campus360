@@ -357,6 +357,7 @@ export function DocumentsPage() {
                               type="button"
                               onClick={() => requestUpload(doc)}
                               disabled={isUploading}
+                              aria-label={`${doc.fileName ? "Reemplazar" : "Subir"} ${doc.name}`}
                               className="rounded-full bg-tech-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-tech-mid disabled:cursor-not-allowed disabled:opacity-60"
                             >
                               <Upload className="mr-1 inline h-4 w-4" />
@@ -399,6 +400,7 @@ export function DocumentsPage() {
                         type="button"
                         onClick={() => requestUpload(doc)}
                         disabled={isUploading}
+                        aria-label={`${doc.fileName ? "Reemplazar" : "Subir"} ${doc.name}`}
                         className="rounded-full bg-blue-50 px-3 py-2 text-sm font-semibold text-tech-primary transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         <Upload className="mr-1 inline h-4 w-4" />
@@ -510,3 +512,5 @@ export function DocumentsPage() {
     </PageShell>
   );
 }
+
+[executed on device: localhost.localdomain (9efb35a7-f471-4803-9cf5-53e66e022ee9)]

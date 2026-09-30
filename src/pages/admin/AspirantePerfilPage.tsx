@@ -505,6 +505,7 @@ export function AspirantePerfilPage() {
                     <button
                       type="button"
                       onClick={() => openDocumentReview(row)}
+                      aria-label={`Revisar ${row.name}`}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-tech-border px-3 py-1.5 text-xs font-semibold text-tech-primary transition hover:bg-blue-50"
                     >
                       <FileCheck2 className="h-3.5 w-3.5" />
@@ -753,3 +754,5 @@ export function AspirantePerfilPage() {
   );
 }
 
+
+[executed on device: localhost.localdomain (9efb35a7-f471-4803-9cf5-53e66e022ee9)]

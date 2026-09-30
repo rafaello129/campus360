@@ -122,8 +122,9 @@ export function RegistrationPage() {
           >
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-tech-textMain">Nombre completo</label>
+                <label htmlFor="registration-fullName" className="block text-sm font-medium text-tech-textMain">Nombre completo</label>
                 <input
+                  id="registration-fullName"
                   type="text"
                   name="fullName"
                   value={formData.fullName}
@@ -135,8 +136,9 @@ export function RegistrationPage() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-tech-textMain">Correo electrónico</label>
+                  <label htmlFor="registration-email" className="block text-sm font-medium text-tech-textMain">Correo electrónico</label>
                   <input
+                    id="registration-email"
                     type="email"
                     name="email"
                     value={formData.email}
@@ -147,8 +149,9 @@ export function RegistrationPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-tech-textMain">Teléfono</label>
+                  <label htmlFor="registration-phone" className="block text-sm font-medium text-tech-textMain">Teléfono</label>
                   <input
+                    id="registration-phone"
                     type="tel"
                     name="phone"
                     value={formData.phone}
@@ -167,8 +170,9 @@ export function RegistrationPage() {
           >
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-tech-textMain">Carrera de interés</label>
+                <label htmlFor="registration-career" className="block text-sm font-medium text-tech-textMain">Carrera de interés</label>
                 <select
+                  id="registration-career"
                   name="career"
                   value={formData.career}
                   onChange={handleChange}
@@ -185,8 +189,9 @@ export function RegistrationPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-tech-textMain">Modalidad preferida</label>
+                <label htmlFor="registration-modality" className="block text-sm font-medium text-tech-textMain">Modalidad preferida</label>
                 <select
+                  id="registration-modality"
                   name="modality"
                   value={formData.modality}
                   onChange={handleChange}
@@ -200,8 +205,9 @@ export function RegistrationPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-tech-textMain">Último nivel de estudios</label>
+                <label htmlFor="registration-education" className="block text-sm font-medium text-tech-textMain">Último nivel de estudios</label>
                 <select
+                  id="registration-education"
                   name="education"
                   value={formData.education}
                   onChange={handleChange}
@@ -223,8 +229,9 @@ export function RegistrationPage() {
           >
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-tech-textMain">¿Cómo te enteraste de nosotros?</label>
+                <label htmlFor="registration-source" className="block text-sm font-medium text-tech-textMain">¿Cómo te enteraste de nosotros?</label>
                 <select
+                  id="registration-source"
                   name="source"
                   value={formData.source}
                   onChange={handleChange}
@@ -240,8 +247,9 @@ export function RegistrationPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-tech-textMain">Comentarios o dudas</label>
+                <label htmlFor="registration-comments" className="block text-sm font-medium text-tech-textMain">Comentarios o dudas</label>
                 <textarea
+                  id="registration-comments"
                   name="comments"
                   value={formData.comments}
                   onChange={handleChange}
@@ -419,3 +427,5 @@ export function RegistrationPage() {
     </PageShell>
   );
 }
+
+[executed on device: localhost.localdomain (9efb35a7-f471-4803-9cf5-53e66e022ee9)]
